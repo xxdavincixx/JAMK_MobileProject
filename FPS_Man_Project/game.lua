@@ -1,5 +1,3 @@
-
-
 local composer = require( "composer" )
 local scene = composer.newScene()
 
@@ -9,25 +7,29 @@ local utility = require( "utility" )
 local physics = require( "physics" )
 local myData = require( "mydata" )
 local perspective = require("perspective")
--- 
--- define local variables here
---
+
 
 local currentScore          -- used to hold the numeric value of the current score
 local currentScoreDisplay   -- will be a display.newText() that draws the score on the screen
 local levelText             -- will be a display.newText() to let you know what level you're on
 local spawnTimer            -- will be used to hold the timer for the spawning engine
-local timerRefresh = 1000
-local fps_multiplicator = 1
-local timerDelay = 0
-local dt=1000/30
-local player_ghost
-local jumpDecrease = 0
+local timerRefresh = 1000   -- will be used to calculate fps-update
+local fps_multiplicator = 1 -- will be used to calculate fps-update
+local timerDelay = 0        -- will be used to calculate fps-update
+local dt=1000/30            -- will be used to calculate fps-update
+local jumpDecrease = 0      -- will be used to limitate the number of jumps a payer can do
 
-camera = perspective.createView()
---
--- define local functions here
---
+camera = perspective.createView() -- camera is created
+
+local function decrease_fps()       -- function to decrease fps
+    if(fps_multiplicator>=1)then                    -- if fps_multiplicator is higher or exact 1 
+        fps_multiplicator = fps_multiplicator /2    -- fps_muliplicator is divided by 2
+    end
+    if(fps_multiplicator<1)then                     -- if fps multiplicator is smaller than 1
+        print("Player is dead!")
+        player.isDead=true                          -- player is dead
+    end
+end
 
 local function handleLoss( event )
     --
@@ -45,41 +47,27 @@ end
 
 
 local function spawnPlayer( )
-    -- make a local copy of the scene's display group.
-    -- since this function isn't a member of the scene object,
-    -- there is no "self" to use, so access it directly.
-    player = display.newRect(27.5,274.5,30,60)
-    local playerCollisionFilter = {categoryBits = 2, maskBits=5}
-    player.alpha = 1
-    player.isJumping =false
-    player.prevX = 27.5
-    player.prevY = 274.5
-    --rect.isFixedRotation = true
-    player.isDead = false;
+    player = display.newRect(27.5,274.5,30,60)                      -- starting point and seize of the object
+    local playerCollisionFilter = {categoryBits = 2, maskBits=5}    -- create collision filter for object, its own number is 2 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
+    player.alpha = 1                                                -- is visible
+    player.isJumping =false                                         -- at the start the object is not jumping
+    player.prevX = player.x                                         -- gets the start value as previous x value
+    player.prevY = player.y                                         -- gets the start value as previous y value
+    player.isDead = false;                                          -- value to check if player died
 
     return player
 end
 
-local function doCam()
-    player = display.newRect(27.5,274.5,30,60)
-    local playerCollisionFilter = {categoryBits = 2, maskBits=5}
-    player.isJumping =false
-    player.prevX = 27.5
-    player.prevY = 274.5
+local function spawnPlayerGhost()           -- create a ghost of player object
 
-    return player
-end
-
-local function spawnPlayerGhost()
-
-    local player_ghost = display.newRect(27.5,274.5,30,60)
-    local playerGhostCollisionFilter = {categoryBits = 8, maskBits = 5}
-    player_ghost.alpha = 0
-    player_ghost.isJumping =false
-    player_ghost.prevX = 27.5
-    player_ghost.prevY = 274.5
-    player_ghost.direction = nil
-    physics.addBody(player_ghost,"dynamic",{bounce = 0.1, filter=playerGhostCollisionFilter})
+    local player_ghost = display.newRect(27.5,274.5,30,60)                  -- starting point and seize of the object
+    local playerGhostCollisionFilter = {categoryBits = 8, maskBits = 5}     -- create collision filter for ghost object, its own number is 8 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
+    player_ghost.alpha = 0                                                  -- player_ghost is not visible
+    player_ghost.isJumping =false                                           -- at the start the object is not jumping
+    player_ghost.prevX = player_ghost.x                                     -- gets the start value as previous x value
+    player_ghost.prevY = player_ghost.y                                     -- gets the start value as previous y value
+    player_ghost.direction = nil                                            -- character is not heading in a direction
+    physics.addBody(player_ghost,"dynamic",{bounce = 0.1, filter=playerGhostCollisionFilter})   -- adding physic to object, "dynamic" = affected by gravity, hardly bouncy and gets a collision filter
     
     return player_ghost
 end
@@ -92,30 +80,27 @@ local function setJumpDecrease(jd)
     jumpDecrease = jd
 end
 
-local function spawnWall(x,y,w,h)
+local function spawnWall(x,y,w,h)                   -- create a wall 
     
     local wall = display.newRect(x,y,w,h)
-    local wallCollisionFilter = {categoryBits=1, maskBits=15}
-    wall.typ = "ground"
-    physics.addBody(wall, "static", {bounce=0.1, filter=wallCollisionFilter})
-    local wallG = wall
+    local wallCollisionFilter = {categoryBits=1, maskBits=15}                               -- collision filter categoryBits means which number the object ist, maskBits is with which object this object will collide
+    physics.addBody(wall, "static", {bounce=0.1, friction = 1, filter=wallCollisionFilter}) -- adding physic to object: static objects are not affected by gravity, walls are not bouncy and friction is as high as possible. adding collision filter to this object
 
-    return wall, wallG
+    return wall
 end
 
-local function spawnPlatform(x,y,w,h)
+local function spawnPlatform(x,y,w,h)               -- create a platform a player can get through by jumping at x-position (x) and y-position (y) with width (w) and height (h)
 
     local platform = display.newRect(x,y,w,h)
-    platform.typ = "ground"
-    physics.addBody(platform, "static", {bounce = 0.1})
-    platform.collType = "passthru"
-    physics.addBody( platform, "static", { bounce=0.0, friction=0.3 } )
-    local platformG = platform
+    local platformCollisionFilter = {categoryBits = 4, maskBits = 8}        -- create collision filter, own value = 4 and collides with the sum of values equal to 8 (player_ghost)
+    platform.typ = "ground"                                                 -- will set jump-counter to 0 if player is landing on platform
+    platform.collType = "passthru"                                          -- a player is able to get through this platform
+    physics.addBody( platform, "static", { bounce=0.0, friction=1, filter = platformCollisionFilter } )       -- adding physic to object: static objects are not affected by gravity, platform is not bouncy and friction is as high as possible
 
-    return platform, platformG
+    return platform
 end
 
-local function getButton(x,y,w,h)
+local function getButton(x,y,w,h)           -- create a button at x-position (x) and y-position (y) with width (w) and height (h)
 
     local button = display.newRect(x,y,w,h)
     rect:setFillColor(255,0,0)
@@ -123,47 +108,37 @@ local function getButton(x,y,w,h)
     return button
 end
 
---
--- This function gets called when composer.gotoScene() gets called an either:
---    a) the scene has never been visited before or
---    b) you called composer.removeScene() or composer.removeHidden() from some other
---       scene.  It's possible (and desirable in many cases) to call this once, but 
---       show it multiple times.
 local function increase_fps()
-    if(fps_multiplicator < 10)then
-        fps_multiplicator = fps_multiplicator*2
+    if(fps_multiplicator < 10)then                  -- fps can't increase in unlimited numbers, highest value = 16
+        fps_multiplicator = fps_multiplicator*2     -- fps_multiplicator starts at 1 and each time increase_fps is called it gets doubled
     end
 end
 
 
-local function moveLeftButton(event)
+local function moveLeftButton(event)                -- change player_ghost direction value to "left"
     if (event.phase == "ended") then
         getPlayerGhost().direction = "left"
     end
     return true
 end
-local function moveRightButton(event)
+local function moveRightButton(event)               -- change player_ghost direction value to "right"
     if event.phase == "ended" then
         getPlayerGhost().direction = "right"
     end
     return true
 end
 
-local function moveUpButton(event)
+local function moveUpButton(event)                  -- call function to let player jump
     if event.phase == "ended" then
         jump()
     end
     return true
 end
 
-local function moveRight()
-    player_ghost.direction = "right"
-end
-
 function jump()
-    if(jumpDecrease<2)then
-        getPlayerGhost():applyLinearImpulse(0,-0.1,getPlayerGhost().x, getPlayerGhost().y)
-        jumpDecrease = jumpDecrease + 1
+    if(jumpDecrease<2)then                                                                              -- if player did not already jumped two times
+        getPlayerGhost():applyLinearImpulse(0,-0.1,getPlayerGhost().x, getPlayerGhost().y)              -- give player a linear impuls for jumping
+        jumpDecrease = jumpDecrease + 1                                                                 -- increase jump counter
     end
 
 end
@@ -173,34 +148,27 @@ end
 
 
 
-function scene:create( event )                                                                                          -- CREATE FUNCTION
-    --
-    -- self in this case is "scene", the scene object for this level. 
-    -- Make a local copy of the scene's "view group" and call it "sceneGroup". 
-    -- This is where you must insert everything (display.* objects only) that you want
-    -- Composer to manage for you.
+function scene:create( event )                        
     local sceneGroup = self.view
-
-    -- 
-    -- You need to start the physics engine to be able to add objects to it, but...
-    --
 
     physics.start()
     physics.setGravity(0,9.8)
-    --
-    -- because the scene is off screen being created, we don't want the simulation doing
-    -- anything yet, so pause it for now.
-    --
+    
     physics.pause()
-    physics.setDrawMode("normal")
+    
+    physics.setDrawMode("hybrid")                               -- can also be "hybrid" or "debug"
+    
     local thisLevel = myData.settings.currentLevel
-    player = spawnPlayer()
-    player_ghost = spawnPlayerGhost()
-    player_ghost.isFixedRotation = true
-    wallL, wallLG = spawnWall(0,160,30,320)
-    wallR, wallRG = spawnWall(750,160,30,320)
-    floor, floorG = spawnWall(display.contentCenterX,320,1000,30)
-    platform, platformG = spawnPlatform(60,200,80,10)
+
+    player = spawnPlayer()                                      -- create a player
+    player_ghost = spawnPlayerGhost()                           -- create its ghost
+    player_ghost.isFixedRotation = true                         -- set its rotation to fixed so the player does not fall over when he jumps
+
+    wallL = spawnWall(0,160,30,320)                             --
+    wallR = spawnWall(750,160,30,320)                           -- adding level
+    floor = spawnWall(display.contentCenterX,320,1000,30)       -- components
+    platform = spawnPlatform(60,200,80,10)                      -- 
+
     lButton = widget.newButton({
         id = "lButton",
         label = "Move Left",
@@ -233,185 +201,141 @@ function scene:create( event )                                                  
     wallR:setFillColor(0,0,1)
     floor:setFillColor(0,0,0)
     platform:setFillColor(1,0,0)
-    
-    --
-    -- These pieces of the app only need created.  We won't be accessing them any where else
-    -- so it's okay to make it "local" here
-    --
+
     local background = display.newRect(display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
     background:setFillColor( 0.6, 0.7, 0.3 )
-    --
-    -- Insert it into the scene to be managed by Composer
-    --
 
-    sceneGroup:insert(background)
-    sceneGroup:insert(lButton)
-    sceneGroup:insert(rButton)
-    sceneGroup:insert(mButton)
-
-
-    camera:add(player, 1)
-    camera:add(wallLG,2)
-    camera:add(wallRG,2)
-    camera:add(floor,2) 
-    camera:add(player_ghost,1)
-    camera:add(platform,2)
-
-    --
-    -- levelText is going to be accessed from the scene:show function. It cannot be local to
-    -- scene:create(). This is why it was declared at the top of the module so it can be seen 
-    -- everywhere in this module
     levelText = display.newText(myData.settings.currentLevel, 0, 0, native.systemFontBold, 48 )
     levelText:setFillColor( 0 )
     levelText.x = display.contentCenterX
     levelText.y = display.contentCenterY
-    --
-    -- Insert it into the scene to be managed by Composer
-    --
-    sceneGroup:insert( levelText )
 
-    -- 
-    -- because we want to access this in multiple functions, we need to forward declare the variable and
-    -- then create the object here in scene:create()
-    --
     currentScoreDisplay = display.newText("000000", display.contentWidth - 50, 10, native.systemFont, 16 )
-    sceneGroup:insert( currentScoreDisplay )
+   
+    local decFPS = widget.newButton({               -- debug button to decrease button manually
+        label = "Decrease FPS",                     -- what does the label say
+        onEvent = decrease_fps                      -- adding function to button
+    })
+    decFPS.x = display.contentCenterX - 100         
+    decFPS.y = display.contentHeight - 60
 
-    --
-    -- these two buttons exist as a quick way to let you test
-    -- going between scenes (as well as demo widget.newButton)
-    --
-
-    local iWin = widget.newButton({
-        label = "I Win!",
+    local incFPS = widget.newButton({
+        label = "Increase FPS",
         onEvent = increase_fps
     })
-    sceneGroup:insert(iWin)
-    iWin.x = display.contentCenterX - 100
-    iWin.y = display.contentHeight - 60
+    incFPS.x = display.contentCenterX + 100
+    incFPS.y = display.contentHeight - 60
 
-    local iLoose = widget.newButton({
-        label = "I Loose!",
-        onEvent = handleLoss
-    })
-    sceneGroup:insert(iLoose)
-    iLoose.x = display.contentCenterX + 100
-    iLoose.y = display.contentHeight - 60
+
+    --
+    -- Insert objects into the scene to be managed by Composer
+    --
+    
+    -- these objects are not affected by the camera movement --
+    sceneGroup:insert( background )
+    sceneGroup:insert( lButton )
+    sceneGroup:insert( rButton )
+    sceneGroup:insert( mButton )
+    sceneGroup:insert( levelText )
+    sceneGroup:insert( currentScoreDisplay )
+    sceneGroup:insert( decFPS )                       -- adding to scene
+    sceneGroup:insert( incFPS )
+    
+
+    -- these objects are effected by the camera movement --
+    camera:add(player, 1)
+    camera:add(wallL,2)
+    camera:add(wallR,2)
+    camera:add(floor,2) 
+    camera:add(player_ghost,1)
+    camera:add(platform,2)
+
 
 end
 
---
--- This gets called twice, once before the scene is moved on screen and again once
--- afterwards as a result of calling composer.gotoScene()
---
-function scene:show( event )                                                                                            --SCENE FUNCTION
-    --
-    -- Make a local reference to the scene's view for scene:show()
-    --
+function scene:show( event )   
     local sceneGroup = self.view
 
-    function onPreCollision( self, event )
+    if event.phase == "did" then
+
+        physics.start()                                 -- enable physics
+
+        function onPreCollision( self, event )
  
-        local collideObject = event.other
-        if ( collideObject.collType == "passthru" and self.isJumping==true) then
-            event.contact.isEnabled = false  -- disable this specific collision!
-        elseif((collideObject.collType == "passthru" and self.isJumping==false) or collideObject.typ=="ground")then
-            setJumpDecrease(0)
+            local collideObject = event.other                                                                               -- get object you collided with
+            if ( collideObject.collType == "passthru" and self.isJumping==true) then                                        -- if object is of type "passthru" and the player is currently jumping
+                event.contact.isEnabled = false                                                                             -- disable this specific collision
+            elseif((collideObject.collType == "passthru" and self.isJumping==false) or collideObject.typ=="ground")then     -- if object is of type "passthru" and player is not jumping or collided object is of type "ground"
+                setJumpDecrease(0)                                                                                          -- reset the jump counter
+            end
         end
-    end
-    getPlayerGhost().preCollision = onPreCollision
-    getPlayerGhost():addEventListener( "preCollision", getPlayerGhost())
+        getPlayerGhost().preCollision = onPreCollision                              -- giving object a preCollision function
+        getPlayerGhost():addEventListener( "preCollision", getPlayerGhost())        -- adding event listener "preCollision" to ghost_player
 
 
-    function player_ghost:enterFrame()
+    function player_ghost:enterFrame()                                      -- each frame
     
-        if(getPlayerGhost().direction == nil)then 
+        if(getPlayerGhost().direction == nil)then                           -- if player direction is nil the player should stop moving
             getPlayerGhost().x = getPlayerGhost().x
         end
 
-        if(getPlayerGhost().direction == "right")then
+        if(getPlayerGhost().direction == "right")then                       -- if player direction is "right" player goes right
             getPlayerGhost().x = getPlayerGhost().x + 1
-        elseif(getPlayerGhost().direction == "left")then 
+        elseif(getPlayerGhost().direction == "left")then                    -- if player direction is "left" player goes left
             getPlayerGhost().x = getPlayerGhost().x - 1
         end
 
-        if getPlayerGhost().prevY ~= getPlayerGhost().y then
-            if getPlayerGhost().y > getPlayerGhost().prevY then
-                getPlayerGhost().isJumping = false
-            elseif getPlayerGhost().y < getPlayerGhost().prevY then
-                getPlayerGhost().isJumping = true
+        if getPlayerGhost().prevY ~= getPlayerGhost().y then                -- if player y position is not equal to last frame
+            if getPlayerGhost().y > getPlayerGhost().prevY then             -- if y is smaller than in previous frame player is falling
+                getPlayerGhost().isJumping = false                          -- set player_ghost jumping value to "false"
+            elseif getPlayerGhost().y < getPlayerGhost().prevY then         -- if y is bigger than in previous frame player is jumping
+                getPlayerGhost().isJumping = true                           -- set player_ghost jumping value to "true"
             end
         end
         
-        getPlayerGhost().prevX, getPlayerGhost().prevY = getPlayerGhost().x, getPlayerGhost().y
+        getPlayerGhost().prevX, getPlayerGhost().prevY = getPlayerGhost().x, getPlayerGhost().y     -- synchronize players position for next frame
 
-        if(timerDelay >= timerRefresh/fps_multiplicator)then
-            local middleOfScreen = 275
-            local endOfLevel = 724
-            -- if(player.x < (middleOfScreen))then --if player did not leave start yet or goes back to start
-            --    camera:cancel()
-            --elseif(player.x > (endOfLevel-middleOfScreen)+15)then --if the player gets near the end
-            --    camera:cancel()
-            --else --if the player leaves the end or start area and is between both of them camera will be attached
-                camera.damping = 10 -- A bit more fluid tracking
-                camera:setFocus(player) -- Set the focus to the player
-                camera:setBounds(200,500,200,400)
-                camera:track() -- Begin auto-tracking
-            --end
-            player.x = player_ghost.x
-            player.y = player_ghost.y
-            timerDelay=0
+        if(timerDelay >= timerRefresh/fps_multiplicator)then        -- this method is an timer written on my own to decrease and increase the update of player with its ghost-self
+            local middleOfScreen = 275                              -- this describes the middle of the screen
+            local endOfLevel = 724                                  -- this descirbes the total length of the
+            if(player.x < (middleOfScreen))then                     -- if player did not leave start yet or goes back to start
+                camera:cancel()                                     -- camera stops tracking player
+            elseif(player.x > (endOfLevel-middleOfScreen)+15)then   -- if the player gets near the end
+                camera:cancel()                                     -- camera stops tracking player
+            else                                                    --if the player leaves the end or start area and is between both of them camera will be attached
+                camera.damping = 10                                 -- A bit more fluid tracking
+                camera:setFocus(player)                             -- Set the focus to the player
+                camera:track()                                      -- Begin auto-tracking
+            end
+            player.x = player_ghost.x                               -- player position gets synchronized with its ghost-self
+            player.y = player_ghost.y                               -- player position gets synchronized with its ghost-self
+            timerDelay=0                                            -- reset counter for working freezes
         end
-        timerDelay = timerDelay +dt
+        timerDelay = timerDelay +dt                                 -- increase timerDelay each frame to detect when next visible frame should be shown
 
     end
 
-    Runtime:addEventListener("enterFrame", getPlayerGhost())
+    Runtime:addEventListener("enterFrame", getPlayerGhost())        -- adding eventListener "enterFrame" to the object of player_ghost
     
-    if event.phase == "did" then
-        physics.start()
-        transition.to( levelText, { time = 500, alpha = 0 } )
-        spawnTimer = timer.performWithDelay( 500, spawnEnemies )
-    else -- event.phase == "will"
-        -- The "will" phase happens before the scene transitions on screen.  This is a great
-        -- place to "reset" things that might be reset, i.e. move an object back to its starting
-        -- position. Since the scene isn't on screen yet, your users won't see things "jump" to new
-        -- locations. In this case, reset the score to 0.
-        currentScore = 0
-        currentScoreDisplay.text = string.format( "%06d", currentScore )
+    transition.to( levelText, { time = 500, alpha = 0 } )           -- show the name of the level and let it fade out
+
+    elseif event.phase == "will" then
+        
     end
 
 
 end
 
-
---
--- This function gets called everytime you call composer.gotoScene() from this module.
--- It will get called twice, once before we transition the scene off screen and once again 
--- after the scene is off screen.
 function scene:hide( event )                                                                                            --HIDE FUNCTION
     local sceneGroup = self.view
     
     if event.phase == "will" then
-        -- The "will" phase happens before the scene is transitioned off screen. Stop
-        -- anything you started elsewhere that could still be moving or triggering such as:
-        -- Remove enterFrame listeners here
-        -- stop timers, phsics, any audio playing
-        --
         physics.stop()
-        timer.cancel( spawnTimer )
     end
 
 end
 
---
--- When you call composer.removeScene() from another module, composer will go through and
--- remove anything created with display.* and inserted into the scene's view group for you. In
--- many cases that's sufficent to remove your scene. 
---
--- But there may be somethings you loaded, like audio in scene:create() that won't be disposed for
--- you. This is where you dispose of those things.
--- In most cases there won't be much to do here.
+
 function scene:destroy( event )                                                                                         --DESTROY FUNCTION
     local sceneGroup = self.view
     

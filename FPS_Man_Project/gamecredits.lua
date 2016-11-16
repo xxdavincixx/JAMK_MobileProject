@@ -30,18 +30,41 @@ function scene:create( event )
     background.y = display.contentCenterY
     sceneGroup:insert(background)
 
-    local title = display.newText( "Game Title", 100, 32, native.systemFontBold, 32)
+    local title = display.newText( "Frames per second", 100, 32, native.systemFontBold, 32)
     title.x = display.contentCenterX
     title.y = 40
     title:setFillColor( 0 )
     sceneGroup:insert( title )
 
-    local creditText = display.newText( "Game by Me!", 250, 250, native.systemFont, 16 )
+    local creditText = display.newText( "This game was developed by: ", 250, 250, native.systemFont, 23 )
     creditText:setFillColor( 0 )
     creditText.x = display.contentCenterX
-    creditText.y = display.contentCenterY 
+    creditText.y = display.contentCenterY - 65
     sceneGroup:insert(creditText)
 
+    local nameArthur = display.newText( "Arthur Jaks", 250,250, native.systemFont, 16)
+    nameArthur:setFillColor( 0 )
+    nameArthur.x = display.contentCenterX
+    nameArthur.y = display.contentCenterY - 25
+    sceneGroup:insert(nameArthur)
+
+    local nameJanis = display.newText( "Janis Clausen", 250,250, native.systemFont, 16)
+    nameJanis:setFillColor( 0 )
+    nameJanis.x = display.contentCenterX
+    nameJanis.y = display.contentCenterY
+    sceneGroup:insert(nameJanis)
+
+    local nameLeo = display.newText( "Leonard Bartling", 250,250, native.systemFont, 16)
+    nameLeo:setFillColor( 0 )
+    nameLeo.x = display.contentCenterX
+    nameLeo.y = display.contentCenterY + 25
+    sceneGroup:insert(nameLeo)
+
+    local nameTimothy = display.newText( "Timothy Lizotte", 250,250, native.systemFont, 16)
+    nameTimothy:setFillColor( 0 )
+    nameTimothy.x = display.contentCenterX
+    nameTimothy.y = display.contentCenterY + 50
+    sceneGroup:insert(nameTimothy)
     -- http://www.freesfx.co.uk
     -- http://www.freesound.org
 

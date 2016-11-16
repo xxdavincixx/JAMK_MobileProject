@@ -59,7 +59,7 @@ function scene:create( event )
     local cnt = 1
     for i = 1, myData.maxLevels do
         buttonGroups[i] = display.newGroup()
-        buttonBackgrounds[i] = display.newRoundedRect( x, y, 42, 32, 8 )
+        buttonBackgrounds[i] = display.newRoundedRect( x, y-15, 42, 32, 8 )
         buttonBackgrounds[i]:setFillColor( 1, 0, 1, 0.333 )
         buttonBackgrounds[i]:setStrokeColor( 1, 0, 1, 0.667 )
         buttonBackgrounds[i].strokeWidth = 1
@@ -77,7 +77,7 @@ function scene:create( event )
         end
         buttons[i] = display.newText(tostring(i), 0, 0, native.systemFontBold, 28)
         buttons[i].x = x
-        buttons[i].y = y
+        buttons[i].y = y -15
         buttonGroups[i]:insert(buttons[i])
 
         x = x + 55

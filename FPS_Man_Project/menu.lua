@@ -55,7 +55,7 @@ function scene:create( event )
     background.y = display.contentCenterY
     sceneGroup:insert( background )
 
-    local title = display.newText("Game Title", 100, 32, native.systemFontBold, 32 )
+    local title = display.newText("Frames per second", 100, 32, native.systemFontBold, 32 )
     title.x = display.contentCenterX
     title.y = 40
     title:setFillColor( 0 )
@@ -70,7 +70,7 @@ function scene:create( event )
         onEvent = handlePlayButtonEvent
     })
     playButton.x = display.contentCenterX
-    playButton.y = display.contentCenterY - 90
+    playButton.y = display.contentCenterY - 60
     sceneGroup:insert( playButton )
 
     -- Create the widget
@@ -82,7 +82,7 @@ function scene:create( event )
         onEvent = handleSettingsButtonEvent
     })
     settingsButton.x = display.contentCenterX
-    settingsButton.y = display.contentCenterY - 30
+    settingsButton.y = display.contentCenterY 
     sceneGroup:insert( settingsButton )
 
     -- Create the widget
@@ -94,7 +94,7 @@ function scene:create( event )
         onEvent = handleHelpButtonEvent
     })
     helpButton.x = display.contentCenterX
-    helpButton.y = display.contentCenterY + 30
+    helpButton.y = display.contentCenterY + 60
     sceneGroup:insert( helpButton )
 
     -- Create the widget
@@ -106,7 +106,7 @@ function scene:create( event )
         onEvent = handleCreditsButtonEvent
     })
     creditsButton.x = display.contentCenterX
-    creditsButton.y = display.contentCenterY + 90
+    creditsButton.y = display.contentCenterY + 120
     sceneGroup:insert( creditsButton )
 
 end

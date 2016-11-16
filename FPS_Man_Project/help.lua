@@ -52,11 +52,17 @@ function scene:create( event )
     sceneGroup:insert(background)
 
     --local title = display.newBitmapText( titleOptions )
-    local title = display.newText("Game Title", 125, 32, native.systemFontBold, 32)
+    local title = display.newText("Frames per second", 125, 32, native.systemFontBold, 32)
     title.x = display.contentCenterX
     title.y = 40
     title:setFillColor( 0 )
     sceneGroup:insert( title )
+
+    local gameText = display.newText("this is the place where we can describe our game in more detail", 1, 1, 500, 100, native.systemFont, 18)
+    gameText.x = display.contentCenterX
+    gameText.y = title.y + 100
+    gameText:setTextColor(0,0,0)
+    sceneGroup:insert (gameText)
 
     local doneButton = widget.newButton({
         id = "button1",

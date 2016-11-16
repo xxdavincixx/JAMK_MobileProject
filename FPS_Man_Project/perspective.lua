@@ -225,7 +225,7 @@ lib_perspective.createView = function(layerCount)
 			local layerX, layerY = internal.layer[i].x, internal.layer[i].y
 
 			local diffX = (-viewX - layerX)
-			local diffY = (-viewY - layerY)+100
+			local diffY = (-viewY - layerY)+114
 			local incrX = diffX
 			local incrY = diffY
 			internal.layer[i].x = layerX + incrX + internal.layer[i].xOffset + internal.xOffset
