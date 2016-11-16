@@ -28,6 +28,8 @@ local function decrease_fps()       -- function to decrease fps
     if(fps_multiplicator<1)then                     -- if fps multiplicator is smaller than 1
         print("Player is dead!")
         player.isDead=true                          -- player is dead
+        player:setFillColor(1,0.2,0.2)
+        player_ghost.direction = nil 
     end
 end
 
@@ -156,7 +158,7 @@ function scene:create( event )
     
     physics.pause()
     
-    physics.setDrawMode("hybrid")                               -- can also be "hybrid" or "debug"
+    physics.setDrawMode("normal")                               -- can also be "hybrid" or "debug"
     
     local thisLevel = myData.settings.currentLevel
 
@@ -165,9 +167,13 @@ function scene:create( event )
     player_ghost.isFixedRotation = true                         -- set its rotation to fixed so the player does not fall over when he jumps
 
     wallL = spawnWall(0,160,30,320)                             --
-    wallR = spawnWall(750,160,30,320)                           -- adding level
-    floor = spawnWall(display.contentCenterX,320,1000,30)       -- components
+    wallR = spawnWall(1000,160,30,320)                          -- adding level
+    floor = spawnPlatform(500,320,1000,30)                      -- components
     platform = spawnPlatform(60,200,80,10)                      -- 
+    platform1 = spawnPlatform(220,200,80,10)
+    platform2 = spawnPlatform(460,200,80,10)
+    platform3 = spawnPlatform(700,200,80,10)
+    platform4 = spawnPlatform(940,200,80,10)
 
     lButton = widget.newButton({
         id = "lButton",
@@ -249,21 +255,25 @@ function scene:create( event )
     camera:add(floor,2) 
     camera:add(player_ghost,1)
     camera:add(platform,2)
+    camera:add(platform1,2)
+    camera:add(platform2,2)
+    camera:add(platform3,2)
+    camera:add(platform4,2)
 
 
 end
 
 function scene:show( event )   
     local sceneGroup = self.view
-
+        
     if event.phase == "did" then
-
+                
         physics.start()                                 -- enable physics
 
         function onPreCollision( self, event )
  
             local collideObject = event.other                                                                               -- get object you collided with
-            if ( collideObject.collType == "passthru" and self.isJumping==true) then                                        -- if object is of type "passthru" and the player is currently jumping
+            if ( collideObject.collType == "passthru" and self.isJumping==true and contact ~= nil) then                     -- if object is of type "passthru" and the player is currently jumping
                 event.contact.isEnabled = false                                                                             -- disable this specific collision
             elseif((collideObject.collType == "passthru" and self.isJumping==false) or collideObject.typ=="ground")then     -- if object is of type "passthru" and player is not jumping or collided object is of type "ground"
                 setJumpDecrease(0)                                                                                          -- reset the jump counter
@@ -280,9 +290,9 @@ function scene:show( event )
         end
 
         if(getPlayerGhost().direction == "right")then                       -- if player direction is "right" player goes right
-            getPlayerGhost().x = getPlayerGhost().x + 1
+            getPlayerGhost().x = getPlayerGhost().x + 3
         elseif(getPlayerGhost().direction == "left")then                    -- if player direction is "left" player goes left
-            getPlayerGhost().x = getPlayerGhost().x - 1
+            getPlayerGhost().x = getPlayerGhost().x - 3
         end
 
         if getPlayerGhost().prevY ~= getPlayerGhost().y then                -- if player y position is not equal to last frame
@@ -296,19 +306,25 @@ function scene:show( event )
         getPlayerGhost().prevX, getPlayerGhost().prevY = getPlayerGhost().x, getPlayerGhost().y     -- synchronize players position for next frame
 
         if(timerDelay >= timerRefresh/fps_multiplicator)then        -- this method is an timer written on my own to decrease and increase the update of player with its ghost-self
-            local middleOfScreen = 275                              -- this describes the middle of the screen
-            local endOfLevel = 724                                  -- this descirbes the total length of the
-            if(player.x < (middleOfScreen))then                     -- if player did not leave start yet or goes back to start
+            local middleOfScreen = display.contentCenterX           -- this describes the middle of the screen
+            local endOfLevel = 1000                                 -- this descirbes the total length of the
+            player.x = player_ghost.x                               -- player position gets synchronized with its ghost-self
+            player.y = player_ghost.y                               -- player position gets synchronized with its ghost-self
+            --[[if(player.x < (middleOfScreen))then                 -- if player did not leave start yet or goes back to start
                 camera:cancel()                                     -- camera stops tracking player
             elseif(player.x > (endOfLevel-middleOfScreen)+15)then   -- if the player gets near the end
                 camera:cancel()                                     -- camera stops tracking player
-            else                                                    --if the player leaves the end or start area and is between both of them camera will be attached
+            else   --]]                                                 --if the player leaves the end or start area and is between both of them camera will be attached
                 camera.damping = 10                                 -- A bit more fluid tracking
-                camera:setFocus(player)                             -- Set the focus to the player
-                camera:track()                                      -- Begin auto-tracking
-            end
-            player.x = player_ghost.x                               -- player position gets synchronized with its ghost-self
-            player.y = player_ghost.y                               -- player position gets synchronized with its ghost-self
+                if(player.isJumping==true) then
+                    camera:cancel()
+                else
+                    camera:setFocus(player)                             -- Set the focus to the player
+                    camera:setBounds(middleOfScreen, endOfLevel-middleOfScreen + 15, 0,300)
+                    camera:track()                                      -- Begin auto-tracking
+                end
+            --end
+            
             timerDelay=0                                            -- reset counter for working freezes
         end
         timerDelay = timerDelay +dt                                 -- increase timerDelay each frame to detect when next visible frame should be shown
