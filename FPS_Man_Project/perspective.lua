@@ -61,11 +61,22 @@ lib_perspective.createView = function(layerCount)
 			yMin = math_nhuge,
 			yMax = math_huge
 		},
+		focusX = true,
+		focusY = true,
 		trackFocus = true,
+		focusActivated = false,
 		focus = nil,
 		viewX = 0,
 		viewY = 0,
-		getViewXY = function() if internal.focus then return internal.focus.x, internal.focus.y else return internal.viewX, internal.viewY end end,
+		getViewXY = function() 
+						if internal.focus then 
+							return internal.focus.x, internal.focus.y 
+						else 
+							return internal.viewX, internal.viewY 
+						end 
+					end,
+		getViewX = function() if internal.focus then return internal.focus.x else return internal.viewX end end,
+		getViewY = function() if internal.focus then return internal.focus.y else return internal.viewY end end,
 		layer = {},
 		updateAddXY = function() internal.addX = display.contentCenterX / view.xScale internal.addY = display.contentCenterY / view.yScale end
 	}
@@ -138,9 +149,12 @@ lib_perspective.createView = function(layerCount)
 			if view.xScale ~= internal.xScale or view.yScale ~= internal.yScale then internal.updateAddXY() end
 			if view.xScale ~= internal.xScale then internal.xScale = view.xScale internal.scaleBounds(true, false) end
 			if view.yScale ~= internal.yScale then internal.yScale = view.yScale internal.scaleBounds(false, true) end
-			
-			x = clamp(x, internal.scaledBounds.xMin, internal.scaledBounds.xMax)
-			y = clamp(y, internal.scaledBounds.yMin, internal.scaledBounds.yMax)
+			if(focusX == true) then
+				x = clamp(x, internal.scaledBounds.xMin, internal.scaledBounds.xMax)
+			end
+			if(focusY == true) then
+				y = clamp(y, internal.scaledBounds.yMin, internal.scaledBounds.yMax)
+			end
 			internal.viewX, internal.viewY = x, y
 		end
 	end
@@ -213,6 +227,8 @@ lib_perspective.createView = function(layerCount)
 	-- Main Tracking Function
 	------------------------------------------------------------------------------
 	function view:trackFocus()
+		internal.focusX = true
+		internal.focusY = true
 		internal.processViewpoint()
 		local viewX = internal.viewX
 		local viewY = internal.viewY
@@ -224,7 +240,7 @@ lib_perspective.createView = function(layerCount)
 			local layerX, layerY = internal.layer[i].x, internal.layer[i].y
 
 			local diffX = (-viewX - layerX)
-			local diffY = (-viewY - layerY)+114
+			local diffY = (-viewY - layerY)+74
 			local incrX = diffX
 			local incrY = diffY
 			internal.layer[i].x = layerX + incrX + internal.layer[i].xOffset + internal.xOffset
@@ -238,6 +254,64 @@ lib_perspective.createView = function(layerCount)
 
 	end
 	
+	function view:xTrackFocus()
+		internal.focusX = true
+		internal.focusY = false
+		internal.processViewpoint()
+		local viewX = internal.viewX
+		--local viewY = internal.viewY
+		layers[1].xParallax--[[, layers[1].yParallax --]]= 1--, 1
+
+		for i = -prependedLayers + 1, #layers do
+			local addX--[[, addY --]]= internal.addX--[[, internal.addY--]]
+			local layerX--[[, layerY --]]= internal.layer[i].x--[[, internal.layer[i].y--]]
+
+			local diffX = (-viewX - layerX)
+			--local diffY = (-viewY - layerY)+114
+			local incrX = diffX
+			--local incrY = diffY
+			internal.layer[i].x = layerX + incrX + internal.layer[i].xOffset + internal.xOffset
+			--internal.layer[i].y = layerY + incrY + internal.layer[i].yOffset + internal.yOffset
+			
+			layers[i].x = (layers[i].x - (layers[i].x - (internal.layer[i].x + addX) * layers[i].xParallax) * internal.trackingLevel)
+			--layers[i].y = (layers[i].y - (layers[i].y - (internal.layer[i].y + addY) * layers[i].yParallax) * internal.trackingLevel)
+		end
+
+		view.scrollX = layers[1].x
+
+	end
+
+
+	function view:yTrackFocus()
+		internal.focusX = false
+		internal.focusY = true
+		internal.processViewpoint()
+		local viewX = internal.viewX - 40
+		local viewY = internal.viewY
+		layers[1].xParallax, layers[1].yParallax = 1, 1
+
+		for i = -prependedLayers + 1, #layers do
+			if(internal.focusActivated == false) then
+				local addX = internal.addX
+				local layerX = internal.layer[i].x
+				local diffX = (-viewX - layerX)
+				local incrX = diffX
+				internal.layer[i].x = layerX + incrX + internal.layer[i].xOffset + internal.xOffset
+				layers[i].x = (layers[i].x - (layers[i].x - (internal.layer[i].x) * layers[i].xParallax) * internal.trackingLevel)
+			end
+			local addY = internal.addY
+			local layerY = internal.layer[i].y
+			local diffY = (-viewY - layerY)+74
+			local incrY = diffY
+			internal.layer[i].y = layerY + incrY + internal.layer[i].yOffset + internal.yOffset
+			layers[i].y = (layers[i].y - (layers[i].y - (internal.layer[i].y + addY) * layers[i].yParallax) * internal.trackingLevel)
+		end
+
+		view.scrollX = layers[1].x
+
+		internal.focusActivated = true
+	end
+
 	------------------------------------------------------------------------------
 	-- Set the Camera Bounds
 	------------------------------------------------------------------------------
@@ -260,15 +334,21 @@ lib_perspective.createView = function(layerCount)
 	-- Miscellaneous Functions
 	------------------------------------------------------------------------------
 	-- Begin auto-tracking
-	function view:track(xTrue, yTrue) if not isTracking then Runtime:addEventListener("enterFrame", view.trackFocus) isTracking = true end end
+	function view:track() if not isTracking then Runtime:addEventListener("enterFrame", view.trackFocus) isTracking = true end end
+	function view:trackX() if not isTracking then Runtime:addEventListener("enterFrame", view.xTrackFocus) isTracking = true end end
+	function view:trackY() if not isTracking then Runtime:addEventListener("enterFrame", view.yTrackFocus) isTracking = true end end
 	-- Stop auto-tracking
 	function view:cancel() if isTracking then Runtime:removeEventListener("enterFrame", view.trackFocus) isTracking = false end end
 	-- Remove an object from the view
 	function view:remove(obj) if obj and obj._perspectiveLayer then layers[obj._perspectiveLayer]:remove(obj) end end
 	-- Set the view's focus
 	function view:setFocus(obj) if obj then internal.focus = obj end if view.snapWhenFocused then view.snap() end end
+	function view:setFocusX(obj) if obj then internal.focus = obj end if view.snapWhenFocused then view.snapX() end end
+	function view:setFocusY(obj) if obj then internal.focus = obj end if view.snapWhenFocused then view.snapY() end end
 	-- Snap the view to the focus point
 	function view:snap() local t = internal.trackingLevel local d = internal.damping internal.trackingLevel = 1 internal.damping = view.damping view:trackFocus() internal.trackingLevel = t internal.damping = d end
+	function view:snapX() local t = internal.trackingLevel local d = internal.damping internal.trackingLevel = 1 internal.damping = view.damping view:xTrackFocus() internal.trackingLevel = t internal.damping = d end
+	function view:snapY() local t = internal.trackingLevel local d = internal.damping internal.trackingLevel = 1 internal.damping = view.damping view:yTrackFocus() internal.trackingLevel = t internal.damping = d end
 	-- Move the view to a point
 	function view:toPoint(x, y) view:cancel() local newFocus = {x = x, y = y} view:setFocus(newFocus) view:track() return newFocus end
 	-- Get a layer of the view
