@@ -19,8 +19,17 @@ local timerDelay = 0        -- will be used to calculate fps-update
 local dt=1000/30            -- will be used to calculate fps-update
 local jumpDecrease = 0      -- will be used to limitate the number of jumps a payer can do
 local cameraChanged = false -- will be used to get a new camera-setup
+local runtime = 0
 
 camera = perspective.createView() -- camera is created
+
+ 
+local function getDeltaTime()
+    local temp = system.getTimer()  -- Get current game time in ms
+    local dt = (temp-runtime) / (1000/30)  -- 60 fps or 30 fps as base
+    runtime = temp  -- Store game time
+    return dt
+end
 
 local function decrease_fps()       -- function to decrease fps
     if(fps_multiplicator>=1)then                    -- if fps_multiplicator is higher or exact 1 
@@ -104,14 +113,18 @@ end
 
 
 local function moveLeftButton(event)                -- change player_ghost direction value to "left"
+    --if(event.phase == "began") then
+    --    player_ghost.direction = "left"
     if (event.phase == "ended") then
-        getPlayerGhost().direction = "left"
+        player_ghost.direction = "left"--nil
     end
     return true
 end
 local function moveRightButton(event)               -- change player_ghost direction value to "right"
+    --if event.phase == "began" then
+    --    player_ghost.direction = "right"
     if event.phase == "ended" then
-        getPlayerGhost().direction = "right"
+        player_ghost.direction = "right"--nil
     end
     return true
 end
@@ -125,8 +138,8 @@ end
 
 function jump()
     if(jumpDecrease<2)then                                                                              -- if player did not already jumped two times
-        --getPlayerGhost():applyLinearImpulse(0,-0.1,getPlayerGhost().x, getPlayerGhost().y)              -- give player a linear impuls for jumping
-        getPlayerGhost():setLinearVelocity( 0, -275 )
+        --player_ghost:applyLinearImpulse(0,-0.1,player_ghost.x, player_ghost.y)              -- give player a linear impuls for jumping
+        player_ghost:setLinearVelocity( 0, -275 )
         jumpDecrease = jumpDecrease + 1                                                                 -- increase jump counter
     end
 
@@ -262,26 +275,27 @@ function scene:show( event )
 
         function player_ghost:enterFrame()                                      -- each frame
         if(player.isDead~=true)then
+            local delta = getDeltaTime()
             --PLAYER MOVEMENT--
-            if(getPlayerGhost().direction == nil)then                           -- if player direction is nil the player should stop moving
-                getPlayerGhost().x = getPlayerGhost().x
+            if(player_ghost.direction == nil)then                           -- if player direction is nil the player should stop moving
+                player_ghost:translate(0,0)
             end
 
-            if(getPlayerGhost().direction == "right")then                       -- if player direction is "right" player goes right
-                getPlayerGhost().x = getPlayerGhost().x + 3
-            elseif(getPlayerGhost().direction == "left")then                    -- if player direction is "left" player goes left
-                getPlayerGhost().x = getPlayerGhost().x - 3
+            if(player_ghost.direction == "right")then                       -- if player direction is "right" player goes right
+                player_ghost:translate(5*delta,0)
+            elseif(player_ghost.direction == "left")then                    -- if player direction is "left" player goes left
+                player_ghost:translate(-5*delta,0)
             end
 
-            if getPlayerGhost().prevY ~= getPlayerGhost().y then                -- if player y position is not equal to last frame
-                if getPlayerGhost().y > getPlayerGhost().prevY then             -- if y is smaller than in previous frame player is falling
-                    getPlayerGhost().isJumping = false                          -- set player_ghost jumping value to "false"
-                elseif getPlayerGhost().y < getPlayerGhost().prevY then         -- if y is bigger than in previous frame player is jumping
-                    getPlayerGhost().isJumping = true                           -- set player_ghost jumping value to "true"
+            if player_ghost.prevY ~= player_ghost.y then                -- if player y position is not equal to last frame
+                if player_ghost.y > player_ghost.prevY then             -- if y is smaller than in previous frame player is falling
+                    player_ghost.isJumping = false                          -- set player_ghost jumping value to "false"
+                elseif player_ghost.y < player_ghost.prevY then         -- if y is bigger than in previous frame player is jumping
+                    player_ghost.isJumping = true                           -- set player_ghost jumping value to "true"
                 end
             end
             
-            getPlayerGhost().prevX, getPlayerGhost().prevY = getPlayerGhost().x, getPlayerGhost().y     -- synchronize players position for next frame
+            player_ghost.prevX, player_ghost.prevY = player_ghost.x, player_ghost.y     -- synchronize players position for next frame
 
             --CAMERA MOVEMENT--
             if(timerDelay >= timerRefresh/fps_multiplicator)then        -- this method is an timer written on my own to decrease and increase the update of player with its ghost-self
@@ -321,7 +335,7 @@ function scene:show( event )
             lButton:removeSelf()
             rButton:removeSelf()
             mButton:removeSelf()
-            Runtime:removeEventListener( "enterFrame",  getPlayerGhost() )
+            Runtime:removeEventListener( "enterFrame",  player_ghost )
             --player:removeSelf()
             player.alpha = 0
             player_ghost:removeSelf()
@@ -335,11 +349,11 @@ function scene:show( event )
             composer.gotoScene("gameover", { time= 500, effect = "crossFade" })
         end
     end
-    Runtime:addEventListener("enterFrame", getPlayerGhost())        -- adding eventListener "enterFrame" to the object of player_ghost
+    Runtime:addEventListener("enterFrame", player_ghost)        -- adding eventListener "enterFrame" to the object of player_ghost
     transition.to( levelText, { time = 500, alpha = 0 } )           -- show the name of the level and let it fade out
 
 
-   --[[ function onPreCollision( self, event )
+   function onPreCollision( self, event )
  
         local collideObject = event.other                                                                               -- get object you collided with
         if (collideObject.collType == "passthru" and self.isJumping==true) then        -- if object is of type "passthru" and the player is currently jumping
@@ -350,9 +364,9 @@ function scene:show( event )
             setJumpDecrease(0)                                                                                          -- reset the jump counter
         end
     end
-    getPlayerGhost().preCollision = onPreCollision                              -- giving object a preCollision function
-    getPlayerGhost():addEventListener( "preCollision", getPlayerGhost())        -- adding event listener "preCollision" to ghost_player
-]]
+    player_ghost.preCollision = onPreCollision                              -- giving object a preCollision function
+    player_ghost:addEventListener( "preCollision", player_ghost)        -- adding event listener "preCollision" to ghost_player
+
     if(player.y >= floor.y)then
         player.isDead = true
     end
