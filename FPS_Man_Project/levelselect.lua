@@ -21,8 +21,8 @@ local function handleLevelSelect( event )
         -- set the current level to the ID of the selected level
         
         myData.settings.currentLevel = event.target.id
-        composer.removeScene( "game", false )
-        composer.gotoScene( "game", { effect = "crossFade", time = 333 } )
+        composer.removeScene( "level".. myData.settings.currentLevel, false )
+        composer.gotoScene( "level".. myData.settings.currentLevel, { effect = "crossFade", time = 333 } )
     end
 end
 --
@@ -118,6 +118,7 @@ function scene:hide( event )
     local sceneGroup = self.view
     
     if event.phase == "will" then
+
     end
 
 end
