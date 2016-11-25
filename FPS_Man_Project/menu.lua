@@ -6,9 +6,10 @@ local utility = require( "utility" )
 local ads = require( "ads" )
 
 local params
-
 local myData = require( "mydata" )
-
+if ( myData.settings.musicOn == true) then
+        local backgroundMusicChannel = audio.play( audio.loadStream( "audio/menuMusic.mp3" ), { channel=1, loops=-1 } )
+end
 local function handlePlayButtonEvent( event )
     if ( "ended" == event.phase ) then
         composer.removeScene( "levelselect", false )

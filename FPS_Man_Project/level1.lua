@@ -425,6 +425,10 @@ function scene:hide( event )                                                    
         decreaseObject3:removeSelf()
         finishPlatform:removeSelf()
         finishCoverPlatform:removeSelf()
+        if ( myData.settings.musicOn ) then
+            audio.stop()
+            audio.play( audio.loadStream( "audio/menuMusic.mp3" ), { channel=1, loops=-1 } )
+        end
     end
 
 end

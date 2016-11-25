@@ -26,10 +26,14 @@ end
 local function onMusicSwitchPress( event )
     local switch = event.target
 
-    if switch.isOn then
+    if not switch.isOn then
         myData.settings.musicOn = true
+        print("Switch is now: " .. tostring(myData.settings.musicOn) .. " music is supposed to start")
+        local backgroundMusicChannel = audio.play( audio.loadStream( "audio/menuMusic.mp3" ), { channel=1, loops=-1 } )
     else
         myData.settings.musicOn = false
+        print("Switch is now: " .. tostring(myData.settings.musicOn) .. " music is supposed to end")
+        audio.stop()
     end
     utility.saveTable(myData.settings, "settings.json")
 end
@@ -76,6 +80,7 @@ function scene:create( event )
         style = "onOff",
         id = "soundOnOffSwitch",
         initialSwitchState = myData.settings.soundOn,
+        print(myData.settings.soundOn),
         onPress = onSoundSwitchPress
     })
     soundOnOffSwitch.x = display.contentCenterX + 100
@@ -91,6 +96,7 @@ function scene:create( event )
     local musicOnOffSwitch = widget.newSwitch({
         style = "onOff",
         id = "musicOnOffSwitch",
+        print("Switch is now: " .. tostring(myData.settings.musicOn)),
         initialSwitchState = myData.settings.musicOn,
         onPress = onMusicSwitchPress
     })
@@ -114,7 +120,6 @@ end
 
 function scene:show( event )
     local sceneGroup = self.view
-
     params = event.params
 
     if event.phase == "did" then

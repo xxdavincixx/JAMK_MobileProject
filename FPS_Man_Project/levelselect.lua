@@ -36,6 +36,10 @@ local function selectLevel( event )
     if ( event.phase == "ended" ) then
         local buttonLevel = event.target.id
         local levelName = "level"..buttonLevel
+        if ( myData.settings.musicOn ) then
+            audio.stop()
+            local backgroundMusicChannel = audio.play( audio.loadStream("audio/menu.mp3"), { channel=1, loops=-1, fadein = 1000 } )
+        end
         composer.removeScene(levelName, false)
         composer.gotoScene(levelName, {effect = "crossFade", time = 333})
     end
