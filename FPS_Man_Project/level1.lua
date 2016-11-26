@@ -21,7 +21,6 @@ local fps_multiplicator = 1                                                 -- w
 local timerDelay = 0                                                        -- will be used to calculate fps-update
 local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
-local cameraChanged = false                                                 -- will be used to get a new camera-setup
 local runtime = 0
 
 motionx = 0; -- Variable used to move character along x axis
