@@ -17,9 +17,9 @@ local currentScoreDisplay                                                   -- w
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
 local spawnTimer                                                            -- will be used to hold the timer for the spawning engine
 local timerRefresh = 1000                                                   -- will be used to calculate fps-update
-local fps_multiplicator = 60                                                 -- will be used to calculate fps-update
+local fps_multiplicator = 1                                                 -- will be used to calculate fps-update
 local timerDelay = 0                                                        -- will be used to calculate fps-update
-local dt=1000/30                                                            -- will be used to calculate fps-update
+local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
 local cameraChanged = false                                                 -- will be used to get a new camera-setup
 local runtime = 0
@@ -246,7 +246,7 @@ function scene:create( event )
     lButton:setFillColor(0,0,1)
     lButton.alpha = 0
     lButton.isHitTestable = true
-    lButton:addEventListener( "touch", leftMove ) -- moveLeftButton
+    lButton:addEventListener( "touch", moveLeftButton ) -- moveLeftButton
 --[[
     rButton = widget.newButton({                                            -- creating a button 
         id = "rButton",
@@ -261,7 +261,7 @@ function scene:create( event )
     rButton:setFillColor(0,0,1)
     rButton.alpha = 0
     rButton.isHitTestable = true
-    rButton:addEventListener( "touch", rightMove ) -- moveRightButton
+    rButton:addEventListener( "touch", moveRightButton ) -- moveRightButton
 
 --[[
     mButton = widget.newButton({                                            -- creating a button
@@ -341,9 +341,6 @@ function scene:show( event )
                 local delta = getDeltaTime()
                 --PLAYER MOVEMENT--
                 
-                movePlayer()
-
-                --[[
                 if ( player_ghost.direction == nil ) then                   -- if player direction is nil the player should stop moving
                     player_ghost:translate( 0, 0 )
                 end
@@ -353,7 +350,7 @@ function scene:show( event )
                 elseif ( player_ghost.direction == "left" ) then            -- if player direction is "left" player goes left
                     player_ghost:translate( -5*delta, 0)
                 end
-                ]]
+                
 
                 if ( player_ghost.prevY ~= player_ghost.y ) then            -- if player y position is not equal to last frame
                     if ( player_ghost.y > player_ghost.prevY ) then         -- if y is smaller than in previous frame player is falling
