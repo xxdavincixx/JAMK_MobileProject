@@ -46,6 +46,15 @@ local function handleButtonEvent( event )
     end
 end
 
+-- Function to handle button events
+local function handleChangeNameButtonEvent( event )
+
+    composer.showOverlay("username_overlay", { effect = "crossFade", time = 333, isModal = true })
+    
+end
+
+
+
 --
 -- Start the composer event handlers
 --
@@ -64,7 +73,7 @@ function scene:create( event )
     sceneGroup:insert(background)
 
     --local title = display.newBitmapText( titleOptions )
-    local title = display.newText("Game Title", 100, 32, native.systemFontBold, 32 )
+    local title = display.newText("Frames per second", 100, 32, native.systemFontBold, 32 )
     title.x = display.contentCenterX 
     title.y = 40
     title:setFillColor( 0 )
@@ -72,7 +81,7 @@ function scene:create( event )
 
     local soundLabel = display.newText("Sound Effects", 100, 32, native.systemFont, 18 )
     soundLabel.x = display.contentCenterX - 75
-    soundLabel.y = 130
+    soundLabel.y = 100
     soundLabel:setFillColor( 0 )
     sceneGroup:insert( soundLabel )
 
@@ -89,7 +98,7 @@ function scene:create( event )
 
     local musicLabel = display.newText("Music", 100, 32, native.systemFont, 18 )
     musicLabel.x = display.contentCenterX - 75
-    musicLabel.y = 180
+    musicLabel.y = 150
     musicLabel:setFillColor( 0 )
     sceneGroup:insert( musicLabel )
 
@@ -103,6 +112,30 @@ function scene:create( event )
     musicOnOffSwitch.x = display.contentCenterX + 100
     musicOnOffSwitch.y = musicLabel.y
     sceneGroup:insert( musicOnOffSwitch )
+
+    --[[
+    -- change name Button
+    local changeNameButton = display.newRect(display.contentCenterX, 200, 150, 32)
+
+    changeNameButton:addEventListener("tap", handleChangeNameButtonEvent)
+    changeNameButton:setFillColor(0.2,0.2,0.2)
+    sceneGroup:insert( changeNameButton )
+
+    local changeNameButtonText = display.newText("Change Username", display.contentCenterX, 200, native.systemFont, 15)
+    sceneGroup:insert( changeNameButtonText )
+    ]]
+
+    -- Create change name button
+    local changeNameButton = widget.newButton({
+        id = "button2",
+        label = "Change Username",
+        width = 150,
+        height = 32,
+        onEvent = handleChangeNameButtonEvent
+    })
+    changeNameButton.x = display.contentCenterX 
+    changeNameButton.y = 200
+    sceneGroup:insert( changeNameButton )
 
     -- Create the widget
     local doneButton = widget.newButton({
