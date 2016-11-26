@@ -1,3 +1,6 @@
+-- Activate multitouch
+system.activate( "multitouch" )
+
 local composer = require( "composer" )
 local scene = composer.newScene()
 
@@ -199,9 +202,11 @@ function scene:create( event )
     finishPlatform = spawnPlatform( 975, 310, 50, 10 )                      -- adding level component
     finishPlatform.typ = "finish"                                           -- giving this platform the typ "finish" for collision detection when player reaches the goal
     finishCoverPlatform = spawnPlatform( 950, 320, 100, 30 )                -- adding level component
-    finishCoverPlatform:setFillColor( 1 )                                   -- adding level component
-    
+    finishCoverPlatform:setFillColor( 1 )                                   -- adding level component 
 
+
+    -- display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
+--[[
     lButton = widget.newButton({                                            -- creating a button
         id = "lButton",
         label = "Move Left",
@@ -210,7 +215,13 @@ function scene:create( event )
         onEvent = moveLeftButton                                            -- on button pressed moveLeftButton() is called
     })
     lButton.x, lButton.y = display.contentCenterX-150, 50
-
+]]
+    lButton = display.newRect(0,display.contentHeight,(display.contentWidth*2)/3,display.contentHeight)
+    lButton:setFillColor(0,0,1)
+    lButton.alpha = 0
+    lButton.isHitTestable = true
+    lButton:addEventListener( "touch", moveLeftButton )
+--[[
     rButton = widget.newButton({                                            -- creating a button 
         id = "rButton",
         label = "Move Right",
@@ -219,7 +230,14 @@ function scene:create( event )
         onEvent = moveRightButton                                           -- on button pressed moveRightButton() is called
     })
     rButton.x, rButton.y = display.contentCenterX+150, 50
+]]
+    rButton = display.newRect(display.contentWidth,display.contentHeight,(display.contentWidth*2)/3,display.contentHeight)
+    rButton:setFillColor(0,0,1)
+    rButton.alpha = 0
+    rButton.isHitTestable = true
+    rButton:addEventListener( "touch", moveRightButton )
 
+--[[
     mButton = widget.newButton({                                            -- creating a button
         id = "mButton",
         label = "Jump",
@@ -228,6 +246,12 @@ function scene:create( event )
         onEvent = jump                                                      -- on button pressed jump() is called
     })
     mButton.x, mButton.y = display.contentCenterX, 50
+]]
+    mButton = display.newRect(0,0,display.contentWidth*2,display.contentHeight)
+    mButton:setFillColor(0,0,1)
+    mButton.alpha = 0
+    mButton.isHitTestable = true
+    mButton:addEventListener( "touch", jump )
 
     local background = display.newRect( display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
     background:setFillColor( 0.6, 0.7, 0.3 )

@@ -10,6 +10,11 @@ local myData = require( "mydata" )
 if ( myData.settings.musicOn == true) then
         local backgroundMusicChannel = audio.play( audio.loadStream( "audio/menuMusic.mp3" ), { channel=1, loops=-1 } )
 end
+
+if ( myData.settings.username == "") then
+    composer.showOverlay( "username_overlay" , { effect = "crossFade", time = 333, isModal = true } )
+end
+
 local function handlePlayButtonEvent( event )
     if ( "ended" == event.phase ) then
         composer.removeScene( "levelselect", false )
