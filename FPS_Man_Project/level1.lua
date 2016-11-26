@@ -150,6 +150,7 @@ end
 local function spawnEnemy( x, y )                                -- create an object you can collect which decreases the fps of the player
 
     local enemy = display.newSprite(enemySheet, sequenceDataEnemy)    
+    enemy.x = 290
     enemy.y = 280                                          
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }       -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
     physics.addBody( enemy, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
@@ -266,6 +267,7 @@ function scene:create( event )
     decreaseObject1 = spawnDecreasingObject( 817, 112 )                     -- adding level component
     decreaseObject2 = spawnIncreasingObject( 86, 227 )                      -- adding level component
     decreaseObject3 = spawnDecreasingObject( 734, 60 )                      -- adding level component
+    enemy = spawnEnemy( 290, 280 )
     platform2 = spawnPlatform( 460, 200, 80, 10 )                           -- adding level component
     platform3 = spawnPlatform( 700, 200, 80, 10 )                           -- adding level component
     platform4 = spawnPlatform( 940, 200, 80, 10 )                           -- adding level component
