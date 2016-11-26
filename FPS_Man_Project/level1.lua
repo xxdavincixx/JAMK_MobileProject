@@ -17,15 +17,40 @@ local currentScoreDisplay                                                   -- w
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
 local spawnTimer                                                            -- will be used to hold the timer for the spawning engine
 local timerRefresh = 1000                                                   -- will be used to calculate fps-update
-local fps_multiplicator = 1                                                 -- will be used to calculate fps-update
+local fps_multiplicator = 60                                                 -- will be used to calculate fps-update
 local timerDelay = 0                                                        -- will be used to calculate fps-update
 local dt=1000/30                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
 local cameraChanged = false                                                 -- will be used to get a new camera-setup
 local runtime = 0
 
+motionx = 0; -- Variable used to move character along x axis
+speed = 4; -- Set Walking Speed
+
 camera = perspective.createView()                                           -- camera is created
 
+ -- Stop character movement when no arrow is pushed
+ local function stop (event)
+  if event.phase =="ended" then
+   motionx = 0;
+  end
+ end
+ Runtime:addEventListener("touch", stop )
+
+-- When left arrow is touched, move character left
+function leftMove()
+    motionx = -speed
+end
+ 
+-- When right arrow is touched, move character right
+function rightMove()
+    motionx = speed
+end
+
+-- Move character
+local function movePlayer (event)
+    player_ghost.x = player_ghost.x + motionx
+end
 
 local function spawnWall( x, y, w, h )                                      -- create a wall 
     
@@ -135,10 +160,11 @@ local function moveUpButton( event )                                        -- c
 end
 
 function jump( ) 
-    if ( jumpDecrease < 2 ) then                                            -- if player did not already jumped two times
+    if ( jumpDecrease < 1 ) then                                            -- if player did not already jumped two times
         --player_ghost:applyLinearImpulse( 0, -0.1, player_ghost.x, player_ghost.y )    -- give player a linear impuls for jumping
         player_ghost:setLinearVelocity( 0, -275 )                           -- give player a linear velocity for jumping
         jumpDecrease = jumpDecrease + 1                                     -- increase jump counter
+        movePlayer()
     end
 
 end
@@ -220,7 +246,7 @@ function scene:create( event )
     lButton:setFillColor(0,0,1)
     lButton.alpha = 0
     lButton.isHitTestable = true
-    lButton:addEventListener( "touch", moveLeftButton )
+    lButton:addEventListener( "touch", leftMove ) -- moveLeftButton
 --[[
     rButton = widget.newButton({                                            -- creating a button 
         id = "rButton",
@@ -235,7 +261,7 @@ function scene:create( event )
     rButton:setFillColor(0,0,1)
     rButton.alpha = 0
     rButton.isHitTestable = true
-    rButton:addEventListener( "touch", moveRightButton )
+    rButton:addEventListener( "touch", rightMove ) -- moveRightButton
 
 --[[
     mButton = widget.newButton({                                            -- creating a button
@@ -314,6 +340,10 @@ function scene:show( event )
             if ( player.isDead ~= true ) then
                 local delta = getDeltaTime()
                 --PLAYER MOVEMENT--
+                
+                movePlayer()
+
+                --[[
                 if ( player_ghost.direction == nil ) then                   -- if player direction is nil the player should stop moving
                     player_ghost:translate( 0, 0 )
                 end
@@ -323,6 +353,7 @@ function scene:show( event )
                 elseif ( player_ghost.direction == "left" ) then            -- if player direction is "left" player goes left
                     player_ghost:translate( -5*delta, 0)
                 end
+                ]]
 
                 if ( player_ghost.prevY ~= player_ghost.y ) then            -- if player y position is not equal to last frame
                     if ( player_ghost.y > player_ghost.prevY ) then         -- if y is smaller than in previous frame player is falling
