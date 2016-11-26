@@ -17,11 +17,10 @@ local currentScoreDisplay                                                   -- w
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
 local spawnTimer                                                            -- will be used to hold the timer for the spawning engine
 local timerRefresh = 1000                                                   -- will be used to calculate fps-update
-local fps_multiplicator = 60                                                 -- will be used to calculate fps-update
+local fps_multiplicator = 1                                                 -- will be used to calculate fps-update
 local timerDelay = 0                                                        -- will be used to calculate fps-update
-local dt=1000/30                                                            -- will be used to calculate fps-update
+local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
-local cameraChanged = false                                                 -- will be used to get a new camera-setup
 local runtime = 0
 
 motionx = 0; -- Variable used to move character along x axis
