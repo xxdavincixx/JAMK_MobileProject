@@ -245,7 +245,7 @@ function scene:create( event )
     lButton:setFillColor(0,0,1)
     lButton.alpha = 0
     lButton.isHitTestable = true
-    lButton:addEventListener( "touch", leftMove ) -- moveLeftButton
+    lButton:addEventListener( "touch", moveLeftButton ) -- moveLeftButton
 --[[
     rButton = widget.newButton({                                            -- creating a button 
         id = "rButton",
@@ -260,7 +260,7 @@ function scene:create( event )
     rButton:setFillColor(0,0,1)
     rButton.alpha = 0
     rButton.isHitTestable = true
-    rButton:addEventListener( "touch", rightMove ) -- moveRightButton
+    rButton:addEventListener( "touch", moveRightButton ) -- moveRightButton
 
 --[[
     mButton = widget.newButton({                                            -- creating a button
@@ -340,9 +340,6 @@ function scene:show( event )
                 local delta = getDeltaTime()
                 --PLAYER MOVEMENT--
                 
-                movePlayer()
-
-                --[[
                 if ( player_ghost.direction == nil ) then                   -- if player direction is nil the player should stop moving
                     player_ghost:translate( 0, 0 )
                 end
@@ -352,7 +349,7 @@ function scene:show( event )
                 elseif ( player_ghost.direction == "left" ) then            -- if player direction is "left" player goes left
                     player_ghost:translate( -5*delta, 0)
                 end
-                ]]
+                
 
                 if ( player_ghost.prevY ~= player_ghost.y ) then            -- if player y position is not equal to last frame
                     if ( player_ghost.y > player_ghost.prevY ) then         -- if y is smaller than in previous frame player is falling
