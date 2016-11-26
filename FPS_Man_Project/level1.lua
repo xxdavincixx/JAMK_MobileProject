@@ -43,6 +43,19 @@ local sequenceDataChar = {
     {name = "CharIdle", start = 1, count = 1, time = 400, loopcount = 0}
 }
 
+-- Creating image sheet for enemy --
+local optionsEnemy = {
+    width = 47,
+    height = 62,
+    numFrames = 2
+}
+local enemySheet = graphics.newImageSheet("images/enemySheet.png", optionsEnemy)
+
+-- Sequences of frames to play for enemy --
+local sequenceDataEnemy = {
+    {name = "EnemyIdle", start = 2, count = 1, time = 1000, loopcount = 0}
+}
+
  -- Stop character movement when no arrow is pushed
  local function stop (event)
   if event.phase =="ended" then
@@ -132,6 +145,17 @@ local function spawnDecreasingObject( x, y )                                -- c
     object.collType = "decrease"                                            -- parameter for collision to ask which object the player collides with
     object:setFillColor( 0.5, 1, 0.2 )  
     return object
+end
+
+local function spawnEnemy( x, y )                                -- create an object you can collect which decreases the fps of the player
+
+    local enemy = display.newSprite(enemySheet, sequenceDataEnemy)    
+    enemy.y = 280                                          
+    local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }       -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
+    physics.addBody( enemy, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
+    enemy.collType = "decrease"                                            -- parameter for collision to ask which object the player collides with 
+    enemy:setFillColor( 1, 1, 1 )
+    return enemy
 end
 
 local function setJumpDecrease( jd )
@@ -336,6 +360,7 @@ function scene:create( event )
     camera:add( decreaseObject1 )
     camera:add( decreaseObject2 )
     camera:add( decreaseObject3 )
+    camera:add( enemy )
     camera:add( finishPlatform )
     camera:add( finishCoverPlatform )
 
