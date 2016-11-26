@@ -28,6 +28,21 @@ speed = 4; -- Set Walking Speed
 
 camera = perspective.createView()                                           -- camera is created
 
+-- Creating image sheet for character --
+local optionsCharacter = {
+    width = 41,
+    height = 90,
+    numFrames = 6
+}
+local characterSheet = graphics.newImageSheet("images/characterWalk.png", optionsCharacter)
+
+-- Sequences of frames to play for character --
+local sequenceDataChar = {
+    {name = "CharRightWalk", start = 1, count = 3, time = 400, loopcount = 0},
+    {name = "CharLeftWalk", start = 4, count = 3, time = 400, loopcount = 0},
+    {name = "CharIdle", start = 1, count = 1, time = 400, loopcount = 0}
+}
+
  -- Stop character movement when no arrow is pushed
  local function stop (event)
   if event.phase =="ended" then
@@ -61,7 +76,9 @@ local function spawnWall( x, y, w, h )                                      -- c
 end
 
 local function spawnPlayer( x, y )
-    player = display.newRect( x, y, 30, 60 )                         -- starting point and seize of the object
+    player = display.newSprite(characterSheet, sequenceDataChar)            -- starting point and seize of the object (old 30x60)
+    player.x = 36
+    player.y = 260
     local playerCollisionFilter = { categoryBits = 2, maskBits=5 }          -- create collision filter for object, its own number is 2 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
     player.alpha = 1                                                        -- is visible
     player.isJumping =false                                                 -- at the start the object is not jumping
@@ -85,7 +102,7 @@ end
 
 local function spawnPlayerGhost( x, y )                                           -- create a ghost of player object
 
-    local player_ghost = display.newRect( x, y, 30, 60 )             -- starting point and seize of the object
+    local player_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
     local playerGhostCollisionFilter = { categoryBits = 8, maskBits = 21 }  -- create collision filter for ghost object, its own number is 8 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
     player_ghost.alpha = 0                                                  -- player_ghost is not visible
     player_ghost.isJumping =false                                           -- at the start the object is not jumping
@@ -138,6 +155,8 @@ local function moveLeftButton( event )                                      -- c
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "left"
     if ( event.phase == "ended" ) then
+    	player:setSequence("CharLeftWalk")
+  		player:play()
         player_ghost.direction = "left"--nil
     end
     return true
@@ -146,6 +165,8 @@ local function moveRightButton( event )                                     -- c
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "right"
     if ( event.phase == "ended" ) then
+    	player:setSequence("CharRightWalk")
+	    player:play()
         player_ghost.direction = "right"--nil
     end
     return true
