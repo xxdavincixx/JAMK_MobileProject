@@ -39,46 +39,8 @@ local sequenceDataChar = {
     {name = "CharLeftWalk", start = 4, count = 3, time = 400, loopcount = 0},
     {name = "CharIdle", start = 1, count = 1, time = 400, loopcount = 0}
 }
-<<<<<<< HEAD
 
--- Creating image sheet for enemy --
-local optionsEnemy = {
-    width = 47,
-    height = 62,
-    numFrames = 2
-}
-local enemySheet = graphics.newImageSheet("images/enemySheet.png", optionsEnemy)
-
--- Sequences of frames to play for enemy --
-local sequenceDataEnemy = {
-    {name = "EnemyIdle", start = 2, count = 1, time = 1000, loopcount = 0}
-}
-
- -- Stop character movement when no arrow is pushed
- local function stop (event)
-  if event.phase =="ended" then
-   motionx = 0;
-  end
- end
- Runtime:addEventListener("touch", stop )
-
--- When left arrow is touched, move character left
-function leftMove()
-    motionx = -speed
-end
  
--- When right arrow is touched, move character right
-function rightMove()
-    motionx = speed
-end
-
--- Move character
-local function movePlayer (event)
-    player_ghost.x = player_ghost.x + motionx
-end
-=======
->>>>>>> refs/remotes/origin/master
-
 local function spawnWall( x, y, w, h )                                      -- create a wall 
     
     local wall = display.newRect( x, y, w, h)
@@ -115,11 +77,7 @@ end
 
 local function spawnPlayerGhost( x, y )                                           -- create a ghost of player object
 
-<<<<<<< HEAD
-    local player_ghost = display.newRect( x, y, 41, 90 )            		 -- starting point and seize of the object
-=======
     local player_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
->>>>>>> refs/remotes/origin/master
     local playerGhostCollisionFilter = { categoryBits = 8, maskBits = 21 }  -- create collision filter for ghost object, its own number is 8 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
     player_ghost.alpha = 0                                                  -- player_ghost is not visible
     player_ghost.isJumping =false                                           -- at the start the object is not jumping
@@ -151,18 +109,6 @@ local function spawnDecreasingObject( x, y )                                -- c
     return object
 end
 
-local function spawnEnemy( x, y )                                -- create an object you can collect which decreases the fps of the player
-
-    local enemy = display.newSprite(enemySheet, sequenceDataEnemy)    
-    enemy.x = 290
-    enemy.y = 280                                          
-    local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }       -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
-    physics.addBody( enemy, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
-    enemy.collType = "decrease"                                            -- parameter for collision to ask which object the player collides with 
-    enemy:setFillColor( 1, 1, 1 )
-    return enemy
-end
-
 local function setJumpDecrease( jd )
     jumpDecrease = jd                                                       -- function to reset the jumpDecrease variable
 end
@@ -183,38 +129,30 @@ end
 local function moveLeftButton( event )                                      -- change player_ghost direction value to "left"
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "left"
-<<<<<<< HEAD
-    if ( event.phase == "ended" ) then
-=======
     if ( event.phase == "began" ) then
->>>>>>> refs/remotes/origin/master
-    	player:setSequence("CharLeftWalk")
-  		player:play()
+        player:setSequence("CharLeftWalk")
+        player:play()
         player_ghost.direction = "left"--nil
-        else if (event.phase == "ended") then
+        else if ( event.phase == "ended") then
             player_ghost.direction = ""
             player:pause()
-            player:setFrame(0)
+            player:setFrame(1)
         end
     end
-
     return true
 end
+
 local function moveRightButton( event )                                     -- change player_ghost direction value to "right"
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "right"
-<<<<<<< HEAD
-    if ( event.phase == "ended" ) then
-=======
     if ( event.phase == "began" ) then
->>>>>>> refs/remotes/origin/master
-    	player:setSequence("CharRightWalk")
-	    player:play()
+        player:setSequence("CharRightWalk")
+        player:play()
         player_ghost.direction = "right"--nil
-        else if (event.phase == "ended") then
+        else if (event.phase == "ended" ) then
             player_ghost.direction = ""
             player:pause()
-            player:setFrame(0)
+            player:setFrame(1)
         end
     end
     return true
@@ -290,7 +228,6 @@ function scene:create( event )
     decreaseObject1 = spawnDecreasingObject( 817, 112 )                     -- adding level component
     decreaseObject2 = spawnIncreasingObject( 86, 227 )                      -- adding level component
     decreaseObject3 = spawnDecreasingObject( 734, 60 )                      -- adding level component
-    enemy = spawnEnemy( 290, 280 )
     platform2 = spawnPlatform( 460, 200, 80, 10 )                           -- adding level component
     platform3 = spawnPlatform( 700, 200, 80, 10 )                           -- adding level component
     platform4 = spawnPlatform( 940, 200, 80, 10 )                           -- adding level component
@@ -385,7 +322,6 @@ function scene:create( event )
     camera:add( decreaseObject1 )
     camera:add( decreaseObject2 )
     camera:add( decreaseObject3 )
-    camera:add( enemy )
     camera:add( finishPlatform )
     camera:add( finishCoverPlatform )
 
