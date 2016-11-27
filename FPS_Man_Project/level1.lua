@@ -135,7 +135,7 @@ local function moveLeftButton( event )                                      -- c
         else if (event.phase == "ended") then
             player_ghost.direction = ""
             player:pause()
-            player:setFrame(0)
+            player:setSequence("CharIdle")
         end
     end
 
@@ -151,7 +151,7 @@ local function moveRightButton( event )                                     -- c
         else if (event.phase == "ended") then
             player_ghost.direction = ""
             player:pause()
-            player:setFrame(0)
+            player:setSequence("CharIdle")
         end
     end
     return true
