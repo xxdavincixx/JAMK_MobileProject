@@ -17,40 +17,28 @@ local currentScoreDisplay                                                   -- w
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
 local spawnTimer                                                            -- will be used to hold the timer for the spawning engine
 local timerRefresh = 1000                                                   -- will be used to calculate fps-update
-local fps_multiplicator = 60                                                 -- will be used to calculate fps-update
+local fps_multiplicator = 1                                                 -- will be used to calculate fps-update
 local timerDelay = 0                                                        -- will be used to calculate fps-update
-local dt=1000/30                                                            -- will be used to calculate fps-update
+local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
-local cameraChanged = false                                                 -- will be used to get a new camera-setup
 local runtime = 0
-
-motionx = 0; -- Variable used to move character along x axis
-speed = 4; -- Set Walking Speed
 
 camera = perspective.createView()                                           -- camera is created
 
- -- Stop character movement when no arrow is pushed
- local function stop (event)
-  if event.phase =="ended" then
-   motionx = 0;
-  end
- end
- Runtime:addEventListener("touch", stop )
+-- Creating image sheet for character --
+local optionsCharacter = {
+    width = 41,
+    height = 90,
+    numFrames = 6
+}
+local characterSheet = graphics.newImageSheet("images/characterWalk.png", optionsCharacter)
 
--- When left arrow is touched, move character left
-function leftMove()
-    motionx = -speed
-end
- 
--- When right arrow is touched, move character right
-function rightMove()
-    motionx = speed
-end
-
--- Move character
-local function movePlayer (event)
-    player_ghost.x = player_ghost.x + motionx
-end
+-- Sequences of frames to play for character --
+local sequenceDataChar = {
+    {name = "CharRightWalk", start = 1, count = 3, time = 400, loopcount = 0},
+    {name = "CharLeftWalk", start = 4, count = 3, time = 400, loopcount = 0},
+    {name = "CharIdle", start = 1, count = 1, time = 400, loopcount = 0}
+}
 
 local function spawnWall( x, y, w, h )                                      -- create a wall 
     
@@ -62,7 +50,9 @@ local function spawnWall( x, y, w, h )                                      -- c
 end
 
 local function spawnPlayer( x, y )
-    player = display.newRect( x, y, 30, 60 )                         -- starting point and seize of the object
+    player = display.newSprite(characterSheet, sequenceDataChar)            -- starting point and seize of the object (old 30x60)
+    player.x = 36
+    player.y = 260
     local playerCollisionFilter = { categoryBits = 2, maskBits=5 }          -- create collision filter for object, its own number is 2 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
     player.alpha = 1                                                        -- is visible
     player.isJumping =false                                                 -- at the start the object is not jumping
@@ -86,7 +76,7 @@ end
 
 local function spawnPlayerGhost( x, y )                                           -- create a ghost of player object
 
-    local player_ghost = display.newRect( x, y, 30, 60 )             -- starting point and seize of the object
+    local player_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
     local playerGhostCollisionFilter = { categoryBits = 8, maskBits = 21 }  -- create collision filter for ghost object, its own number is 8 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
     player_ghost.alpha = 0                                                  -- player_ghost is not visible
     player_ghost.isJumping =false                                           -- at the start the object is not jumping
@@ -138,16 +128,31 @@ end
 local function moveLeftButton( event )                                      -- change player_ghost direction value to "left"
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "left"
-    if ( event.phase == "ended" ) then
+    if ( event.phase == "began" ) then
+    	player:setSequence("CharLeftWalk")
+  		player:play()
         player_ghost.direction = "left"--nil
+        else if (event.phase == "ended") then
+            player_ghost.direction = ""
+            player:pause()
+            player:setFrame(0)
+        end
     end
+
     return true
 end
 local function moveRightButton( event )                                     -- change player_ghost direction value to "right"
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "right"
-    if ( event.phase == "ended" ) then
+    if ( event.phase == "began" ) then
+    	player:setSequence("CharRightWalk")
+	    player:play()
         player_ghost.direction = "right"--nil
+        else if (event.phase == "ended") then
+            player_ghost.direction = ""
+            player:pause()
+            player:setFrame(0)
+        end
     end
     return true
 end
@@ -164,7 +169,7 @@ function jump( )
         --player_ghost:applyLinearImpulse( 0, -0.1, player_ghost.x, player_ghost.y )    -- give player a linear impuls for jumping
         player_ghost:setLinearVelocity( 0, -275 )                           -- give player a linear velocity for jumping
         jumpDecrease = jumpDecrease + 1                                     -- increase jump counter
-        movePlayer()
+        player:setFrame(2)
     end
 
 end
@@ -246,7 +251,7 @@ function scene:create( event )
     lButton:setFillColor(0,0,1)
     lButton.alpha = 0
     lButton.isHitTestable = true
-    lButton:addEventListener( "touch", leftMove ) -- moveLeftButton
+    lButton:addEventListener( "touch", moveLeftButton ) -- moveLeftButton
 --[[
     rButton = widget.newButton({                                            -- creating a button 
         id = "rButton",
@@ -261,7 +266,7 @@ function scene:create( event )
     rButton:setFillColor(0,0,1)
     rButton.alpha = 0
     rButton.isHitTestable = true
-    rButton:addEventListener( "touch", rightMove ) -- moveRightButton
+    rButton:addEventListener( "touch", moveRightButton ) -- moveRightButton
 
 --[[
     mButton = widget.newButton({                                            -- creating a button
@@ -341,9 +346,6 @@ function scene:show( event )
                 local delta = getDeltaTime()
                 --PLAYER MOVEMENT--
                 
-                movePlayer()
-
-                --[[
                 if ( player_ghost.direction == nil ) then                   -- if player direction is nil the player should stop moving
                     player_ghost:translate( 0, 0 )
                 end
@@ -353,7 +355,7 @@ function scene:show( event )
                 elseif ( player_ghost.direction == "left" ) then            -- if player direction is "left" player goes left
                     player_ghost:translate( -5*delta, 0)
                 end
-                ]]
+                
 
                 if ( player_ghost.prevY ~= player_ghost.y ) then            -- if player y position is not equal to last frame
                     if ( player_ghost.y > player_ghost.prevY ) then         -- if y is smaller than in previous frame player is falling
