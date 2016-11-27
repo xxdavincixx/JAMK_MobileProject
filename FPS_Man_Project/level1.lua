@@ -25,6 +25,24 @@ local runtime = 0
 
 camera = perspective.createView()                                           -- camera is created
 
+-- Create timer  --
+local timeLimit = 300
+text = display.newText("Time left: ", 400, 10, native.systemFont, 16)
+timeLeft = display.newText(timeLimit, 450, 10, native.systemFont, 16)
+text:setTextColor(255,255,255)
+timeLeft:setTextColor(255,255,255)
+
+-- Function for timer --
+local function timerDown()
+     timeLimit = timeLimit-1
+     timeLeft.text = timeLimit
+      if(timeLimit==0)then
+        print("Time Out") -- or do your code for time out --
+     end
+  end
+timer.performWithDelay(1000,timerDown,timeLimit)
+
+
 -- Creating image sheet for character --
 local optionsCharacter = {
     width = 41,
