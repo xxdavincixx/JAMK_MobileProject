@@ -204,7 +204,7 @@ function scene:create( event )
     
     physics.pause()                                                         -- we don't need gravity by now so we stop it again
     
-    physics.setDrawMode( "normal" )                                         -- can also be "hybrid" or "debug"
+    physics.setDrawMode( "hybrid" )                                         -- can also be "hybrid" or "debug"
     
     local thisLevel = myData.settings.currentLevel
 
@@ -226,7 +226,7 @@ function scene:create( event )
     increaseObject3 = spawnIncreasingObject( 827, 12 )                      -- adding level component
     decreaseObject = spawnIncreasingObject( 337, 253 )                      -- adding level component
     decreaseObject1 = spawnDecreasingObject( 817, 112 )                     -- adding level component
-    decreaseObject2 = spawnIncreasingObject( 86, 227 )                      -- adding level component
+    decreaseObject2 = spawnIncreasingObject( 86, 227)                       -- adding level component
     decreaseObject3 = spawnDecreasingObject( 734, 60 )                      -- adding level component
     platform2 = spawnPlatform( 460, 200, 80, 10 )                           -- adding level component
     platform3 = spawnPlatform( 700, 200, 80, 10 )                           -- adding level component
@@ -236,54 +236,23 @@ function scene:create( event )
     finishCoverPlatform = spawnPlatform( 950, 320, 100, 30 )                -- adding level component
     finishCoverPlatform:setFillColor( 1 )                                   -- adding level component 
 
-
-    -- display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
---[[
-    lButton = widget.newButton({                                            -- creating a button
-        id = "lButton",
-        label = "Move Left",
-        width = 100,
-        height = 50,
-        onEvent = moveLeftButton                                            -- on button pressed moveLeftButton() is called
-    })
-    lButton.x, lButton.y = display.contentCenterX-150, 50
-]]
     lButton = display.newRect(0,display.contentHeight,(display.contentWidth*2)/3,display.contentHeight)
     lButton:setFillColor(0,0,1)
     lButton.alpha = 0
     lButton.isHitTestable = true
-    lButton:addEventListener( "touch", moveLeftButton ) -- moveLeftButton
---[[
-    rButton = widget.newButton({                                            -- creating a button 
-        id = "rButton",
-        label = "Move Right",
-        width = 100,
-        height = 50,
-        onEvent = moveRightButton                                           -- on button pressed moveRightButton() is called
-    })
-    rButton.x, rButton.y = display.contentCenterX+150, 50
-]]
+    lButton:addEventListener( "touch", moveLeftButton )                     -- moveLeftButton
+
     rButton = display.newRect(display.contentWidth,display.contentHeight,(display.contentWidth*2)/3,display.contentHeight)
     rButton:setFillColor(0,0,1)
     rButton.alpha = 0
     rButton.isHitTestable = true
-    rButton:addEventListener( "touch", moveRightButton ) -- moveRightButton
+    rButton:addEventListener( "touch", moveRightButton )                    -- moveRightButton
 
---[[
-    mButton = widget.newButton({                                            -- creating a button
-        id = "mButton",
-        label = "Jump",
-        width = 100,
-        height = 50,
-        onEvent = jump                                                      -- on button pressed jump() is called
-    })
-    mButton.x, mButton.y = display.contentCenterX, 50
-]]
-    mButton = display.newRect(0,0,display.contentWidth*2,display.contentHeight)
+    mButton = display.newRect(display.contentCenterX,display.contentHeight/4,display.contentWidth*2,display.contentHeight/2)
     mButton:setFillColor(0,0,1)
     mButton.alpha = 0
     mButton.isHitTestable = true
-    mButton:addEventListener( "touch", jump )
+    mButton:addEventListener( "touch", jump )                               -- jumpButton    
 
     local background = display.newRect( display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
     background:setFillColor( 0.6, 0.7, 0.3 )
@@ -344,7 +313,7 @@ function scene:show( event )
                 player.isDead = true                                        -- the player is dead
             end
             if ( player.isDead ~= true ) then
-                local delta = getDeltaTime()
+                local delta = getDeltaTime()                                -- absolutely important
                 --PLAYER MOVEMENT--
                 
                 if ( player_ghost.direction == nil ) then                   -- if player direction is nil the player should stop moving
@@ -352,9 +321,9 @@ function scene:show( event )
                 end
 
                 if ( player_ghost.direction == "right" ) then               -- if player direction is "right" player goes right
-                    player_ghost:translate( 5*delta, 0)
+                    player_ghost:translate( 5*delta, 0)                     -- calculate delta to speed to prevent lagging of gameplay
                 elseif ( player_ghost.direction == "left" ) then            -- if player direction is "left" player goes left
-                    player_ghost:translate( -5*delta, 0)
+                    player_ghost:translate( -5*delta, 0)                    -- calculate delta to speed to prevent lagging of gameplay
                 end
                 
 
@@ -378,20 +347,17 @@ function scene:show( event )
                         camera:cancel()                                     -- camera will be disabled when there was already a camera tracking
                         camera.damping = 1
                         camera:setFocusY( player )                          -- camera will focus the player on the y-axis
-                        camera:trackY()        
-                        cameraChanged = true                                -- camera will only track in y-axis
+                        camera:trackY()                                     -- camera will only track in y-axis
                     elseif ( player.x > ( endOfLevel - middleOfScreen ) + 15 ) then     -- if the player gets near the end
                         camera:cancel()                                     -- camera will be disabled when there was already a camera tracking
                         camera.damping = 1
                         camera:setFocusY( player )                          -- camera will focus the player on the y-axis
                         camera:trackY()                                     -- camera will be disabled when there was already a camera tracking
-                        cameraChanged = true
                     elseif ( player.isDead ~= true ) then                   -- if the player leaves the end or start area and is between both of them camera will be attached
                         camera:cancel()                                     -- camera will be disabled when there was already a camera tracking
                         camera.damping = 1                                  -- A bit more fluid tracking
                         camera:setFocus( player )                           -- Set the focus to the player
                         camera:track()                                      -- Begin auto-tracking
-                        cameraChanged = false
                     else
                         --camera:cancel()                                   -- Dead player don't need camera tracking :-P
                     end
@@ -432,13 +398,13 @@ function scene:show( event )
 
 
         if ( collideObject.collType == "increase" and collideObject.alpha == 1 ) then   -- if collided object is an increasing object and visible
+            timer.performWithDelay( 1, function() physics.removeBody( collideObject ) end ) -- perform a delay so we can remove the collision body
             increase_fps()                                                  -- function to increase fps
             collideObject.alpha = 0                                         -- object becomes invisible
-            timer.performWithDelay( 1, function() physics.removeBody( collideObject ) end ) -- perform a delay so we can remove the collision body
         elseif ( collideObject.collType == "decrease"  and collideObject.alpha == 1 ) then  -- if collided object is an decreasing object and visible
+            timer.performWithDelay( 1, function() physics.removeBody( collideObject ) end ) -- perform a delay so we can remove the collision body
             decrease_fps()                                                  -- function to decrease fps
             collideObject.alpha = 0                                         -- object becomes invisible
-            timer.performWithDelay( 1, function() physics.removeBody( collideObject ) end ) -- perform a delay so we can remove the collision body
         end
         
     end
