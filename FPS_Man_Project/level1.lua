@@ -37,7 +37,8 @@ local characterSheet = graphics.newImageSheet("images/characterWalk.png", option
 local sequenceDataChar = {
     {name = "CharRightWalk", start = 1, count = 3, time = 400, loopcount = 0},
     {name = "CharLeftWalk", start = 4, count = 3, time = 400, loopcount = 0},
-    {name = "CharIdle", start = 1, count = 1, time = 400, loopcount = 0}
+    {name = "CharIdle", start = 1, count = 1, time = 400, loopcount = 0},
+    {name = "CharJump", start = 2, count = 1, time = 400, loopcount = 0}
 }
 
 local function spawnWall( x, y, w, h )                                      -- create a wall 
@@ -135,7 +136,7 @@ local function moveLeftButton( event )                                      -- c
         else if (event.phase == "ended") then
             player_ghost.direction = ""
             player:pause()
-            player:setFrame(0)
+            player:setSequence("CharIdle")
         end
     end
 
@@ -151,7 +152,7 @@ local function moveRightButton( event )                                     -- c
         else if (event.phase == "ended") then
             player_ghost.direction = ""
             player:pause()
-            player:setFrame(0)
+            player:setSequence("CharIdle")
         end
     end
     return true
@@ -169,7 +170,7 @@ function jump( )
         --player_ghost:applyLinearImpulse( 0, -0.1, player_ghost.x, player_ghost.y )    -- give player a linear impuls for jumping
         player_ghost:setLinearVelocity( 0, -275 )                           -- give player a linear velocity for jumping
         jumpDecrease = jumpDecrease + 1                                     -- increase jump counter
-        player:setFrame(2)
+        player:setSequence("CharJump")
     end
 
 end
