@@ -43,21 +43,9 @@ local function timerDown()
 timer.performWithDelay(1000,timerDown,timeLimit)
 
 
--- Creating image sheet for character --
-local optionsCharacter = {
-    width = 41,
-    height = 90,
-    numFrames = 6
-}
-local characterSheet = graphics.newImageSheet("images/characterWalk.png", optionsCharacter)
-
--- Sequences of frames to play for character --
-local sequenceDataChar = {
-    {name = "CharRightWalk", start = 1, count = 3, time = 400, loopcount = 0},
-    {name = "CharLeftWalk", start = 4, count = 3, time = 400, loopcount = 0},
-    {name = "CharIdle", start = 1, count = 1, time = 400, loopcount = 0},
-    {name = "CharJump", start = 2, count = 1, time = 400, loopcount = 0}
-}
+-- Creating image sheet and info for character --
+local characterSheetInfo = require("fps_man_walking_spritesheet")
+local characterSheet = graphics.newImageSheet("images/fps_man_walking_spritesheet.png", characterSheetInfo:getSheet() )
 
 local function spawnWall( x, y, w, h )                                      -- create a wall 
     
@@ -69,7 +57,7 @@ local function spawnWall( x, y, w, h )                                      -- c
 end
 
 local function spawnPlayer( x, y )
-    player = display.newSprite(characterSheet, sequenceDataChar)            -- starting point and seize of the object (old 30x60)
+    player = display.newSprite(characterSheet, characterSheetInfo:getSequenceData() )            -- starting point and seize of the object (old 30x60)
     player.x = 36
     player.y = 260
     local playerCollisionFilter = { categoryBits = 2, maskBits=5 }          -- create collision filter for object, its own number is 2 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
@@ -148,13 +136,15 @@ local function moveLeftButton( event )                                      -- c
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "left"
     if ( event.phase == "began" ) then
-    	player:setSequence("CharLeftWalk")
+        player.xScale = -0.4
+        player.yScale = 0.4
+    	player:setSequence("walk")
   		player:play()
         player_ghost.direction = "left"--nil
         else if (event.phase == "ended") then
             player_ghost.direction = ""
             player:pause()
-            player:setSequence("CharIdle")
+            player:setSequence("idle")
         end
     end
 
@@ -164,13 +154,15 @@ local function moveRightButton( event )                                     -- c
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "right"
     if ( event.phase == "began" ) then
-    	player:setSequence("CharRightWalk")
+        player.xScale = 0.4
+        player.yScale = 0.4
+    	player:setSequence("walk")
 	    player:play()
         player_ghost.direction = "right"--nil
         else if (event.phase == "ended") then
             player_ghost.direction = ""
             player:pause()
-            player:setSequence("CharIdle")
+            player:setSequence("idle")
         end
     end
     return true
@@ -188,7 +180,7 @@ function jump( )
         --player_ghost:applyLinearImpulse( 0, -0.1, player_ghost.x, player_ghost.y )    -- give player a linear impuls for jumping
         player_ghost:setLinearVelocity( 0, -275 )                           -- give player a linear velocity for jumping
         jumpDecrease = jumpDecrease + 1                                     -- increase jump counter
-        player:setSequence("CharJump")
+        player:setSequence("jump")
     end
 
 end
@@ -227,6 +219,8 @@ function scene:create( event )
     local thisLevel = myData.settings.currentLevel
 
     player = spawnPlayer( 27.5, 274.5 )                                     -- create a player
+    player.xScale = 0.4
+    player.yScale = 0.4
     player_ghost = spawnPlayerGhost( 27.5, 274.5 )                          -- create its ghost
     player_ghost.isFixedRotation = true                                     -- set its rotation to fixed so the player does not fall over when he jumps
     wallL = spawnWall( 0, 160, 30, 320 )                                    -- adding level component
