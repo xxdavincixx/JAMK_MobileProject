@@ -23,9 +23,6 @@ local dt=1000/60                                                            -- w
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
 local runtime = 0
 
-motionx = 0; -- Variable used to move character along x axis
-speed = 4; -- Set Walking Speed
-
 camera = perspective.createView()                                           -- camera is created
 
 -- Creating image sheet for character --
@@ -42,6 +39,7 @@ local sequenceDataChar = {
     {name = "CharLeftWalk", start = 4, count = 3, time = 400, loopcount = 0},
     {name = "CharIdle", start = 1, count = 1, time = 400, loopcount = 0}
 }
+<<<<<<< HEAD
 
 -- Creating image sheet for enemy --
 local optionsEnemy = {
@@ -78,6 +76,8 @@ end
 local function movePlayer (event)
     player_ghost.x = player_ghost.x + motionx
 end
+=======
+>>>>>>> refs/remotes/origin/master
 
 local function spawnWall( x, y, w, h )                                      -- create a wall 
     
@@ -115,7 +115,11 @@ end
 
 local function spawnPlayerGhost( x, y )                                           -- create a ghost of player object
 
+<<<<<<< HEAD
     local player_ghost = display.newRect( x, y, 41, 90 )            		 -- starting point and seize of the object
+=======
+    local player_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+>>>>>>> refs/remotes/origin/master
     local playerGhostCollisionFilter = { categoryBits = 8, maskBits = 21 }  -- create collision filter for ghost object, its own number is 8 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
     player_ghost.alpha = 0                                                  -- player_ghost is not visible
     player_ghost.isJumping =false                                           -- at the start the object is not jumping
@@ -179,20 +183,39 @@ end
 local function moveLeftButton( event )                                      -- change player_ghost direction value to "left"
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "left"
+<<<<<<< HEAD
     if ( event.phase == "ended" ) then
+=======
+    if ( event.phase == "began" ) then
+>>>>>>> refs/remotes/origin/master
     	player:setSequence("CharLeftWalk")
   		player:play()
         player_ghost.direction = "left"--nil
+        else if (event.phase == "ended") then
+            player_ghost.direction = ""
+            player:pause()
+            player:setFrame(0)
+        end
     end
+
     return true
 end
 local function moveRightButton( event )                                     -- change player_ghost direction value to "right"
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "right"
+<<<<<<< HEAD
     if ( event.phase == "ended" ) then
+=======
+    if ( event.phase == "began" ) then
+>>>>>>> refs/remotes/origin/master
     	player:setSequence("CharRightWalk")
 	    player:play()
         player_ghost.direction = "right"--nil
+        else if (event.phase == "ended") then
+            player_ghost.direction = ""
+            player:pause()
+            player:setFrame(0)
+        end
     end
     return true
 end
@@ -209,7 +232,7 @@ function jump( )
         --player_ghost:applyLinearImpulse( 0, -0.1, player_ghost.x, player_ghost.y )    -- give player a linear impuls for jumping
         player_ghost:setLinearVelocity( 0, -275 )                           -- give player a linear velocity for jumping
         jumpDecrease = jumpDecrease + 1                                     -- increase jump counter
-        movePlayer()
+        player:setFrame(2)
     end
 
 end
