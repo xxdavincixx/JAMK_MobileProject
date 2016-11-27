@@ -299,13 +299,13 @@ function scene:create( event )
 
     local doneButton = widget.newButton({
         id = "button1",
-        label = "Done",
-        width = 100,
+        label = "Back to menu",
+        width = 120,
         height = 32,
         onEvent = handleButtonEvent
     })
     doneButton.x = display.contentCenterX
-    doneButton.y = display.contentHeight - 40
+    doneButton.y = title.y + doneButton.height + 10
     sceneGroup:insert( doneButton )
 
     sceneGroup:insert( scrollViewLevelList )
