@@ -130,8 +130,8 @@ local function moveLeftButton( event )                                      -- c
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "left"
     if ( event.phase == "began" ) then
-        player:setSequence("CharLeftWalk")
-        player:play()
+    	player:setSequence("CharLeftWalk")
+  		player:play()
         player_ghost.direction = "left"--nil
         else if (event.phase == "ended") then
             player_ghost.direction = ""
@@ -146,8 +146,8 @@ local function moveRightButton( event )                                     -- c
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "right"
     if ( event.phase == "began" ) then
-        player:setSequence("CharRightWalk")
-        player:play()
+    	player:setSequence("CharRightWalk")
+	    player:play()
         player_ghost.direction = "right"--nil
         else if (event.phase == "ended") then
             player_ghost.direction = ""
