@@ -13,66 +13,67 @@ local xLevelInformationRectangle = display.contentWidth/3 - display.contentWidth
 local yLevelInformationRectangle = ( display.contentHeight/3 ) * 2 + ( display.contentHeight/5 ) - 30
 local levelCompleteText, levelHighscoreText, userNameText
 
-local function handleButtonEvent( event )
+local function handleButtonEvent( event )                                       -- get back to menu function
 
     if ( "ended" == event.phase ) then
-        composer.removeScene( "menu", false )
-        composer.gotoScene( "menu", { effect = "crossFade", time = 333 } )
+        composer.removeScene( "menu", false )                                   -- remove current menu scene
+        composer.gotoScene( "menu", { effect = "crossFade", time = 333 } )      -- go to menu
+    end
+end
+
+local function handleChangeNameEvent( event )
+    if ( event.phase == "ended" ) then 
+        composer.showOverlay( "username_overlay" , { effect = "crossFade", time = 333, isModal = true } )   -- change the current name
     end
 end
 
 local function levelSelect( event )                                             -- important to have this function as empty listener function for scrollViewLevelList. otherwise the snapping wouldn't work
 end
 
-local function selectLevel( event )
-    if ( event.phase == "moved" ) then
-        local dy = math.abs( ( event.y - event.yStart ) )
-        -- If the touch on the button has moved more than 15 pixels,
-        -- pass focus back to the scroll view so it can continue scrolling
-        if ( dy > 15 ) then
-            scrollViewLevelList:takeFocus( event )
+local function selectLevel( event )                                             
+    if ( event.phase == "moved" ) then                                          -- if finger is moved above the scrollList
+        local dy = math.abs( ( event.y - event.yStart ) )                       -- calculates how far finger is moved
+        if ( dy > 15 ) then                                                     -- if finger was moved more than 15px
+            scrollViewLevelList:takeFocus( event )                              -- set a new focus
         end
     end
-    if ( event.phase == "ended" ) then
-        local buttonLevel = event.target.id
-        local levelName = "level"..buttonLevel
-        if ( myData.settings.musicOn ) then
-            audio.stop()
-            local backgroundMusicChannel = audio.play( audio.loadStream("audio/menu.mp3"), { channel=1, loops=-1, fadein = 1000 } )
+    if ( event.phase == "ended" ) then                                          -- if button is released
+        local buttonLevel = event.target.id                                     -- get the id of pressed button
+        local levelName = "level"..buttonLevel                                  -- concatenate "level" with level id e.g. "level1"
+        if ( myData.settings.musicOn ) then                                     -- if music is enabled
+            audio.stop()                                                        -- stop current music
+            local backgroundMusicChannel = audio.play( audio.loadStream("audio/menu.mp3"), { channel=1, loops=-1, fadein = 1000 } ) -- start level music
         end
-        composer.removeScene(levelName, false)
-        composer.gotoScene(levelName, {effect = "crossFade", time = 333})
+        composer.removeScene(levelName, false)                                  -- remove level you want to move to
+        composer.gotoScene(levelName, {effect = "crossFade", time = 333})       -- go to level selected
     end
 end
 
 
-local function handleLevelSelect( event )
-    if ( event.phase == "moved" ) then
-        local dy = math.abs( ( event.y - event.yStart ) )
-        -- If the touch on the button has moved more than 10 pixels,
-        -- pass focus back to the scroll view so it can continue scrolling
-        if ( dy > 15 ) then
-            scrollViewLevelList:takeFocus( event )
+local function handleLevelSelect( event )                                       -- copy a button and put it in position of pressed button
+ 
+    if ( event.phase == "moved" ) then                                          -- if finger is moved above the scrollList
+        local dy = math.abs( ( event.y - event.yStart ) )                       -- calculates how far finger is moved
+        if ( dy > 15 ) then                                                     -- if finger was moved more than 15px
+            scrollViewLevelList:takeFocus( event )                              -- set a new focus
         end
     end
     
-    if ( "ended" == event.phase ) then
-        button.id = event.target.id
-        button:setLabel("Start Level " .. event.target.id)
-        button.x = event.target.x
-        button.y = event.target.y+1
+    if ( "ended" == event.phase ) then                                          -- if button is released
+        button.id = event.target.id                                             -- copy pressed button
+        button:setLabel("Start Level " .. event.target.id)                      -- copy pressed button
+        button.x = event.target.x                                               -- copy pressed button position
+        button.y = event.target.y+1                                             -- copy pressed button position
 
-        if( event.target.id == "1") then                                                        -- this statement has to ask for the value if value is already completed
-            levelCompleteText.text = "Level " .. event.target.id .. " completed"
-            levelCompleteText.alpha = 1
-            levelHighscoreText.alpha = 1
-            levelHighscoreText.text = "Highscore: 210" -- .. getHighscoreOfCurrentLevel()
-            --levelCompleteText.x = xLevelInformationRectangle - 14.5
+        if ( event.target.id == "1") then                                       -- this statement has to be changed! we have to ask if level is already completed
+            levelCompleteText.text = "Level " .. event.target.id .. " completed"    -- e.g. write "Level 1 completed"
+            levelCompleteText.alpha = 1                                         -- set text visible
+            levelHighscoreText.alpha = 1                                        -- set highscore visible
+            levelHighscoreText.text = "Highscore: 210"                          -- we have to get the highscore of the currently selected level
         else
-            levelCompleteText.text = "Level " .. event.target.id .. " not completed"
-            levelCompleteText.alpha = 1
-            levelHighscoreText.alpha = 0
-            --levelCompleteText.x = xLevelInformationRectangle
+            levelCompleteText.text = "Level " .. event.target.id .. " not completed"    -- if level is not completed yet
+            levelCompleteText.alpha = 1                                         -- set text visible
+            levelHighscoreText.alpha = 0                                        -- set highscore invisible
         end
     end
 end
@@ -84,38 +85,39 @@ end
 function scene:create( event )
 
     local sceneGroup = self.view
-    local background = display.newRect( 0, 0, 570, 360 )
+    local background = display.newRect( 0, 0, 570, 360 )                        -- create background
     background.x = display.contentCenterX
     background.y = display.contentCenterY
     sceneGroup:insert( background )
  
-    local title = display.newText("Frames per second", 100, 32, native.systemFontBold, 32 )
+    local title = display.newText("Frames per second", 100, 32, native.systemFontBold, 32 ) -- create title
     title.x = display.contentCenterX
     title.y = 40
     title:setFillColor( 0 )
     sceneGroup:insert( title )
 
-    scrollViewLevelList = widget.newScrollView
+    scrollViewLevelList = widget.newScrollView                                  -- create scrollView for levelselection
     {
-        x = ( display.contentWidth/3 ) * 2,--left = display.contentWidth/3, --display.contentWidth/2-display.contentWidth/7,
-        y = ( display.contentHeight/3 ) * 2, --top = display.contentHeight/2-display.contentHeight/7,
-        width = ( display.contentWidth/3 ) * 2,--display.contentWidth/2+display.contentWidth/7,
-        height = ( display.contentHeight/3 ) * 2,  -- display.contentHeight - (display.contentHeight/2-display.contentHeight/7),
-        horizontalScrollDisabled = true,
-        listener = levelSelect
+        x = ( display.contentWidth/3 ) * 2,
+        y = ( display.contentHeight/3 ) * 2,
+        width = ( display.contentWidth/3 ) * 2,
+        height = ( display.contentHeight/3 ) * 2,
+        horizontalScrollDisabled = true,                                        -- enable to scroll horizontal
+        listener = levelSelect                                                  -- constructor needs a listener to enable scrolling without snapping back. listener can be empty
     }
-    button = widget.newButton({
+
+    button = widget.newButton({                                                 -- create Button to start a level
         id = "",
-        label = "Start Level ", --.. event.target.id,
+        label = "",                                                             -- empty in the beginning, will become "Start Level 1" e.g.
         name = "copyOfButton",
-        width = scrollViewLevelList.width,
+        width = scrollViewLevelList.width,                                      -- same width as scrollView
         height = 50,
-        x = -2000,
-        y = -2000,--event.target.y,
+        x = -2000,                                                              -- in the beginning out of view
+        y = -2000,                                                              -- in the beginning out of view
         onEvent = selectLevel
     })
 
-    local levelOneButton = widget.newButton({
+    local levelOneButton = widget.newButton({                                   -- create button for level selection
         id = "1",
         label = "Level 1",
         name = "button",
@@ -126,48 +128,48 @@ function scene:create( event )
         onEvent = handleLevelSelect
     })
     
-    local levelTwoButton = widget.newButton({
+    local levelTwoButton = widget.newButton({                                   -- create button for level selection
         id = "2",
         label = "Level 2",
         name = "button",
         width = scrollViewLevelList.width,
         height = 52,
         x = scrollViewLevelList.contentWidth - scrollViewLevelList.contentWidth/2,
-        y = levelOneButton.y + 48,
+        y = levelOneButton.y + 48,                                              -- just beneathe upper button
         onEvent = handleLevelSelect
     })
     
-    local levelThreeButton = widget.newButton({
+    local levelThreeButton = widget.newButton({                                 -- create button for level selection
         id = "3",
         label = "Level 3",
         name = "button",
         width = scrollViewLevelList.width,
         height = 52,
         x = scrollViewLevelList.contentWidth - scrollViewLevelList.contentWidth/2,
-        y = levelTwoButton.y + 48,
+        y = levelTwoButton.y + 48,                                              -- just beneathe upper button
         onEvent = handleLevelSelect
     })
     
-    local levelFourButton = widget.newButton({
+    local levelFourButton = widget.newButton({                                  -- create button for level selection
         id = "4",
         label = "Level 4",
         name = "button",
         width = scrollViewLevelList.width,
-        x = scrollViewLevelList.contentWidth - scrollViewLevelList.contentWidth/2,
-        y = 225,
         height = 52,
-        y = levelThreeButton.y + 48,
+        x = scrollViewLevelList.contentWidth - scrollViewLevelList.contentWidth/2,
+        y = levelThreeButton.y + 48,                                            -- just beneathe upper button
+        
         onEvent = handleLevelSelect
     })
     
-    local levelFiveButton = widget.newButton({
+    local levelFiveButton = widget.newButton({                                  -- create button for level selection
         id = "5",
         label = "Level 5",
         name = "button",
         width = scrollViewLevelList.width,
         height = 52,
         x = scrollViewLevelList.contentWidth - scrollViewLevelList.contentWidth/2,
-        y = levelFourButton.y + 48,
+        y = levelFourButton.y + 48,                                             -- just beneathe upper button
         onEvent = handleLevelSelect
     })
 
@@ -178,13 +180,16 @@ function scene:create( event )
     scrollViewLevelList:insert( levelFiveButton )
     scrollViewLevelList:insert( button )
     
+
+    -- area where the name will be displayed in
     local userNameDisplay = display.newRoundedRect ( xLevelInformationRectangle, yLevelInformationRectangle+1 - ( display.contentHeight/9 ) * 3, display.contentWidth/3-10, ( display.contentHeight/9 ) * 2, 16)
     userNameDisplay:setFillColor( 0.75 )
+    -- area where information of selected level will be displayed in
     local levelInformationRectangle = display.newRoundedRect( xLevelInformationRectangle, yLevelInformationRectangle+3, display.contentWidth/3 -10, ( display.contentHeight/9 ) * 4, 16 )
     levelInformationRectangle:setFillColor ( 0.75 )
     
     local userNameOptions = {
-        text = "Svenja",
+        text = myData.settings.username,                                        -- get the current username
         x = xLevelInformationRectangle+10,
         y = levelInformationRectangle.y - levelInformationRectangle.height + userNameDisplay.height/2,
         width = display.contentWidth/3-20,
@@ -192,9 +197,9 @@ function scene:create( event )
         fontSize = 15,
         align = "left"
     }
-    userNameText = display.newText( userNameOptions )
+    userNameText = display.newText( userNameOptions )                           -- set options of userName to the text display
 
-    local changeNameButton = widget.newButton({
+    local changeNameButton = widget.newButton({                                 -- create button to change username
         id = "changeName",
         label = "change Name",        
         width = userNameDisplay.width/2,
@@ -202,10 +207,10 @@ function scene:create( event )
         x = userNameDisplay.width/2 + userNameDisplay.width/4,
         y = userNameOptions.y,
         fontSize = 10,
-        onEvent = handleLevelSelect                                     -- this method has to be changed to Arthurs method
+        onEvent = handleChangeNameEvent                                         -- this method will save the username in our app-settings
     })
     
-    local levelCompleteOptions = {
+    local levelCompleteOptions = {                                              -- set options for level information
         text = "Level completed", 
         x = xLevelInformationRectangle, 
         y = yLevelInformationRectangle - 40, 
@@ -214,10 +219,10 @@ function scene:create( event )
         fontSize = 14,
         align = "left"
     }
-    levelCompleteText = display.newText( levelCompleteOptions )
-    levelCompleteText.alpha = 0
+    levelCompleteText = display.newText( levelCompleteOptions )                 -- set options of level information to that text
+    levelCompleteText.alpha = 0                                                 -- default invisible to have no level information in the beginning of levelselection without selected level
     
-    local levelHighscoreOptions = {
+    local levelHighscoreOptions = {                                             -- set options for level information
         text = "",
         x = xLevelInformationRectangle,
         y = yLevelInformationRectangle - 5 ,     
@@ -227,7 +232,7 @@ function scene:create( event )
         align = "left"
     }
     levelHighscoreText = display.newText( levelHighscoreOptions )
-    levelHighscoreText.alpha = 0
+    levelHighscoreText.alpha = 0                                                -- default invisible to have no level information in the beginning of levelselection without selected level
 
     sceneGroup:insert( userNameDisplay )
     sceneGroup:insert( userNameText )
@@ -236,66 +241,11 @@ function scene:create( event )
     sceneGroup:insert( levelHighscoreText )
     sceneGroup:insert( changeNameButton )
     
-    scrollViewLevelList:setScrollHeight( levelFiveButton.y + levelFiveButton.height/2 )
+    scrollViewLevelList:setScrollHeight( levelFiveButton.y + levelFiveButton.height/2 ) -- limitate the scrollable height beneathe the last level button
     params = event.params
 
 
-    --
-    -- setup a page background, really not that important though composer
-    -- crashes out if there isn't a display object in the view.
-    --
     
-   --[[ local selectLevelText = display.newText("Select a level", 125, 32, native.systemFontBold, 32)
-    selectLevelText:setFillColor( 0 )
-    selectLevelText.x = display.contentCenterX
-    selectLevelText.y = 50
-    sceneGroup:insert(selectLevelText)
---]]
-    --local x = 90
-    --local y = 115
-    local x = 0
-    local y = 0
-    local buttons = {}
-    local buttonBackgrounds = {}
-    local buttonGroups = {}
-    local levelSelectGroup = display.newGroup()
-    local cnt = 1
-    --[[for i = 1, 10 do
-        buttonGroups[i] = display.newGroup()
-        buttonBackgrounds[i] = display.newRoundedRect( x, y-15, 42, 32, 8 )
-        buttonBackgrounds[i]:setFillColor( 1, 0, 1, 0.333 )
-        buttonBackgrounds[i]:setStrokeColor( 1, 0, 1, 0.667 )
-        buttonBackgrounds[i].strokeWidth = 1
-        buttonGroups[i]:insert(buttonBackgrounds[i])
-        buttonGroups[i].id = i
-        if myData.settings.unlockedLevels == nil then
-            myData.settings.unlockedLevels = 10
-        end
-        
-        if i <= myData.settings.unlockedLevels then
-            buttonGroups[i].alpha = 1.0
-            buttonGroups[i]:addEventListener( "touch", handleLevelSelect )
-        else
-            buttonGroups[i].alpha = 0.5
-        end
-        buttons[i] = display.newText(tostring(i), 0, 0, native.systemFontBold, 28)
-        buttons[i].x = x
-        buttons[i].y = y -15
-        buttonGroups[i]:insert(buttons[i])
-
-        x = x + 55
-        cnt = cnt + 1
-        if cnt > 5 then
-            cnt = 1
-            x = 0
-            y = y + 42
-        end
-        levelSelectGroup:insert(buttonGroups[i])
-    end
-    ]]
-    sceneGroup:insert(levelSelectGroup)
-    levelSelectGroup.x = display.contentCenterX - 100
-    levelSelectGroup.y = 120
 
     local doneButton = widget.newButton({
         id = "button1",
@@ -317,6 +267,12 @@ function scene:show( event )
 
     if event.phase == "did" then
     end
+    local myListener = function( event )
+        if ( userNameText.text ~= myData.settings.username ) then               -- if name in userNameDisplay is unequal to string saved in app
+            userNameText.text = myData.settings.username                        -- save string from userNameDisplay in app
+        end
+    end
+    Runtime:addEventListener( "enterFrame", myListener )                        -- runtime listener for eachframe for changing displaytext at runtime
 end
 
 function scene:hide( event )
