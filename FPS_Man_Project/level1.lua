@@ -22,11 +22,13 @@ local timerDelay = 0                                                        -- w
 local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
 local runtime = 0
+local neededtime
+local timeLimit = 300
+local highscoretime = 0
 
 camera = perspective.createView()                                           -- camera is created
 
 -- Create timer  --
-local timeLimit = 300
 text = display.newText("Time left: ", 400, 10, native.systemFont, 16)
 timeLeft = display.newText(timeLimit, 450, 10, native.systemFont, 16)
 text:setTextColor(255,255,255)
@@ -41,7 +43,14 @@ local function timerDown()
         print("Time Out") -- or do your code for time out --
      end
   end
-timer.performWithDelay(1000,timerDown,timeLimit)
+
+local function timerUp()
+    highscoretime = highscoretime+1
+    neededtime = highscoretime * 10 / 100
+end
+
+local countdowntimer = timer.performWithDelay(1000,timerDown,timeLimit)
+local highscoretimer = timer.performWithDelay(100,timerUp,highscoretime)
 
 
 -- Creating image sheet and info for character --
@@ -272,7 +281,6 @@ function scene:create( event )
     
     currentScoreDisplay = display.newText( "000000", display.contentWidth - 50, 10, native.systemFont, 16 )
 
-
     --
     -- Insert objects into the scene to be managed by Composer
     --
@@ -283,8 +291,6 @@ function scene:create( event )
     sceneGroup:insert( rButton )
     sceneGroup:insert( mButton )
     sceneGroup:insert( currentScoreDisplay )
-    sceneGroup:insert( text )
-    sceneGroup:insert( timeLeft )
    
 
     -- these objects are effected by the camera movement --
@@ -388,6 +394,7 @@ function scene:show( event )
                 elseif ( player.didFinish == true ) then
                     composer.removeScene( "winning" )                       -- if there is a winning-scene already running we delete it
                     composer.gotoScene( "winning", {time = 500, effect = "crossFade"} ) -- switch to winning-scene
+                    print(neededtime)
                 
                 end
             end
@@ -438,7 +445,6 @@ function scene:hide( event )                                                    
     local sceneGroup = self.view
     
     if event.phase == "will" then
-        text = 300
         physics.stop()
         wallL:removeSelf()
         wallR:removeSelf()
@@ -465,6 +471,9 @@ function scene:hide( event )                                                    
         decreaseObject3:removeSelf()
         finishPlatform:removeSelf()
         finishCoverPlatform:removeSelf()
+        timer.cancel(countdowntimer)
+        text:removeSelf()
+        timeLeft:removeSelf()
         if ( myData.settings.musicOn ) then
             audio.stop()
             audio.play( audio.loadStream( "audio/menuMusic.mp3" ), { channel=1, loops=-1 } )
