@@ -196,7 +196,7 @@ SheetInfo.frameIndex =
 
 SheetInfo.sequenceData =
 {
-	{name = "walk", start = 1, count = 12, time = 1000},
+	{name = "walk", frames = {10,9,8,7,6,5,4,3,2,1}, time = 750},
     {name = "idle", start = 12, count = 1, time = 1000},
     {name = "jump", start = 13, count = 1, time = 1000}
 }

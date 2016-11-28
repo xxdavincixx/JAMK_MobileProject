@@ -17,7 +17,7 @@ local currentScoreDisplay                                                   -- w
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
 local spawnTimer                                                            -- will be used to hold the timer for the spawning engine
 local timerRefresh = 1000                                                   -- will be used to calculate fps-update
-local fps_multiplicator = 1                                                 -- will be used to calculate fps-update
+local fps_multiplicator = 60                                              -- will be used to calculate fps-update
 local timerDelay = 0                                                        -- will be used to calculate fps-update
 local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
@@ -31,6 +31,7 @@ text = display.newText("Time left: ", 400, 10, native.systemFont, 16)
 timeLeft = display.newText(timeLimit, 450, 10, native.systemFont, 16)
 text:setTextColor(255,255,255)
 timeLeft:setTextColor(255,255,255)
+
 
 -- Function for timer --
 local function timerDown()
@@ -268,7 +269,7 @@ function scene:create( event )
 
     local background = display.newRect( display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
     background:setFillColor( 0.6, 0.7, 0.3 )
-
+    
     currentScoreDisplay = display.newText( "000000", display.contentWidth - 50, 10, native.systemFont, 16 )
 
 
@@ -282,6 +283,8 @@ function scene:create( event )
     sceneGroup:insert( rButton )
     sceneGroup:insert( mButton )
     sceneGroup:insert( currentScoreDisplay )
+    sceneGroup:insert( text )
+    sceneGroup:insert( timeLeft )
    
 
     -- these objects are effected by the camera movement --
@@ -435,6 +438,7 @@ function scene:hide( event )                                                    
     local sceneGroup = self.view
     
     if event.phase == "will" then
+        text = 300
         physics.stop()
         wallL:removeSelf()
         wallR:removeSelf()
@@ -466,7 +470,6 @@ function scene:hide( event )                                                    
             audio.play( audio.loadStream( "audio/menuMusic.mp3" ), { channel=1, loops=-1 } )
         end
     end
-
 end
 
 
