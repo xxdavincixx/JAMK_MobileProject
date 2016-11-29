@@ -17,7 +17,7 @@ local currentScoreDisplay                                                   -- w
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
 local spawnTimer                                                            -- will be used to hold the timer for the spawning engine
 local timerRefresh = 1000                                                   -- will be used to calculate fps-update
-local fps_multiplicator = 60                                              -- will be used to calculate fps-update
+local fps_multiplicator = 1                                              -- will be used to calculate fps-update
 local timerDelay = 0                                                        -- will be used to calculate fps-update
 local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
@@ -26,7 +26,29 @@ local neededtime
 local timeLimit = 300
 local highscoretime = 0
 
+local levelNumber = 1
+local endScore
+
+-- Test Start
+endScore = 500
+-- Test End
+
 camera = perspective.createView()                                           -- camera is created
+
+
+-- save highscore local
+local function compareLocalHighscore()
+
+
+
+    local localHighscore = myData.settings.levels[tostring(levelNumber)]
+    
+    if(endScore > localHighscore) then
+        myData.settings.levels[tostring(levelNumber)] = endScore
+        utility.saveTable(myData.settings, "settings.json")
+    end
+end
+-- compareLocalHighscore() -- trigger this function when level won
 
 -- Create timer  --
 text = display.newText("Time left: ", 400, 10, native.systemFont, 16)
@@ -395,7 +417,7 @@ function scene:show( event )
                     composer.removeScene( "winning" )                       -- if there is a winning-scene already running we delete it
                     composer.gotoScene( "winning", {time = 500, effect = "crossFade"} ) -- switch to winning-scene
                     print(neededtime)
-                
+					compareLocalHighscore()
                 end
             end
         end

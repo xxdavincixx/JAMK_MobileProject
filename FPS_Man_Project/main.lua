@@ -12,7 +12,7 @@ display.setStatusBar( display.HiddenStatusBar )
 math.randomseed( os.time() )
 
 if device.isAndroid then
-	widget.setTheme( "widget_theme_android_holo_light" )
+    widget.setTheme( "widget_theme_android_holo_light" )
     store = require("plugin.google.iap.v3")
 end
 --
@@ -20,20 +20,20 @@ end
 --
 myData.settings = utility.loadTable("settings.json")
 if myData.settings == nil then
-	myData.settings = {}
+    myData.settings = {}
     myData.settings.username = ""
     myData.settings.maxLevel = 0
-	myData.settings.soundOn = true
-	myData.settings.musicOn = true
+    myData.settings.soundOn = true
+    myData.settings.musicOn = true
     --myData.settings.isPaid = false
-	--myData.settings.currentLevel = 1
-	--myData.settings.unlockedLevels = 21
+    --myData.settings.currentLevel = 1
+    --myData.settings.unlockedLevels = 21
     --myData.settings.bestScore = 0
-	myData.settings.levels = {}
-    myData.settings.levels.level1 = 0
-    myData.settings.levels.level2 = 0
-    myData.settings.levels.level3 = 0
-	utility.saveTable(myData.settings, "settings.json")
+    myData.settings.levels = {}
+    myData.settings.levels["1"] = 0
+    myData.settings.levels["2"] = 0
+    myData.settings.levels["3"] = 0
+    utility.saveTable(myData.settings, "settings.json")
 end
 --[[
 if myData.settings.bestScore == nil then
