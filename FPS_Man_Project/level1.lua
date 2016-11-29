@@ -17,20 +17,23 @@ local currentScoreDisplay                                                   -- w
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
 local spawnTimer                                                            -- will be used to hold the timer for the spawning engine
 local timerRefresh = 1000                                                   -- will be used to calculate fps-update
-local fps_multiplicator = 1                                                 -- will be used to calculate fps-update
+local fps_multiplicator = 60                                              -- will be used to calculate fps-update
 local timerDelay = 0                                                        -- will be used to calculate fps-update
 local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
 local runtime = 0
+local neededtime
+local timeLimit = 300
+local highscoretime = 0
 
 camera = perspective.createView()                                           -- camera is created
 
 -- Create timer  --
-local timeLimit = 300
 text = display.newText("Time left: ", 400, 10, native.systemFont, 16)
 timeLeft = display.newText(timeLimit, 450, 10, native.systemFont, 16)
 text:setTextColor(255,255,255)
 timeLeft:setTextColor(255,255,255)
+
 
 -- Function for timer --
 local function timerDown()
@@ -40,24 +43,19 @@ local function timerDown()
         print("Time Out") -- or do your code for time out --
      end
   end
-timer.performWithDelay(1000,timerDown,timeLimit)
+
+local function timerUp()
+    highscoretime = highscoretime+1
+    neededtime = highscoretime * 10 / 100
+end
+
+local countdowntimer = timer.performWithDelay(1000,timerDown,timeLimit)
+local highscoretimer = timer.performWithDelay(100,timerUp,highscoretime)
 
 
--- Creating image sheet for character --
-local optionsCharacter = {
-    width = 41,
-    height = 90,
-    numFrames = 6
-}
-local characterSheet = graphics.newImageSheet("images/characterWalk.png", optionsCharacter)
-
--- Sequences of frames to play for character --
-local sequenceDataChar = {
-    {name = "CharRightWalk", start = 1, count = 3, time = 400, loopcount = 0},
-    {name = "CharLeftWalk", start = 4, count = 3, time = 400, loopcount = 0},
-    {name = "CharIdle", start = 1, count = 1, time = 400, loopcount = 0},
-    {name = "CharJump", start = 2, count = 1, time = 400, loopcount = 0}
-}
+-- Creating image sheet and info for character --
+local characterSheetInfo = require("fps_man_walking_spritesheet")
+local characterSheet = graphics.newImageSheet("images/fps_man_walking_spritesheet.png", characterSheetInfo:getSheet() )
 
  
 local function spawnWall( x, y, w, h )                                      -- create a wall 
@@ -70,7 +68,7 @@ local function spawnWall( x, y, w, h )                                      -- c
 end
 
 local function spawnPlayer( x, y )
-    player = display.newSprite(characterSheet, sequenceDataChar)            -- starting point and seize of the object (old 30x60)
+    player = display.newSprite(characterSheet, characterSheetInfo:getSequenceData() )            -- starting point and seize of the object (old 30x60)
     player.x = 36
     player.y = 260
     local playerCollisionFilter = { categoryBits = 2, maskBits=5 }          -- create collision filter for object, its own number is 2 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
@@ -149,15 +147,26 @@ local function moveLeftButton( event )                                      -- c
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "left"
     if ( event.phase == "began" ) then
+<<<<<<< HEAD
         player:setSequence("CharLeftWalk")
         player:play()
+=======
+        player.xScale = -0.4
+        player.yScale = 0.4
+    	player:setSequence("walk")
+  		player:play()
+>>>>>>> refs/remotes/origin/master
         player_ghost.direction = "left"--nil
         else if ( event.phase == "ended") then
             player_ghost.direction = ""
             player:pause()
+<<<<<<< HEAD
             player:setFrame(1)
             player:setSequence("CharIdle")
 
+=======
+            player:setSequence("idle")
+>>>>>>> refs/remotes/origin/master
         end
     end
     return true
@@ -167,14 +176,25 @@ local function moveRightButton( event )                                     -- c
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "right"
     if ( event.phase == "began" ) then
+<<<<<<< HEAD
         player:setSequence("CharRightWalk")
         player:play()
+=======
+        player.xScale = 0.4
+        player.yScale = 0.4
+    	player:setSequence("walk")
+	    player:play()
+>>>>>>> refs/remotes/origin/master
         player_ghost.direction = "right"--nil
         else if (event.phase == "ended" ) then
             player_ghost.direction = ""
             player:pause()
+<<<<<<< HEAD
             player:setFrame(1)
             player:setSequence("CharIdle")
+=======
+            player:setSequence("idle")
+>>>>>>> refs/remotes/origin/master
         end
     end
     return true
@@ -192,7 +212,7 @@ function jump( )
         --player_ghost:applyLinearImpulse( 0, -0.1, player_ghost.x, player_ghost.y )    -- give player a linear impuls for jumping
         player_ghost:setLinearVelocity( 0, -275 )                           -- give player a linear velocity for jumping
         jumpDecrease = jumpDecrease + 1                                     -- increase jump counter
-        player:setSequence("CharJump")
+        player:setSequence("jump")
     end
 
 end
@@ -231,6 +251,8 @@ function scene:create( event )
     local thisLevel = myData.settings.currentLevel
 
     player = spawnPlayer( 27.5, 274.5 )                                     -- create a player
+    player.xScale = 0.4
+    player.yScale = 0.4
     player_ghost = spawnPlayerGhost( 27.5, 274.5 )                          -- create its ghost
     player_ghost.isFixedRotation = true                                     -- set its rotation to fixed so the player does not fall over when he jumps
     wallL = spawnWall( 0, 160, 30, 320 )                                    -- adding level component
@@ -278,9 +300,8 @@ function scene:create( event )
 
     local background = display.newRect( display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
     background:setFillColor( 0.6, 0.7, 0.3 )
-
+    
     currentScoreDisplay = display.newText( "000000", display.contentWidth - 50, 10, native.systemFont, 16 )
-
 
     --
     -- Insert objects into the scene to be managed by Composer
@@ -395,6 +416,7 @@ function scene:show( event )
                 elseif ( player.didFinish == true ) then
                     composer.removeScene( "winning" )                       -- if there is a winning-scene already running we delete it
                     composer.gotoScene( "winning", {time = 500, effect = "crossFade"} ) -- switch to winning-scene
+                    print(neededtime)
                 
                 end
             end
@@ -471,12 +493,14 @@ function scene:hide( event )                                                    
         decreaseObject3:removeSelf()
         finishPlatform:removeSelf()
         finishCoverPlatform:removeSelf()
+        timer.cancel(countdowntimer)
+        text:removeSelf()
+        timeLeft:removeSelf()
         if ( myData.settings.musicOn ) then
             audio.stop()
             audio.play( audio.loadStream( "audio/menuMusic.mp3" ), { channel=1, loops=-1 } )
         end
     end
-
 end
 
 
