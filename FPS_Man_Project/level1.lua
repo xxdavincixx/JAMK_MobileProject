@@ -68,6 +68,22 @@ local highscoretimer = timer.performWithDelay(100,timerUp,highscoretime)
 local characterSheetInfo = require("fps_man_walking_spritesheet")
 local characterSheet = graphics.newImageSheet("images/fps_man_walking_spritesheet.png", characterSheetInfo:getSheet() )
 
+-- Creating image sheet and info for walker enemy --
+local walkerEnemySheetInfo = require("fps_walker_spritesheet")
+local walkerEnemySheet = graphics.newImageSheet("images/fps_walker_spritesheet.png", walkerEnemySheetInfo:getSheet() )
+
+-- looping movement walker enemy 1 --
+local function walkerEnemy1MovementRight()
+    local function walkerEnemy1MovementLeft()
+        transition.to(walkerEnemy, {x = 250, time=1200, onComplete=walkerEnemy1MovementRight})
+        walkerEnemy.xScale = -0.15
+        walkerEnemy.yScale = 0.15
+    end
+    transition.to(walkerEnemy, {x = 390, time=1200, onComplete=walkerEnemy1MovementLeft})
+    walkerEnemy.xScale = 0.15
+    walkerEnemy.yScale = 0.15
+end
+
 local function spawnWall( x, y, w, h )                                      -- create a wall 
     
     local wall = display.newRect( x, y, w, h)
@@ -134,6 +150,16 @@ local function spawnDecreasingObject( x, y )                                -- c
     object.collType = "decrease"                                            -- parameter for collision to ask which object the player collides with
     object:setFillColor( 0.5, 1, 0.2 )  
     return object
+end
+
+local function spawnWalkerEnemy( x, y )
+    local walkerEnemy = display.newSprite( walkerEnemySheet, walkerEnemySheetInfo:getSequenceData() )
+    walkerEnemy.x = x
+    walkerEnemy.y = y
+    local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
+    physics.addBody( walkerEnemy, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
+    walkerEnemy.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
+    return walkerEnemy
 end
 
 local function setJumpDecrease( jd )
@@ -242,6 +268,7 @@ function scene:create( event )
     player = spawnPlayer( 27.5, 274.5 )                                     -- create a player
     player.xScale = 0.4
     player.yScale = 0.4
+    player:setFrame(10)
     player_ghost = spawnPlayerGhost( 27.5, 274.5 )                          -- create its ghost
     player_ghost.isFixedRotation = true                                     -- set its rotation to fixed so the player does not fall over when he jumps
     wallL = spawnWall( 0, 160, 30, 320 )                                    -- adding level component
@@ -261,6 +288,13 @@ function scene:create( event )
     decreaseObject1 = spawnDecreasingObject( 817, 112 )                     -- adding level component
     decreaseObject2 = spawnIncreasingObject( 86, 227)                       -- adding level component
     decreaseObject3 = spawnDecreasingObject( 734, 60 )                      -- adding level component
+
+    walkerEnemy = spawnWalkerEnemy( 250, 260 )
+    walkerEnemy.xScale=0.15
+    walkerEnemy.yScale=0.15
+    walkerEnemy:play()
+    walkerEnemy1MovementRight()
+
     platform2 = spawnPlatform( 460, 200, 80, 10 )                           -- adding level component
     platform3 = spawnPlatform( 700, 200, 80, 10 )                           -- adding level component
     platform4 = spawnPlatform( 940, 200, 80, 10 )                           -- adding level component
@@ -323,6 +357,7 @@ function scene:create( event )
     camera:add( decreaseObject1 )
     camera:add( decreaseObject2 )
     camera:add( decreaseObject3 )
+    camera:add( walkerEnemy ) 
     camera:add( finishPlatform )
     camera:add( finishCoverPlatform )
 
@@ -480,6 +515,7 @@ function scene:hide( event )                                                    
         decreaseObject1:removeSelf()
         decreaseObject2:removeSelf()
         decreaseObject3:removeSelf()
+        walkerEnemy:removeSelf()
         finishPlatform:removeSelf()
         finishCoverPlatform:removeSelf()
         timer.cancel(countdowntimer)
