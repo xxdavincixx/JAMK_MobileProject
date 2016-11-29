@@ -147,26 +147,20 @@ local function moveLeftButton( event )                                      -- c
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "left"
     if ( event.phase == "began" ) then
-<<<<<<< HEAD
+
         player:setSequence("CharLeftWalk")
         player:play()
-=======
         player.xScale = -0.4
         player.yScale = 0.4
     	player:setSequence("walk")
   		player:play()
->>>>>>> refs/remotes/origin/master
         player_ghost.direction = "left"--nil
         else if ( event.phase == "ended") then
             player_ghost.direction = ""
             player:pause()
-<<<<<<< HEAD
             player:setFrame(1)
             player:setSequence("CharIdle")
-
-=======
             player:setSequence("idle")
->>>>>>> refs/remotes/origin/master
         end
     end
     return true
@@ -176,25 +170,19 @@ local function moveRightButton( event )                                     -- c
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "right"
     if ( event.phase == "began" ) then
-<<<<<<< HEAD
         player:setSequence("CharRightWalk")
         player:play()
-=======
         player.xScale = 0.4
         player.yScale = 0.4
     	player:setSequence("walk")
 	    player:play()
->>>>>>> refs/remotes/origin/master
         player_ghost.direction = "right"--nil
         else if (event.phase == "ended" ) then
             player_ghost.direction = ""
             player:pause()
-<<<<<<< HEAD
             player:setFrame(1)
             player:setSequence("CharIdle")
-=======
             player:setSequence("idle")
->>>>>>> refs/remotes/origin/master
         end
     end
     return true
