@@ -4,6 +4,7 @@ local scene = composer.newScene()
 local widget = require( "widget" )
 local utility = require( "utility" )
 local myData = require( "mydata" )
+local json = require "json"
 
 local params
 local scrollViewLevelList
@@ -11,7 +12,61 @@ local scrollViewLevelDetail
 local button
 local xLevelInformationRectangle = display.contentWidth/3 - display.contentWidth/6
 local yLevelInformationRectangle = ( display.contentHeight/3 ) * 2 + ( display.contentHeight/5 ) - 30
-local levelCompleteText, levelHighscoreText, userNameText
+local levelCompleteText, levelHighscoreText, userNameText, levelOnlineScoreText, levelOnlineScoreNameText
+local bestHighscore, bestHighscoreName
+
+-- SQL Online Server Part - Start
+local url = 'https://skaja.eu/fps-game/highscore.php'
+
+
+local function getHighscoreListener(query)
+    if ( query.isError ) then
+        print( "Network error!", query.response )
+    else
+        local getHighscoreJSON = json.decode( query.response )
+        
+        if(getHighscoreJSON.highscore == "" or getHighscoreJSON.username == "") then
+            bestHighscore = "/"
+            bestHighscoreName = "/"
+        else
+            bestHighscore = getHighscoreJSON.highscore
+            bestHighscoreName = getHighscoreJSON.username
+        end
+
+        levelOnlineScoreNameText.text = bestHighscoreName .. " - " .. bestHighscore .. " s"
+        levelOnlineScoreNameText.alpha = 1 
+        
+        print ( "RESPONSE: " ..  bestHighscoreName .. " + " .. bestHighscore)
+    end
+end
+
+local function setHighscoreListener(query)
+    if ( query.isError ) then
+        print( "Network error!", query.response )
+    else
+        -- new record -> 1 back | no record -> 0 back
+        print ( "RESPONSE: " .. query.response )
+    end
+end
+
+local function getHighscore(level)
+    local params = {
+        body = "level=" .. level .. "&getHighscore=1"
+    };
+    print("Sending Request to Server...")
+    network.request(url,"POST",getHighscoreListener, params)
+end
+
+local function setHighscore()
+    local params = {
+        body = "username=Arthur&highscore=50001&level=2"
+    };
+    print("Sending Request to Server...")
+    network.request(url,"POST",setHighscoreListener, params)
+end
+
+-- SQL Online Server Part - End
+
 
 local function handleButtonEvent( event )                                       -- get back to menu function
 
@@ -60,6 +115,9 @@ local function handleLevelSelect( event )                                       
     end
     
     if ( "ended" == event.phase ) then                                          -- if button is released
+        
+        getHighscore(event.target.id)
+
         button.id = event.target.id                                             -- copy pressed button
         button:setLabel("Start Level " .. event.target.id)                      -- copy pressed button
         button.x = event.target.x                                               -- copy pressed button position
@@ -74,6 +132,14 @@ local function handleLevelSelect( event )                                       
             else
                 levelHighscoreText.text = "Highscore: " .. myData.settings.levels[tostring(event.target.id)] .. " s"   -- we have to get the highscore of the currently selected level
             end
+
+            levelOnlineScoreText.text = "Online Best: "  
+            levelOnlineScoreText.alpha = 1 
+
+            --if() then
+            --end
+
+            
                    
         else
             levelCompleteText.text = "Level " .. event.target.id .. " not completed"    -- if level is not completed yet
@@ -237,13 +303,39 @@ function scene:create( event )
         align = "left"
     }
     levelHighscoreText = display.newText( levelHighscoreOptions )
-    levelHighscoreText.alpha = 0                                                -- default invisible to have no level information in the beginning of levelselection without selected level
+    levelHighscoreText.alpha = 0
+
+    local levelOnlineScoreOptions = {                                             -- set options for level information
+        text = "",
+        x = xLevelInformationRectangle,
+        y = yLevelInformationRectangle + 30 ,     
+        width = levelInformationRectangle.width - 15,
+        font = native.systemFontBold,
+        fontSize = 14,
+        align = "left"
+    }
+    levelOnlineScoreText = display.newText( levelOnlineScoreOptions )
+    levelOnlineScoreText.alpha = 0                                                    -- default invisible to have no level information in the beginning of levelselection without selected level
+
+    local levelOnlineScoreNameOptions = {                                             -- set options for level information
+        text = "",
+        x = xLevelInformationRectangle,
+        y = yLevelInformationRectangle + 50 ,     
+        width = levelInformationRectangle.width - 15,
+        font = native.systemFontBold,
+        fontSize = 14,
+        align = "left"
+    }
+    levelOnlineScoreNameText = display.newText( levelOnlineScoreNameOptions )
+    levelOnlineScoreNameText.alpha = 0    
 
     sceneGroup:insert( userNameDisplay )
     sceneGroup:insert( userNameText )
     sceneGroup:insert( levelInformationRectangle )
     sceneGroup:insert( levelCompleteText )
     sceneGroup:insert( levelHighscoreText )
+    sceneGroup:insert( levelOnlineScoreNameText )
+    sceneGroup:insert( levelOnlineScoreText )
     sceneGroup:insert( changeNameButton )
     
     scrollViewLevelList:setScrollHeight( levelFiveButton.y + levelFiveButton.height/2 ) -- limitate the scrollable height beneathe the last level button

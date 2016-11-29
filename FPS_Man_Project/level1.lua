@@ -24,10 +24,44 @@ local runtime = 0
 local neededtime
 local timeLimit = 300
 local highscoretime = 0
+local endScore
 
 local levelNumber = 1
 
 camera = perspective.createView()                                           -- camera is created
+
+
+-- SQL Online Server Part - Start
+local url = 'https://skaja.eu/fps-game/highscore.php'
+
+local function compateWithOnlineHighscoreListener(query)
+    if ( query.isError ) then
+        print( "Network error!", query.response )
+    else
+        -- new record -> 1 back | no record -> 0 back
+        if(query.response == "1") then
+            print("new record!")
+        else
+            if(query.response == "0") then
+                print("no record")
+            end            
+        end
+
+        print ( "RESPONSE: " .. query.response )
+    end
+end
+
+local function compateWithOnlineHighscore()
+
+    local params = {
+        body = "username=".. myData.settings.username .."&highscore=".. endScore .. "&level=".. levelNumber ..""
+    };
+    print("Sending Request to Server...")
+    network.request(url,"POST",compateWithOnlineHighscoreListener, params)
+end
+
+-- SQL Online Server Part - End
+
 
 -- save highscore local
 local function compareLocalHighscore(endScore)
@@ -446,8 +480,10 @@ function scene:show( event )
                 elseif ( player.didFinish == true ) then
                     composer.removeScene( "winning" )                       -- if there is a winning-scene already running we delete it
                     composer.gotoScene( "winning", {time = 500, effect = "crossFade"} ) -- switch to winning-scene
+                    endScore = neededtime
                     print(neededtime)
 					compareLocalHighscore(neededtime)
+                    compateWithOnlineHighscore()
                 end
             end
         end
