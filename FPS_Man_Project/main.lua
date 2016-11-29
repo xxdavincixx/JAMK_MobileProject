@@ -30,9 +30,9 @@ if myData.settings == nil then
 	--myData.settings.unlockedLevels = 21
     --myData.settings.bestScore = 0
 	myData.settings.levels = {}
-    myData.settings.levels.level1 = 0
-    myData.settings.levels.level2 = 0
-    myData.settings.levels.level3 = 0
+    myData.settings.levels["1"] = 0
+    myData.settings.levels["2"] = 0
+    myData.settings.levels["3"] = 0
 	utility.saveTable(myData.settings, "settings.json")
 end
 --[[

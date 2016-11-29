@@ -17,45 +17,49 @@ local currentScoreDisplay                                                   -- w
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
 local spawnTimer                                                            -- will be used to hold the timer for the spawning engine
 local timerRefresh = 1000                                                   -- will be used to calculate fps-update
-local fps_multiplicator = 60                                              -- will be used to calculate fps-update
+local fps_multiplicator = 1                                                 -- will be used to calculate fps-update
 local timerDelay = 0                                                        -- will be used to calculate fps-update
 local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
 local runtime = 0
-local neededtime
-local timeLimit = 300
-local highscoretime = 0
+
+local levelNumber = 1
+local endScore
+
+-- Test Start
+endScore = 500
+-- Test End
 
 camera = perspective.createView()                                           -- camera is created
 
--- Create timer  --
-text = display.newText("Time left: ", 400, 10, native.systemFont, 16)
-timeLeft = display.newText(timeLimit, 450, 10, native.systemFont, 16)
-text:setTextColor(255,255,255)
-timeLeft:setTextColor(255,255,255)
 
+-- save highscore local
+local function compareLocalHighscore()
 
--- Function for timer --
-local function timerDown()
-     timeLimit = timeLimit-1
-     timeLeft.text = timeLimit
-      if(timeLimit==0)then
-        print("Time Out") -- or do your code for time out --
-     end
-  end
-
-local function timerUp()
-    highscoretime = highscoretime+1
-    neededtime = highscoretime * 10 / 100
+    local localHighscore = myData.settings.levels[tostring(levelNumber)]
+    
+    if(endScore > localHighscore) then
+        myData.settings.levels[tostring(levelNumber)] = endScore
+        utility.saveTable(myData.settings, "settings.json")
+    end
 end
+-- compareLocalHighscore() -- trigger this function when level won
 
-local countdowntimer = timer.performWithDelay(1000,timerDown,timeLimit)
-local highscoretimer = timer.performWithDelay(100,timerUp,highscoretime)
+-- Creating image sheet for character --
+local optionsCharacter = {
+    width = 41,
+    height = 90,
+    numFrames = 6
+}
+local characterSheet = graphics.newImageSheet("images/characterWalk.png", optionsCharacter)
 
-
--- Creating image sheet and info for character --
-local characterSheetInfo = require("fps_man_walking_spritesheet")
-local characterSheet = graphics.newImageSheet("images/fps_man_walking_spritesheet.png", characterSheetInfo:getSheet() )
+-- Sequences of frames to play for character --
+local sequenceDataChar = {
+    {name = "CharRightWalk", start = 1, count = 3, time = 400, loopcount = 0},
+    {name = "CharLeftWalk", start = 4, count = 3, time = 400, loopcount = 0},
+    {name = "CharIdle", start = 1, count = 1, time = 400, loopcount = 0},
+    {name = "CharJump", start = 2, count = 1, time = 400, loopcount = 0}
+}
 
 local function spawnWall( x, y, w, h )                                      -- create a wall 
     
@@ -67,7 +71,7 @@ local function spawnWall( x, y, w, h )                                      -- c
 end
 
 local function spawnPlayer( x, y )
-    player = display.newSprite(characterSheet, characterSheetInfo:getSequenceData() )            -- starting point and seize of the object (old 30x60)
+    player = display.newSprite(characterSheet, sequenceDataChar)            -- starting point and seize of the object (old 30x60)
     player.x = 36
     player.y = 260
     local playerCollisionFilter = { categoryBits = 2, maskBits=5 }          -- create collision filter for object, its own number is 2 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
@@ -146,15 +150,13 @@ local function moveLeftButton( event )                                      -- c
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "left"
     if ( event.phase == "began" ) then
-        player.xScale = -0.4
-        player.yScale = 0.4
-    	player:setSequence("walk")
+    	player:setSequence("CharLeftWalk")
   		player:play()
         player_ghost.direction = "left"--nil
         else if (event.phase == "ended") then
             player_ghost.direction = ""
             player:pause()
-            player:setSequence("idle")
+            player:setSequence("CharIdle")
         end
     end
 
@@ -164,15 +166,13 @@ local function moveRightButton( event )                                     -- c
     --if ( event.phase == "began" ) then
     --    player_ghost.direction = "right"
     if ( event.phase == "began" ) then
-        player.xScale = 0.4
-        player.yScale = 0.4
-    	player:setSequence("walk")
+    	player:setSequence("CharRightWalk")
 	    player:play()
         player_ghost.direction = "right"--nil
         else if (event.phase == "ended") then
             player_ghost.direction = ""
             player:pause()
-            player:setSequence("idle")
+            player:setSequence("CharIdle")
         end
     end
     return true
@@ -190,7 +190,7 @@ function jump( )
         --player_ghost:applyLinearImpulse( 0, -0.1, player_ghost.x, player_ghost.y )    -- give player a linear impuls for jumping
         player_ghost:setLinearVelocity( 0, -275 )                           -- give player a linear velocity for jumping
         jumpDecrease = jumpDecrease + 1                                     -- increase jump counter
-        player:setSequence("jump")
+        player:setSequence("CharJump")
     end
 
 end
@@ -229,8 +229,6 @@ function scene:create( event )
     local thisLevel = myData.settings.currentLevel
 
     player = spawnPlayer( 27.5, 274.5 )                                     -- create a player
-    player.xScale = 0.4
-    player.yScale = 0.4
     player_ghost = spawnPlayerGhost( 27.5, 274.5 )                          -- create its ghost
     player_ghost.isFixedRotation = true                                     -- set its rotation to fixed so the player does not fall over when he jumps
     wallL = spawnWall( 0, 160, 30, 320 )                                    -- adding level component
@@ -248,7 +246,7 @@ function scene:create( event )
     increaseObject3 = spawnIncreasingObject( 827, 12 )                      -- adding level component
     decreaseObject = spawnIncreasingObject( 337, 253 )                      -- adding level component
     decreaseObject1 = spawnDecreasingObject( 817, 112 )                     -- adding level component
-    decreaseObject2 = spawnIncreasingObject( 86, 227)                       -- adding level component
+    decreaseObject2 = spawnIncreasingObject( 86, 227 )                      -- adding level component
     decreaseObject3 = spawnDecreasingObject( 734, 60 )                      -- adding level component
     platform2 = spawnPlatform( 460, 200, 80, 10 )                           -- adding level component
     platform3 = spawnPlatform( 700, 200, 80, 10 )                           -- adding level component
@@ -258,28 +256,60 @@ function scene:create( event )
     finishCoverPlatform = spawnPlatform( 950, 320, 100, 30 )                -- adding level component
     finishCoverPlatform:setFillColor( 1 )                                   -- adding level component 
 
+
+    -- display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
+--[[
+    lButton = widget.newButton({                                            -- creating a button
+        id = "lButton",
+        label = "Move Left",
+        width = 100,
+        height = 50,
+        onEvent = moveLeftButton                                            -- on button pressed moveLeftButton() is called
+    })
+    lButton.x, lButton.y = display.contentCenterX-150, 50
+]]
     lButton = display.newRect(0,display.contentHeight,(display.contentWidth*2)/3,display.contentHeight)
     lButton:setFillColor(0,0,1)
     lButton.alpha = 0
     lButton.isHitTestable = true
-    lButton:addEventListener( "touch", moveLeftButton )                     -- moveLeftButton
-
+    lButton:addEventListener( "touch", moveLeftButton ) -- moveLeftButton
+--[[
+    rButton = widget.newButton({                                            -- creating a button 
+        id = "rButton",
+        label = "Move Right",
+        width = 100,
+        height = 50,
+        onEvent = moveRightButton                                           -- on button pressed moveRightButton() is called
+    })
+    rButton.x, rButton.y = display.contentCenterX+150, 50
+]]
     rButton = display.newRect(display.contentWidth,display.contentHeight,(display.contentWidth*2)/3,display.contentHeight)
     rButton:setFillColor(0,0,1)
     rButton.alpha = 0
     rButton.isHitTestable = true
-    rButton:addEventListener( "touch", moveRightButton )                    -- moveRightButton
+    rButton:addEventListener( "touch", moveRightButton ) -- moveRightButton
 
-    mButton = display.newRect(display.contentCenterX,display.contentHeight/4,display.contentWidth*2,display.contentHeight/2)
+--[[
+    mButton = widget.newButton({                                            -- creating a button
+        id = "mButton",
+        label = "Jump",
+        width = 100,
+        height = 50,
+        onEvent = jump                                                      -- on button pressed jump() is called
+    })
+    mButton.x, mButton.y = display.contentCenterX, 50
+]]
+    mButton = display.newRect(0,0,display.contentWidth*2,display.contentHeight)
     mButton:setFillColor(0,0,1)
     mButton.alpha = 0
     mButton.isHitTestable = true
-    mButton:addEventListener( "touch", jump )                               -- jumpButton    
+    mButton:addEventListener( "touch", jump )
 
     local background = display.newRect( display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
     background:setFillColor( 0.6, 0.7, 0.3 )
-    
+
     currentScoreDisplay = display.newText( "000000", display.contentWidth - 50, 10, native.systemFont, 16 )
+
 
     --
     -- Insert objects into the scene to be managed by Composer
@@ -334,7 +364,7 @@ function scene:show( event )
                 player.isDead = true                                        -- the player is dead
             end
             if ( player.isDead ~= true ) then
-                local delta = getDeltaTime()                                -- absolutely important
+                local delta = getDeltaTime()
                 --PLAYER MOVEMENT--
                 
                 if ( player_ghost.direction == nil ) then                   -- if player direction is nil the player should stop moving
@@ -342,9 +372,9 @@ function scene:show( event )
                 end
 
                 if ( player_ghost.direction == "right" ) then               -- if player direction is "right" player goes right
-                    player_ghost:translate( 5*delta, 0)                     -- calculate delta to speed to prevent lagging of gameplay
+                    player_ghost:translate( 5*delta, 0)
                 elseif ( player_ghost.direction == "left" ) then            -- if player direction is "left" player goes left
-                    player_ghost:translate( -5*delta, 0)                    -- calculate delta to speed to prevent lagging of gameplay
+                    player_ghost:translate( -5*delta, 0)
                 end
                 
 
@@ -368,17 +398,20 @@ function scene:show( event )
                         camera:cancel()                                     -- camera will be disabled when there was already a camera tracking
                         camera.damping = 1
                         camera:setFocusY( player )                          -- camera will focus the player on the y-axis
-                        camera:trackY()                                     -- camera will only track in y-axis
+                        camera:trackY()        
+                        cameraChanged = true                                -- camera will only track in y-axis
                     elseif ( player.x > ( endOfLevel - middleOfScreen ) + 15 ) then     -- if the player gets near the end
                         camera:cancel()                                     -- camera will be disabled when there was already a camera tracking
                         camera.damping = 1
                         camera:setFocusY( player )                          -- camera will focus the player on the y-axis
                         camera:trackY()                                     -- camera will be disabled when there was already a camera tracking
+                        cameraChanged = true
                     elseif ( player.isDead ~= true ) then                   -- if the player leaves the end or start area and is between both of them camera will be attached
                         camera:cancel()                                     -- camera will be disabled when there was already a camera tracking
                         camera.damping = 1                                  -- A bit more fluid tracking
                         camera:setFocus( player )                           -- Set the focus to the player
                         camera:track()                                      -- Begin auto-tracking
+                        cameraChanged = false
                     else
                         --camera:cancel()                                   -- Dead player don't need camera tracking :-P
                     end
@@ -394,8 +427,7 @@ function scene:show( event )
                 elseif ( player.didFinish == true ) then
                     composer.removeScene( "winning" )                       -- if there is a winning-scene already running we delete it
                     composer.gotoScene( "winning", {time = 500, effect = "crossFade"} ) -- switch to winning-scene
-                    print(neededtime)
-                
+                    compareLocalHighscore()
                 end
             end
         end
@@ -420,13 +452,13 @@ function scene:show( event )
 
 
         if ( collideObject.collType == "increase" and collideObject.alpha == 1 ) then   -- if collided object is an increasing object and visible
-            timer.performWithDelay( 1, function() physics.removeBody( collideObject ) end ) -- perform a delay so we can remove the collision body
             increase_fps()                                                  -- function to increase fps
             collideObject.alpha = 0                                         -- object becomes invisible
-        elseif ( collideObject.collType == "decrease"  and collideObject.alpha == 1 ) then  -- if collided object is an decreasing object and visible
             timer.performWithDelay( 1, function() physics.removeBody( collideObject ) end ) -- perform a delay so we can remove the collision body
+        elseif ( collideObject.collType == "decrease"  and collideObject.alpha == 1 ) then  -- if collided object is an decreasing object and visible
             decrease_fps()                                                  -- function to decrease fps
             collideObject.alpha = 0                                         -- object becomes invisible
+            timer.performWithDelay( 1, function() physics.removeBody( collideObject ) end ) -- perform a delay so we can remove the collision body
         end
         
     end
@@ -471,14 +503,12 @@ function scene:hide( event )                                                    
         decreaseObject3:removeSelf()
         finishPlatform:removeSelf()
         finishCoverPlatform:removeSelf()
-        timer.cancel(countdowntimer)
-        text:removeSelf()
-        timeLeft:removeSelf()
         if ( myData.settings.musicOn ) then
             audio.stop()
             audio.play( audio.loadStream( "audio/menuMusic.mp3" ), { channel=1, loops=-1 } )
         end
     end
+
 end
 
 
