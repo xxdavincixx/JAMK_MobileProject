@@ -33,10 +33,16 @@ camera = perspective.createView()                                           -- c
 local function compareLocalHighscore(endScore)
     local localHighscore = myData.settings.levels[tostring(levelNumber)]
     
-    if(endScore < localHighscore) then
+    if(myData.settings.levels[tostring(levelNumber)] == "/") then
         myData.settings.levels[tostring(levelNumber)] = endScore
-        utility.saveTable(myData.settings, "settings.json")
+        
+    else
+        if(endScore < localHighscore) then
+            myData.settings.levels[tostring(levelNumber)] = endScore        
+        end
     end
+
+    utility.saveTable(myData.settings, "settings.json")
 end
 
 -- Create timer  --
