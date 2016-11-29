@@ -11,7 +11,6 @@ local physics = require( "physics" )
 local myData = require( "mydata" )
 local perspective = require( "perspective" )
 
-
 local currentScore                                                          -- used to hold the numeric value of the current score
 local currentScoreDisplay                                                   -- will be a display.newText() that draws the score on the screen
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
@@ -27,28 +26,18 @@ local timeLimit = 300
 local highscoretime = 0
 
 local levelNumber = 1
-local endScore
-
--- Test Start
-endScore = 500
--- Test End
 
 camera = perspective.createView()                                           -- camera is created
 
-
 -- save highscore local
-local function compareLocalHighscore()
-
-
-
+local function compareLocalHighscore(endScore)
     local localHighscore = myData.settings.levels[tostring(levelNumber)]
     
-    if(endScore > localHighscore) then
+    if(endScore < localHighscore) then
         myData.settings.levels[tostring(levelNumber)] = endScore
         utility.saveTable(myData.settings, "settings.json")
     end
 end
--- compareLocalHighscore() -- trigger this function when level won
 
 -- Create timer  --
 text = display.newText("Time left: ", 400, 10, native.systemFont, 16)
@@ -417,7 +406,7 @@ function scene:show( event )
                     composer.removeScene( "winning" )                       -- if there is a winning-scene already running we delete it
                     composer.gotoScene( "winning", {time = 500, effect = "crossFade"} ) -- switch to winning-scene
                     print(neededtime)
-					compareLocalHighscore()
+					compareLocalHighscore(neededtime)
                 end
             end
         end

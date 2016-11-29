@@ -69,7 +69,7 @@ local function handleLevelSelect( event )                                       
             levelCompleteText.text = "Level " .. event.target.id .. " completed"    -- e.g. write "Level 1 completed"
             levelCompleteText.alpha = 1                                         -- set text visible
             levelHighscoreText.alpha = 1                                        -- set highscore visible
-            levelHighscoreText.text = "Highscore: 210"                          -- we have to get the highscore of the currently selected level
+            levelHighscoreText.text = "Highscore: " .. myData.settings.levels[tostring(event.target.id)] .. " s"                          -- we have to get the highscore of the currently selected level
         else
             levelCompleteText.text = "Level " .. event.target.id .. " not completed"    -- if level is not completed yet
             levelCompleteText.alpha = 1                                         -- set text visible
