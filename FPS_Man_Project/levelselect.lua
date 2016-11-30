@@ -104,7 +104,20 @@ local function selectLevel( event )
     end
 end
 
-
+local function myUnhandledErrorListener( event )
+ 
+    local iHandledTheError = true
+ 
+    if iHandledTheError then
+        print( "Handling the unhandled error", event.errorMessage )
+    else
+        print( "Not handling the unhandled error", event.errorMessage )
+    end
+    
+    return iHandledTheError
+end
+ 
+Runtime:addEventListener("unhandledError", myUnhandledErrorListener)
 local function handleLevelSelect( event )                                       -- copy a button and put it in position of pressed button
  
     if ( event.phase == "moved" ) then                                          -- if finger is moved above the scrollList

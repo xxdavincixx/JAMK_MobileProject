@@ -25,9 +25,10 @@ local neededtime
 local timeLimit = 300
 local highscoretime = 0
 local endScore
-
+local enemies = display.newGroup()
+local enemie_ghosts = display.newGroup()
 local levelNumber = 1
-
+composer.removeScene(composer.getSceneName("previous"))
 camera = perspective.createView()                                           -- camera is created
 
 
@@ -115,13 +116,14 @@ local walkerEnemySheet = graphics.newImageSheet("images/fps_walker_spritesheet.p
 -- looping movement walker enemy 1 --
 local function walkerEnemy1MovementRight()
     local function walkerEnemy1MovementLeft()
-        transition.to(walkerEnemy, {x = 250, time=1200, onComplete=walkerEnemy1MovementRight})
-        walkerEnemy.xScale = -0.15
-        walkerEnemy.yScale = 0.15
+        
+        transition.to(walkerEnemy_ghost, {x = 250, time=1200, onComplete=walkerEnemy1MovementRight})
+        walkerEnemy.xScale = -1/20*3
+        walkerEnemy.yScale = 1/20*3
     end
-    transition.to(walkerEnemy, {x = 390, time=1200, onComplete=walkerEnemy1MovementLeft})
-    walkerEnemy.xScale = 0.15
-    walkerEnemy.yScale = 0.15
+    transition.to(walkerEnemy_ghost, {x = 390, time=1200, onComplete=walkerEnemy1MovementLeft})
+    walkerEnemy.xScale =1/20*3-- 0.15
+    walkerEnemy.yScale = 1/20*3
 end
 
 local function spawnWall( x, y, w, h )                                      -- create a wall 
@@ -137,7 +139,7 @@ local function spawnPlayer( x, y )
     player = display.newSprite(characterSheet, characterSheetInfo:getSequenceData() )            -- starting point and seize of the object (old 30x60)
     player.x = 36
     player.y = 260
-    local playerCollisionFilter = { categoryBits = 2, maskBits=5 }          -- create collision filter for object, its own number is 2 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
+    --local playerCollisionFilter = { categoryBits = 2, maskBits=5 }          -- create collision filter for object, its own number is 2 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
     player.alpha = 1                                                        -- is visible
     player.isJumping =false                                                 -- at the start the object is not jumping
     player.prevX = player.x                                                 -- gets the start value as previous x value
@@ -194,12 +196,24 @@ end
 
 local function spawnWalkerEnemy( x, y )
     local walkerEnemy = display.newSprite( walkerEnemySheet, walkerEnemySheetInfo:getSequenceData() )
+    walkerEnemy.name = "sebastian"
     walkerEnemy.x = x
     walkerEnemy.y = y
-    local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
-    physics.addBody( walkerEnemy, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
-    walkerEnemy.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
+    --local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
+    --physics.addBody( walkerEnemy, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
+    --walkerEnemy.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
     return walkerEnemy
+end
+
+local function spawnWalkerEnemyGhost( x, y )
+    local walker_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    walker_ghost.name = "conrad"
+    walker_ghost.alpha = 0                                                  -- player_ghost is not visible
+    local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
+    physics.addBody( walker_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
+    walker_ghost.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
+      
+    return walker_ghost
 end
 
 local function setJumpDecrease( jd )
@@ -333,6 +347,10 @@ function scene:create( event )
     walkerEnemy.xScale=0.15
     walkerEnemy.yScale=0.15
     walkerEnemy:play()
+    walkerEnemy_ghost = spawnWalkerEnemyGhost( 250, 260 )
+    enemies:insert( walkerEnemy )
+    enemie_ghosts:insert( walkerEnemy_ghost )
+
     walkerEnemy1MovementRight()
 
     platform2 = spawnPlatform( 460, 200, 80, 10 )                           -- adding level component
@@ -364,8 +382,6 @@ function scene:create( event )
     local background = display.newRect( display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
     background:setFillColor( 0.6, 0.7, 0.3 )
     
-    currentScoreDisplay = display.newText( "000000", display.contentWidth - 50, 10, native.systemFont, 16 )
-
     --
     -- Insert objects into the scene to be managed by Composer
     --
@@ -375,7 +391,6 @@ function scene:create( event )
     sceneGroup:insert( lButton )
     sceneGroup:insert( rButton )
     sceneGroup:insert( mButton )
-    sceneGroup:insert( currentScoreDisplay )
    
 
     -- these objects are effected by the camera movement --
@@ -397,7 +412,8 @@ function scene:create( event )
     camera:add( decreaseObject1 )
     camera:add( decreaseObject2 )
     camera:add( decreaseObject3 )
-    camera:add( walkerEnemy ) 
+    camera:add( enemies ) 
+    camera:add( enemie_ghosts )
     camera:add( finishPlatform )
     camera:add( finishCoverPlatform )
 
@@ -413,9 +429,12 @@ function scene:show( event )
     if ( event.phase == "did" ) then
 
         physics.start()                                                     -- enable physics
-
+        
         function player_ghost:enterFrame()                                  -- each frame
-            
+            player:pause()
+            for i=1, enemies.numChildren, 1 do
+                enemies[i]:pause()
+            end
             if ( player.y >= floor.y ) then                                 -- if the player is beneathe the lowest platform e.g. the floor
                 player.isDead = true                                        -- the player is dead
             end
@@ -448,6 +467,11 @@ function scene:show( event )
                 if ( timerDelay >= timerRefresh/fps_multiplicator ) then    -- this method is an timer written on my own to decrease and increase the update of player with its ghost-self
                     local middleOfScreen = display.contentCenterX           -- this describes the middle of the screen
                     local endOfLevel = 1000                                 -- this descirbes the total length of the
+                    player:play()
+                    for i=1, enemies.numChildren, 1 do
+                        enemies[i]:play()
+                        walkerEnemy.x = walkerEnemy_ghost.x
+                    end
                     player.x = player_ghost.x                               -- player position gets synchronized with its ghost-self
                     player.y = player_ghost.y                               -- player position gets synchronized with its ghost-self
                     if ( player.x < ( middleOfScreen ) ) then               -- if player did not leave start yet or goes back to start
@@ -511,10 +535,16 @@ function scene:show( event )
             timer.performWithDelay( 1, function() physics.removeBody( collideObject ) end ) -- perform a delay so we can remove the collision body
             increase_fps()                                                  -- function to increase fps
             collideObject.alpha = 0                                         -- object becomes invisible
-        elseif ( collideObject.collType == "decrease"  and collideObject.alpha == 1 ) then  -- if collided object is an decreasing object and visible
-            timer.performWithDelay( 1, function() physics.removeBody( collideObject ) end ) -- perform a delay so we can remove the collision body
-            decrease_fps()                                                  -- function to decrease fps
-            collideObject.alpha = 0                                         -- object becomes invisible
+            return true                                                     -- return true for completing collision detection
+        elseif ( collideObject.collType == "decrease") then                 -- if collided object is an decreasing object and visible
+            for i = 1, enemie_ghosts.numChildren, 1 do                      -- go through the enemie_ghost list
+                if ( collideObject == enemie_ghosts[i] and enemies[i].alpha == 1) then  -- if collided object is found in enemy ghost list get the position and look for its representive in the enemies list and if that one is active then
+                    enemies[i].alpha = 0                                    -- make it invisible
+                    timer.performWithDelay( 1, function() physics.removeBody( collideObject ) end ) -- perform a delay so we can remove the collision body
+                    decrease_fps()                                          -- function to decrease fps
+                    return true                                             -- return true for completing collision detection
+                end
+            end
         end
         
     end
@@ -533,7 +563,6 @@ function scene:hide( event )                                                    
     local sceneGroup = self.view
     
     if event.phase == "will" then
-        physics.stop()
         wallL:removeSelf()
         wallR:removeSelf()
         floor:removeSelf()
@@ -557,6 +586,7 @@ function scene:hide( event )                                                    
         decreaseObject1:removeSelf()
         decreaseObject2:removeSelf()
         decreaseObject3:removeSelf()
+        transition.cancel(walkerEnemy_ghost)
         walkerEnemy:removeSelf()
         finishPlatform:removeSelf()
         finishCoverPlatform:removeSelf()
