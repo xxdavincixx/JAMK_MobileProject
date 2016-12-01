@@ -92,7 +92,8 @@ local function timerDown()
      timeLimit = timeLimit-1
      timeLeft.text = timeLimit
       if(timeLimit==0)then
-        print("Time Out") -- or do your code for time out --
+        composer.removeScene( "gameover" )                      -- if there is a gameover-scene already running we delete it
+        composer.gotoScene( "gameover", { time= 500, effect = "crossFade" } )   -- switch to gameover-scene
      end
   end
 
