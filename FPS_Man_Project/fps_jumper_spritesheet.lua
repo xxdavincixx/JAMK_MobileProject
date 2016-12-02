@@ -196,7 +196,7 @@ SheetInfo.frameIndex =
 
 SheetInfo.sequenceData =
 {
-    {name = "walk", start = 1, count = 13, time = 350}
+    {name = "walk", start = 1, count = 13, time = 1150}
 }
 
 function SheetInfo:getSheet()
