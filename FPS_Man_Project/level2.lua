@@ -25,6 +25,8 @@ local neededtime
 local timeLimit = 300
 local highscoretime = 0
 local endScore
+local platformHover_list = display.newGroup()
+local hill_list = display.newGroup()
 local wall_list = display.newGroup()
 local floor_list = display.newGroup()
 local platform_offset = display.newGroup()
@@ -149,31 +151,105 @@ local function jumperEnemy1MovementRight()
     jumperEnemy.yScale = 1/20*3
 end
 
-local function spawnWall( x, y, height, choice)                                      -- create a wall 
-    
-    if(choice == 0) then
-        wallTop = display.newImage( "images/Floor10.png", x, y)
+local function spawnWall( x, height, choice)                                      -- create a wall 
+    if(choice == 0) then -- in the middle of a level
+        wallTop = display.newImage( "images/Floor10.png", x+15, 330-height*52)
         local wallCollisionFilter = {categoryBits=1, maskBits=15}               -- collision filter categoryBits means which number the object ist, maskBits is with which object this object will collide
         physics.addBody( wallTop, "static", {bounce=0.1, friction = 0, filter=wallCollisionFilter} )   -- adding physic to object: static objects are not affected by gravity, walls are not bouncy and friction is as high as possible. adding collision filter to this object
         wall_list:insert(wallTop)
         for i = 1, height, 1 do
-            wall = display.newImage("images/Floor5.png", x, y+52*i)
-            physics.addBody( wall, "static", {bounce=0.1, friction = 0, filter=wallCollisionFilter} )   -- adding physic to object: static objects are not affected by gravity, walls are not bouncy and friction is as high as possible. adding collision filter to this object
-            wall_list:insert(wall)
+            if(i ~= height) then
+                wall = display.newImage("images/Floor5.png", x+15, 330-(height-i)*52)
+                physics.addBody( wall, "static", {bounce=0.1, friction = 0, filter=wallCollisionFilter} )   -- adding physic to object: static objects are not affected by gravity, walls are not bouncy and friction is as high as possible. adding collision filter to this object
+                wall_list:insert(wall)
+            else
+                wall = display.newImage("images/Floor3.png", x+15, 330-(height-i)*52)
+                wall.xScale = -1
+                wall_list:insert(wall)
+            end
         end
-    elseif(choice == 1) then
-        wallTop = display.newImage( "images/Floor9.png", x, y)
+    elseif(choice == 1) then -- border to the left 
+        wallTop = display.newImage( "images/Floor9.png", x, display.contentHeight - height*52+10)
         local wallCollisionFilter = {categoryBits=1, maskBits=15}               -- collision filter categoryBits means which number the object ist, maskBits is with which object this object will collide
         physics.addBody( wallTop, "static", {bounce=0.1, friction = 0, filter=wallCollisionFilter} )   -- adding physic to object: static objects are not affected by gravity, walls are not bouncy and friction is as high as possible. adding collision filter to this object
         wall_list:insert(wallTop)
         for i = 1, height, 1 do
-            wall = display.newImage("images/Floor4.png", x, y+52*i)
+            if(i ~= height+1) then
+                wall = display.newImage("images/Floor4.png", x, display.contentHeight - 52*i +10)
+                physics.addBody( wall, "static", {bounce=0.1, friction = 0, filter=wallCollisionFilter} )   -- adding physic to object: static objects are not affected by gravity, walls are not bouncy and friction is as high as possible. adding collision filter to this object
+                wall_list:insert(wall)
+            else
+                wall = display.newImage("images/Floor3.png", x, y+52*i)
+                wall_list:insert(wall)
+            end
+        end
+    elseif(choice == 2) then -- hangs from the top of the level
+        local y = 330-height*52
+        wallTop = display.newImage( "images/Floor10.png", x+15, y)
+        wallTop.yScale = -1
+        local wallCollisionFilter = {categoryBits=1, maskBits=15}               -- collision filter categoryBits means which number the object ist, maskBits is with which object this object will collide
+        physics.addBody( wallTop, "static", {bounce=0.1, friction = 0, filter=wallCollisionFilter} )   -- adding physic to object: static objects are not affected by gravity, walls are not bouncy and friction is as high as possible. adding collision filter to this object
+        wall_list:insert(wallTop)
+        for i = 1, height*height, 1 do
+            wall = display.newImage("images/Floor5.png", x+15, y - i*52)
+            wall.yScale = -1
             physics.addBody( wall, "static", {bounce=0.1, friction = 0, filter=wallCollisionFilter} )   -- adding physic to object: static objects are not affected by gravity, walls are not bouncy and friction is as high as possible. adding collision filter to this object
             wall_list:insert(wall)
         end
     end
     return wall_list
 end
+
+local function spawnHill( x, y, x_elements, y_steps_front, y_steps_back) 
+    local y_forward
+    y = y -52
+    for i=1, y_steps_front, 1 do
+        print(i .. " start")
+        local step = display.newImage("images/Floor11.png", x+52*(i-1)+15, y-52*(i-1))
+        local stepCollisionFilter = {categoryBits=1, maskBits=15}               -- collision filter categoryBits means which number the object ist, maskBits is with which object this object will collide
+        step.typ = "ground"
+        physics.addBody( step, "static", {bounce=0.1, friction = 0, filter=stepCollisionFilter} )   -- adding physic to object: static objects are not affected by gravity, walls are not bouncy and friction is as high as possible. adding collision filter to this object
+        hill_list:insert(step)
+        for j = 1, i, 1 do
+            if(j==i) then
+                local step = display.newImage("images/Floor8.png", x+52*(i-1)+15, y-52*(j-2))
+                hill_list:insert(step)
+            else
+                local step = display.newImage("images/Floor7.png", x+52*(i-1)+15, y-52*(j-2))
+                hill_list:insert(step)
+            end
+        end
+        y_forward = y-52*(i-1)
+    end
+    for i=y_steps_front+1, y_steps_front+x_elements, 1 do
+        local step = display.newImage("images/Floor12.png", x+52*(i-1)+15, y_forward)
+        local stepCollisionFilter = {categoryBits=1, maskBits=15}               -- collision filter categoryBits means which number the object ist, maskBits is with which object this object will collide
+        step.typ = "ground"
+        physics.addBody( step, "static", {bounce=0.1, friction = 0, filter=stepCollisionFilter} )   -- adding physic to object: static objects are not affected by gravity, walls are not bouncy and friction is as high as possible. adding collision filter to this object
+        hill_list:insert(step)
+        for j = 1, y_steps_front, 1 do
+            local step = display.newImage("images/Floor7.png", x+52*(i-1)+15, y-52*(j-2))
+            hill_list:insert(step)
+        end
+    end
+    local stepsLeft = y_steps_front
+    for i = y_steps_front+x_elements+1, x_elements+y_steps_front+y_steps_back, 1 do
+        local step = display.newImage("images/Floor9.png", x+52*(i-1)+15, y_forward+52*((i-x_elements-y_steps_front)-1))
+        local stepCollisionFilter = {categoryBits=1, maskBits=15}               -- collision filter categoryBits means which number the object ist, maskBits is with which object this object will collide
+        step.typ = "ground"
+        physics.addBody( step, "static", {bounce=0.1, friction = 0, filter=stepCollisionFilter} )   -- adding physic to object: static objects are not affected by gravity, walls are not bouncy and friction is as high as possible. adding collision filter to this object
+        hill_list:insert(step)
+        local step = display.newImage("images/Floor2.png", x+52*(i-1)+15, y_forward+52*((i-x_elements-y_steps_front)))
+        hill_list:insert(step)
+        for j = 1, stepsLeft-1 , 1 do
+            local step = display.newImage("images/Floor7.png", x+52*(i-1)+15, y_forward-52*((j-x_elements-y_steps_front)+1))
+            hill_list:insert(step)
+        end
+        stepsLeft = stepsLeft-1
+    end
+    return hill_list
+end
+
 
 local function spawnPlayer( x, y )
     player = display.newSprite(characterSheet, characterSheetInfo:getSequenceData() )            -- starting point and seize of the object (old 30x60)
@@ -191,7 +267,13 @@ end
 
 local function spawnFloor(x_start, y_position, numOf)
     for i=1,(numOf),1 do
-        local floor = display.newImage("images/Floor12.png",x_start+(-30+52*i), y_position)
+        if(i==1)then
+            floor = display.newImage("images/Floor11.png",x_start+(-30+52*i), y_position)
+        elseif(i==numOf) then
+            floor = display.newImage("images/Floor9.png", x_start+(-30+52*i), y_position)
+        else
+            floor = display.newImage("images/Floor12.png",x_start+(-30+52*i), y_position)
+        end
         floor.typ = "ground"                                                 -- will set jump-counter to 0 if player is landing on platform
         local floorCollisionFilter = { categoryBits = 4, maskBits = 8 }      -- create collision filter, own value = 4 and collides with the sum of values equal to 8 (player_ghost)
         physics.addBody( floor, "static", { bounce=0.0, friction=1, filter = floorCollisionFilter } )       -- adding physic to object: static objects are not affected by gravity, platform is not bouncy and friction is as high as possible
@@ -200,6 +282,18 @@ local function spawnFloor(x_start, y_position, numOf)
     end
     return floor_list
 end
+
+local function spawnHoverPlatform( x, y )
+
+    local platform = display.newImage("images/platform.png", x, y)
+    local platformCollisionFilter = { categoryBits = 4, maskBits = 8 }      -- create collision filter, own value = 4 and collides with the sum of values equal to 8 (player_ghost)
+    platform.typ = "ground"                                                 -- will set jump-counter to 0 if player is landing on platform
+    platform.collType = "passthru"                                          -- a player is able to get through this platform
+    physics.addBody( platform, "static", { bounce=0.0, friction=1, filter = platformCollisionFilter } )       -- adding physic to object: static objects are not affected by gravity, platform is not bouncy and friction is as high as possible
+    platformHover_list:insert(platform)
+
+end
+
 
 local function spawnPlatform( x_start, y_position, width, height )                                  -- create a platform a player can get through by jumping at x-position (x) and y-position (y) with width (w) and height (h)
 
@@ -415,11 +509,11 @@ function scene:create( event )
 
     -- bodenelemente --
     floor = spawnFloor(0, 330, 11)     
-    floor = spawnFloor(728, 330, 18)   
+    floor = spawnFloor(728, 330, 20)   
     floor = spawnFloor(1924, 330, 40)
-    floor = spawnFloor(3016, 330, 15)
+    floor = spawnFloor(4368, 330, 15)
     
-    platform = spawnPlatform(1800, 200, 2, 0)
+    --platform = spawnPlatform(1800, 200, 2, 0)
 
     -- bekletterbare hügel--
     platform, platformFassade, platformGround_list = spawnPlatform( 312,  70, 2, 5 )                             -- adding level component
@@ -433,10 +527,20 @@ function scene:create( event )
     platform, platformFassade, platformGround_list = spawnPlatform( 72*52, 173, 2, 3 )                             -- adding level component
    
     -- wände --
-    wall = spawnWall( 0, 0, 8, 1)
-    wall = spawnWall( 63*52, 2*52, 4, 0)
+    wall = spawnWall( 0, 8, 1)
+    wall = spawnWall( 86*52, 3, 2)
+    wall = spawnWall( 63*52, 4, 0)
     
+    hoverPlatform = spawnHoverPlatform(35*52, 104)
+    hoverPlatform = spawnHoverPlatform(60*52, 104)
+    hoverPlatform = spawnHoverPlatform(77*52, 104)
+    hoverPlatform = spawnHoverPlatform(80*52, 156)
+    hoverPlatform = spawnHoverPlatform(87*52, 208)
+    hoverPlatform = spawnHoverPlatform(90*52, 156)
+    hoverPlatform = spawnHoverPlatform(93*52, 104)
 
+    hill = spawnHill(50*52, 330, 2, 3, 3)
+  
     increaseObject = spawnIncreasingObject( 890, 110 )                      -- adding level component
     increaseObject1 = spawnIncreasingObject( 969, 245 )                     -- adding level component
     increaseObject2 = spawnIncreasingObject( 643, 157 )                     -- adding level component
@@ -503,10 +607,12 @@ function scene:create( event )
 
     -- these objects are effected by the camera movement --
     camera:add( player, 1 )
-    camera:add( wall )
+    camera:add( platformHover_list )
     camera:add( floor ) 
+    camera:add( hill_list )
+    camera:add( wall )
     camera:add( player_ghost )
-    camera:add( platform )
+    --camera:add( platform )
     camera:add( platformGround_list )
     camera:add( platformFassade )
     camera:add( increaseObject )
@@ -564,7 +670,6 @@ function scene:show( event )
                         player_ghost.isJumping = true                       -- set player_ghost jumping value to "true"
                     end
                 end
-                
                 player_ghost.prevX, player_ghost.prevY = player_ghost.x, player_ghost.y     -- synchronize players position for next frame
 
                 --CAMERA MOVEMENT--
@@ -681,6 +786,8 @@ function scene:hide( event )                                                    
         platform:removeSelf()
         platformFassade:removeSelf()
         platformGround_list:removeSelf()
+        hill_list:removeSelf()
+        platformHover_list:removeSelf()
         increaseObject:removeSelf()
         increaseObject1:removeSelf()
         increaseObject2:removeSelf()

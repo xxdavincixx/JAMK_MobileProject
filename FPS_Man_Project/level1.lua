@@ -16,7 +16,7 @@ local currentScoreDisplay                                                   -- w
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
 local spawnTimer                                                            -- will be used to hold the timer for the spawning engine
 local timerRefresh = 1000                                                   -- will be used to calculate fps-update
-local fps_multiplicator = 1                                             	-- will be used to calculate fps-update
+local fps_multiplicator = 1                                              -- will be used to calculate fps-update
 local timerDelay = 0                                                        -- will be used to calculate fps-update
 local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
@@ -132,14 +132,14 @@ local function walkerEnemy1MovementRight()
 end
 
 -- looping movement jumper enemy 1 --
-local function jumperEnemy1MovementDown()
-    local function jumperEnemy1MovementUp()
+local function jumperEnemy1MovementRight()
+    local function jumperEnemy1MovementLeft()
         
-        transition.to(jumperEnemy_ghost, {y = 220, time=600, onComplete=jumperEnemy1MovementDown})
+        transition.to(jumperEnemy_ghost, {y = 220, time=1200, onComplete=jumperEnemy1MovementRight})
         jumperEnemy.xScale = 1/20*3
         jumperEnemy.yScale = 1/20*3
     end
-    transition.to(jumperEnemy_ghost, {y = 275, time=600, onComplete=jumperEnemy1MovementUp})
+    transition.to(jumperEnemy_ghost, {y = 275, time=1200, onComplete=jumperEnemy1MovementLeft})
     jumperEnemy.xScale =1/20*3-- 0.15
     jumperEnemy.yScale = 1/20*3
 end
@@ -399,7 +399,7 @@ function scene:create( event )
     jumperEnemy_ghost = spawnJumperEnemyGhost( 450, 275 )
     enemies:insert( jumperEnemy )
     enemie_ghosts:insert( jumperEnemy_ghost )
-    jumperEnemy1MovementDown()
+    jumperEnemy1MovementRight()
 
     platform2 = spawnPlatform( 460, 200, 80, 10 )                           -- adding level component
     platform3 = spawnPlatform( 700, 200, 80, 10 )                           -- adding level component
