@@ -177,8 +177,8 @@ function scene:create( event )
     player_ghost = spawnPlayerGhost( 27.5, 274.5 )              -- create its ghost
     player_ghost.isFixedRotation = true                         -- set its rotation to fixed so the player does not fall over when he jumps
 
-    wallL = spawnWall( 0, 160, 30, 320 )                        -- adding level components
-    wallL:setFillColor( 0, 1, 0 )
+    wallOuterLeft = spawnWall( 0, 160, 30, 320 )                        -- adding level components
+    wallOuterLeft:setFillColor( 0, 1, 0 )
     wallR = spawnWall( 1000, 160, 30, 320 )                     -- adding level components
     wallR:setFillColor( 0, 0, 1 )
     floor = spawnPlatform( 450, 320, 900, 30 )                  -- adding level components
@@ -231,7 +231,7 @@ function scene:create( event )
 
     -- these objects are effected by the camera movement --
     camera:add( player, 1 )                               -- 1 = focused by camera         
-    camera:add( wallL )
+    camera:add( wallOuterLeft )
     camera:add( wallR )
     camera:add( floor ) 
     camera:add( player_ghost )
@@ -371,7 +371,7 @@ function scene:hide( event )                                                    
 
         -- REMOVE ALL OBJECTS YOU CREATED --
 
-        wallL:removeSelf()
+        wallOuterLeft:removeSelf()
         wallR:removeSelf()
         floor:removeSelf()
         lButton:removeSelf()

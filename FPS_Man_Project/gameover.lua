@@ -22,6 +22,8 @@ local function handleButtonEvent( event )
                 someOtherKey = 10
             }
         }
+        
+        composer.removeScene(composer.getSceneName("previous"))
         composer.gotoScene( "menu", options )
     end
     return true

@@ -365,15 +365,15 @@ function scene:create( event )
     player:setFrame(10)
     player_ghost = spawnPlayerGhost( 27.5, 274.5 )                          -- create its ghost
     player_ghost.isFixedRotation = true                                     -- set its rotation to fixed so the player does not fall over when he jumps
-    wallL = spawnWall( 0, 160, 30, 320 )                                    -- adding level component
-    wallL:setFillColor( 0, 1, 0 )
+    wallOuterLeft = spawnWall( 0, 160, 30, 320 )                                    -- adding level component
+    wallOuterLeft:setFillColor( 0, 1, 0 )
     wallR = spawnWall( 1000, 160, 30, 320 )                                 -- adding level component
     wallR:setFillColor( 0, 0, 1 )
     floor = spawnPlatform( 450, 320, 900, 30 )                              -- adding level component
     floor:setFillColor( 0, 0, 0 )
-    platform = spawnPlatform( 60, 200, 80, 10 )                             -- adding level component
+    platform = spawnPlatform( 60, 200, 80, 1 )                             -- adding level component
     platform:setFillColor( 1, 0, 0 )
-    platform1 = spawnPlatform( 220, 200, 80, 10 )                           -- adding level component
+    platform1 = spawnPlatform( 220, 200, 80, 1 )                           -- adding level component
     increaseObject = spawnIncreasingObject( 890, 110 )                      -- adding level component
     increaseObject1 = spawnIncreasingObject( 969, 245 )                     -- adding level component
     increaseObject2 = spawnIncreasingObject( 643, 157 )                     -- adding level component
@@ -443,7 +443,7 @@ function scene:create( event )
 
     -- these objects are effected by the camera movement --
     camera:add( player, 1 )
-    camera:add( wallL )
+    camera:add( wallOuterLeft )
     camera:add( wallR )
     camera:add( floor ) 
     camera:add( player_ghost )
@@ -612,7 +612,7 @@ function scene:hide( event )                                                    
     local sceneGroup = self.view
     
     if event.phase == "will" then
-        wallL:removeSelf()
+        wallOuterLeft:removeSelf()
         wallR:removeSelf()
         floor:removeSelf()
         lButton:removeSelf()
