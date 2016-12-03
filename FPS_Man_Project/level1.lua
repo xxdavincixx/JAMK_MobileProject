@@ -134,7 +134,7 @@ local function resetLevel()
 end
 
 -- Creating reset button --
-resetButton = display.newImageRect("images/reset.png", 20, 20 )
+resetButton = display.newImageRect("images/resetbutton.png", 20, 20 )
 resetButton.x = 445
 resetButton.y = 13
 resetButton:addEventListener( "tap", resetLevel )
