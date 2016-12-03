@@ -147,13 +147,6 @@ text:setTextColor(255,255,255)
 timeLeft:setTextColor(255,255,255)
 
 
--- Create timer  --
-text = display.newText("Time left: ", 500, 10, native.systemFont, 16)
-timeLeft = display.newText(timeLimit, 550, 10, native.systemFont, 16)
-text:setTextColor(255,255,255)
-timeLeft:setTextColor(255,255,255)
-
-
 -- Function for timer --
 local function timerDown()
      timeLimit = timeLimit-1
