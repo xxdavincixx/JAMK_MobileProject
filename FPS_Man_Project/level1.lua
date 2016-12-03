@@ -575,6 +575,7 @@ function scene:show( event )
                 if ( timerDelay >= timerRefresh/fps_multiplicator ) then    -- this method is an timer written on my own to decrease and increase the update of player with its ghost-self
                     local middleOfScreen = display.contentCenterX           -- this describes the middle of the screen
                     local endOfLevel = 1000                                 -- this descirbes the total length of the
+                    player:play()
                     for i=1, enemies.numChildren, 1 do
                         enemies[i]:play()
                         walkerEnemy.x = walkerEnemy_ghost.x
