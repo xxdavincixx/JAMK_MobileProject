@@ -40,29 +40,12 @@ local function getHighscoreListener(query)
     end
 end
 
-local function setHighscoreListener(query)
-    if ( query.isError ) then
-        print( "Network error!", query.response )
-    else
-        -- new record -> 1 back | no record -> 0 back
-        print ( "RESPONSE: " .. query.response )
-    end
-end
-
 local function getHighscore(level)
     local params = {
         body = "level=" .. level .. "&getHighscore=1"
     };
     print("Sending Request to Server...")
     network.request(url,"POST",getHighscoreListener, params)
-end
-
-local function setHighscore()
-    local params = {
-        body = "username=Arthur&highscore=50001&level=2"
-    };
-    print("Sending Request to Server...")
-    network.request(url,"POST",setHighscoreListener, params)
 end
 
 -- SQL Online Server Part - End

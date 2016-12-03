@@ -28,6 +28,7 @@ local function handleButtonEvent( event )
     return true
 end
 
+--[[
 local function showLeaderboard( event )
     if event.phase == "ended" then
         gameNetwork.show( "leaderboards", { leaderboard = {timeScope="AllTime"}} )
@@ -48,6 +49,7 @@ local function postToGameNetwork()
         listener = postScoreSubmit
     })
 end
+]]
 --
 -- Start the composer event handlers
 --
@@ -55,7 +57,7 @@ function scene:create( event )
     local sceneGroup = self.view
 
     params = event.params
-        
+
     --
     -- setup a page background, really not that important though composer
     -- crashes out if there isn't a display object in the view.
@@ -66,12 +68,81 @@ function scene:create( event )
     background:setFillColor( 1 )
     sceneGroup:insert(background)
 
-    local gameOverText = display.newText("You did it!", 0, 0, native.systemFontBold, 32 )
+    local gameOverText = display.newText("LEVEL COMPLETE", 0, 0, native.systemFontBold, 32 )
     gameOverText:setFillColor( 0 )
     gameOverText.x = display.contentCenterX
     gameOverText.y = 50
     sceneGroup:insert(gameOverText)
 
+    local options = {
+       text = "",
+       x = 290,
+       width = 300,
+       height = 24,
+       fontSize = 24,
+       align = "left"
+    }
+    --sceneGroup:insert(options)
+
+    local completeFpsText = display.newText(options)
+    completeFpsText.text = "Frames per second: "
+    completeFpsText:setFillColor( 0 )
+    completeFpsText.y = 100
+    sceneGroup:insert(completeFpsText)
+
+    local yourTimeText = display.newText(options)
+    yourTimeText.text = "Your time: "
+    yourTimeText:setFillColor( 0 )
+    yourTimeText.y = 140
+    sceneGroup:insert(yourTimeText)
+
+    local bestTimeText = display.newText(options)
+    bestTimeText.text = "Best time: "
+    bestTimeText:setFillColor( 0 )
+    bestTimeText.y = 180
+    sceneGroup:insert(bestTimeText)
+
+    local bestOnlineTimeText = display.newText(options)
+    bestOnlineTimeText.text = "Best online time: "
+    bestOnlineTimeText:setFillColor( 0 )
+    bestOnlineTimeText.y = 220
+    sceneGroup:insert(bestOnlineTimeText)
+
+    local options2 = {
+       text = "",
+       x = 425,
+       width = 125,
+       height = 24,
+       fontSize = 24,
+       align = "left"
+    }
+    --sceneGroup:insert(options)
+
+    local completeFps = display.newText(options2)
+    completeFps.text = params.fps
+    completeFps:setFillColor( 0 )
+    completeFps.y = 100
+    sceneGroup:insert(completeFps)
+
+    local yourTime = display.newText(options2)
+    yourTime.text = params.myTime
+    yourTime:setFillColor( 0 )
+    yourTime.y = 140
+    sceneGroup:insert(yourTime)
+
+    local bestTime = display.newText(options2)
+    bestTime.text = params.localTime
+    bestTime:setFillColor( 0 )
+    bestTime.y = 180
+    sceneGroup:insert(bestTime)
+
+    local bestOnlineTime = display.newText(options2)
+    bestOnlineTime.text = params.onlineTime
+    bestOnlineTime:setFillColor( 0 )
+    bestOnlineTime.y = 220
+    sceneGroup:insert(bestOnlineTime)
+
+--[[
     local leaderBoardButton = widget.newButton({
         id = "leaderboard",
         label = "Leaderboard",
@@ -82,6 +153,7 @@ function scene:create( event )
     leaderBoardButton.x = display.contentCenterX 
     leaderBoardButton.y = 225
     sceneGroup:insert( leaderBoardButton )
+]]--
 
     local doneButton = widget.newButton({
         id = "button1",
@@ -125,7 +197,7 @@ end
 
 function scene:destroy( event )
     local sceneGroup = self.view
-    
+    print("destroy")
 end
 
 ---------------------------------------------------------------------------------

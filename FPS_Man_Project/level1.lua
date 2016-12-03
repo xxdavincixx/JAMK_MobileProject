@@ -28,12 +28,45 @@ local endScore
 local enemies = display.newGroup()
 local enemie_ghosts = display.newGroup()
 local levelNumber = 1
+local winningBestTime, winningBestOnlineTime
 composer.removeScene(composer.getSceneName("previous"))
 camera = perspective.createView()                                           -- camera is created
 
 
 -- SQL Online Server Part - Start
 local url = 'https://skaja.eu/fps-game/highscore.php'
+
+local function getHighscoreListener(query)
+    if ( query.isError ) then
+        print( "Network error!", query.response )
+    else
+        local getHighscoreJSON = json.decode( query.response )
+
+        winningBestOnlineTime = getHighscoreJSON.highscore
+    end
+
+
+    local options =
+    {
+        effect = "crossFade",
+        time = 500,
+        params = { fps = fps_multiplicator, myTime = neededtime, localTime = myData.settings.levels[tostring(levelNumber)], onlineTime= winningBestOnlineTime }
+    }
+
+    composer.removeScene( "winning" )                       -- if there is a winning-scene already running we delete it
+    composer.gotoScene( "winning", options ) -- switch to winning-scene  
+
+
+    
+end
+
+local function getHighscore(level)
+    local params = {
+        body = "level=" .. levelNumber .. "&getHighscore=1"
+    };
+    print("Sending Request to Server...")
+    network.request(url,"POST",getHighscoreListener, params)
+end
 
 local function compateWithOnlineHighscoreListener(query)
     if ( query.isError ) then
@@ -42,14 +75,17 @@ local function compateWithOnlineHighscoreListener(query)
         -- new record -> 1 back | no record -> 0 back
         if(query.response == "1") then
             print("new record!")
+            winningBestOnlineTime = endScore
         else
             if(query.response == "0") then
                 print("no record")
+                getHighscore()
             end            
         end
 
         print ( "RESPONSE: " .. query.response )
     end
+
 end
 
 local function compateWithOnlineHighscore()
@@ -551,12 +587,17 @@ function scene:show( event )
                     composer.removeScene( "gameover" )                      -- if there is a gameover-scene already running we delete it
                     composer.gotoScene( "gameover", { time= 500, effect = "crossFade" } )   -- switch to gameover-scene
                 elseif ( player.didFinish == true ) then
-                    composer.removeScene( "winning" )                       -- if there is a winning-scene already running we delete it
-                    composer.gotoScene( "winning", {time = 500, effect = "crossFade"} ) -- switch to winning-scene
                     endScore = neededtime
                     print(neededtime)
-					compareLocalHighscore(neededtime)
+                    compareLocalHighscore(neededtime)
                     compateWithOnlineHighscore()
+
+                    --print("wbot " .. winningBestOnlineTime)
+                    --print("endScore " .. endScore)
+
+                 
+           
+
                 end
             end
         end
