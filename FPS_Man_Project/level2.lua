@@ -87,6 +87,27 @@ local function compareLocalHighscore(endScore)
     utility.saveTable(myData.settings, "settings.json")
 end
 
+-- Creating function to reset level --
+
+local options ={
+    effect = "fade",
+    time = 0,
+    params =
+    {
+        myData = 1234
+    }
+}
+
+local function resetLevel()
+    composer.gotoScene( "restartLvl2", options )
+end
+
+-- Creating reset button --
+resetButton = display.newImageRect("images/resetbutton.png", 20, 20 )
+resetButton.x = 445
+resetButton.y = 13
+resetButton:addEventListener( "tap", resetLevel )
+
 -- Create timer  --
 text = display.newText("Time left: ", 500, 10, native.systemFont, 16)
 timeLeft = display.newText(timeLimit, 550, 10, native.systemFont, 16)
@@ -799,15 +820,18 @@ function scene:hide( event )                                                    
         
         transition.cancel(walkerEnemy_ghost)
         walkerEnemy:removeSelf()
+        walkerEnemy_ghost:removeSelf()
 
         transition.cancel(jumperEnemy_ghost)
         jumperEnemy:removeSelf()
+        jumperEnemy_ghost:removeSelf()
 
         --finishPlatform:removeSelf()
         --finishCoverPlatform:removeSelf()
         timer.cancel(countdowntimer)
         text:removeSelf()
         timeLeft:removeSelf()
+        resetButton:removeSelf()
         if ( myData.settings.musicOn ) then
             audio.stop()
             audio.play( audio.loadStream( "audio/menuMusic.mp3" ), { channel=1, loops=-1 } )

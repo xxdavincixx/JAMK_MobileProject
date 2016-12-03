@@ -130,7 +130,7 @@ local options ={
 }
 
 local function resetLevel()
-    composer.gotoScene( "restart", options )
+    composer.gotoScene( "restartLvl1", options )
 end
 
 -- Creating reset button --
