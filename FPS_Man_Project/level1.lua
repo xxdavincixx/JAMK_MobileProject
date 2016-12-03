@@ -195,11 +195,11 @@ end
 local function jumperEnemy1MovementRight()
     local function jumperEnemy1MovementLeft()
         
-        transition.to(jumperEnemy_ghost, {y = 220, time=1200, onComplete=jumperEnemy1MovementRight})
+        transition.to(jumperEnemy_ghost, {y = 250, time=400, onComplete=jumperEnemy1MovementRight})
         jumperEnemy.xScale = 1/20*3
         jumperEnemy.yScale = 1/20*3
     end
-    transition.to(jumperEnemy_ghost, {y = 275, time=1200, onComplete=jumperEnemy1MovementLeft})
+    transition.to(jumperEnemy_ghost, {y = 275, time=400, onComplete=jumperEnemy1MovementLeft})
     jumperEnemy.xScale =1/20*3-- 0.15
     jumperEnemy.yScale = 1/20*3
 end
@@ -215,8 +215,8 @@ end
 
 local function spawnPlayer( x, y )
     player = display.newSprite(characterSheet, characterSheetInfo:getSequenceData() )            -- starting point and seize of the object (old 30x60)
-    player.x = 36
-    player.y = 260
+    player.x = x
+    player.y = y
     --local playerCollisionFilter = { categoryBits = 2, maskBits=5 }          -- create collision filter for object, its own number is 2 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
     player.alpha = 1                                                        -- is visible
     player.isJumping =false                                                 -- at the start the object is not jumping
@@ -419,7 +419,7 @@ function scene:create( event )
     
     local thisLevel = myData.settings.currentLevel
 
-    player = spawnPlayer( 27.5, 274.5 )                                     -- create a player
+    player = spawnPlayer( 36, 260 )                                     -- create a player
     player.xScale = 0.4
     player.yScale = 0.4
     player:setFrame(10)

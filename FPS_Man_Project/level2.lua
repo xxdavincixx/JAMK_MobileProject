@@ -16,7 +16,7 @@ local currentScoreDisplay                                                   -- w
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
 local spawnTimer                                                            -- will be used to hold the timer for the spawning engine
 local timerRefresh = 1000                                                   -- will be used to calculate fps-update
-local fps_multiplicator = 60                                              -- will be used to calculate fps-update
+local fps_multiplicator = 30                                              -- will be used to calculate fps-update
 local timerDelay = 0                                                        -- will be used to calculate fps-update
 local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
@@ -142,11 +142,11 @@ end
 local function jumperEnemy1MovementRight()
     local function jumperEnemy1MovementLeft()
         
-        transition.to(jumperEnemy_ghost, {y = 220, time=1200, onComplete=jumperEnemy1MovementRight})
+        transition.to(jumperEnemy_ghost, {y = 250, time=400, onComplete=jumperEnemy1MovementRight})
         jumperEnemy.xScale = 1/20*3
         jumperEnemy.yScale = 1/20*3
     end
-    transition.to(jumperEnemy_ghost, {y = 275, time=1200, onComplete=jumperEnemy1MovementLeft})
+    transition.to(jumperEnemy_ghost, {y = 275, time=400, onComplete=jumperEnemy1MovementLeft})
     jumperEnemy.xScale =1/20*3-- 0.15
     jumperEnemy.yScale = 1/20*3
 end
