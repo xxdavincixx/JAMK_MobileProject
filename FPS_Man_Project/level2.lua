@@ -274,8 +274,8 @@ end
 
 local function spawnPlayer( x, y )
     player = display.newSprite(characterSheet, characterSheetInfo:getSequenceData() )            -- starting point and seize of the object (old 30x60)
-    player.x = 36
-    player.y = 260
+    player.x = x
+    player.y = y
     --local playerCollisionFilter = { categoryBits = 2, maskBits=5 }          -- create collision filter for object, its own number is 2 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
     player.alpha = 1                                                        -- is visible
     player.isJumping =false                                                 -- at the start the object is not jumping
@@ -521,11 +521,11 @@ function scene:create( event )
     local thisLevel = myData.settings.currentLevel
 
     -- spieler --
-    player = spawnPlayer( 70, 260 )                                     -- create a player
+    player = spawnPlayer( 50, 258 )                                     -- create a player
     player.xScale = 0.4
     player.yScale = 0.4
     player:setFrame(10)
-    player_ghost = spawnPlayerGhost( 70, 260 )                          -- create its ghost
+    player_ghost = spawnPlayerGhost( 50, 258 )                          -- create its ghost
     player_ghost.isFixedRotation = true                                     -- set its rotation to fixed so the player does not fall over when he jumps
 
     -- bodenelemente --
@@ -697,7 +697,6 @@ function scene:show( event )
                 if ( timerDelay >= timerRefresh/fps_multiplicator ) then    -- this method is an timer written on my own to decrease and increase the update of player with its ghost-self
                     local middleOfScreen = display.contentCenterX           -- this describes the middle of the screen
                     local endOfLevel = 5200                                 -- this descirbes the total length of the
-                    player:play()
                     for i=1, enemies.numChildren, 1 do
                         enemies[i]:play()
                         walkerEnemy.x = walkerEnemy_ghost.x
