@@ -178,6 +178,10 @@ local walkerEnemySheet = graphics.newImageSheet("images/fps_walker_spritesheet.p
 local jumperEnemySheetInfo = require("fps_jumper_spritesheet")
 local jumperEnemySheet = graphics.newImageSheet("images/fps_jumper_spritesheet.png", jumperEnemySheetInfo:getSheet() )
 
+-- Creating image sheet and info for hopper enemy --
+local hopperEnemySheetInfo = require("fps_hopper_spritesheet")
+local hopperEnemySheet = graphics.newImageSheet("images/fps_hopper_spritesheet.png", hopperEnemySheetInfo:getSheet() )
+
 -- looping movement walker enemy 1 --
 local function walkerEnemy1MovementRight()
     local function walkerEnemy1MovementLeft()
@@ -203,6 +207,31 @@ local function jumperEnemy1MovementRight()
     jumperEnemy.xScale =1/20*3-- 0.15
     jumperEnemy.yScale = 1/20*3
 end
+
+-- looping movement hopper enemy 1 -- -- x 50 more, y 40 more spawn -- -- 70 / 160 --
+local function hopperEnemy1MovementRightUp()
+    local function hopperEnemy1MovementRightDown()
+            local function hopperEnemy1MovementLeftUp()
+                local function hopperEnemy1MovementLeftDown()
+                    transition.to(hopperEnemy_ghost, {x = 70, y = 160, time=400, onComplete=hopperEnemy1MovementRightUp})
+                    hopperEnemy.xScale = -1/20*2-- 0.15
+                    hopperEnemy.yScale = 1/20*2
+                end
+            transition.to(hopperEnemy_ghost, {x = 140, y = 120, time=400, onComplete=hopperEnemy1MovementLeftDown})
+            hopperEnemy.xScale = -1/20*2-- 0.15
+            hopperEnemy.yScale = 1/20*2
+        end
+        transition.to(hopperEnemy_ghost, {x = 210, y = 160, time=400, onComplete=hopperEnemy1MovementLeftUp})
+        hopperEnemy.xScale = 1/20*2
+        hopperEnemy.yScale = 1/20*2
+    end
+    transition.to(hopperEnemy_ghost, {x = 140, y = 120, time=400, onComplete=hopperEnemy1MovementRightDown})
+    hopperEnemy.xScale =1/20*2-- 0.15
+    hopperEnemy.yScale = 1/20*2
+end
+
+
+
 
 local function spawnWall( x, y, w, h )                                      -- create a wall 
     
@@ -284,14 +313,14 @@ local function spawnWalkerEnemy( x, y )
 end
 
 local function spawnWalkerEnemyGhost( x, y )
-    local walker_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
-    walker_ghost.name = "conrad"
-    walker_ghost.alpha = 0                                                  -- player_ghost is not visible
+    local walkerEnemy_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    walkerEnemy_ghost.name = "conrad"
+    walkerEnemy_ghost.alpha = 0                                                  -- player_ghost is not visible
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
-    physics.addBody( walker_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
-    walker_ghost.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
+    physics.addBody( walkerEnemy_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
+    walkerEnemy_ghost.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
       
-    return walker_ghost
+    return walkerEnemy_ghost
 end
 
 local function spawnJumperEnemy( x, y )
@@ -306,14 +335,36 @@ local function spawnJumperEnemy( x, y )
 end
 
 local function spawnJumperEnemyGhost( x, y )
-    local jumper_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
-    jumper_ghost.name = "conrad"
-    jumper_ghost.alpha = 0                                                  -- player_ghost is not visible
+    local jumperEnemy_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    jumperEnemy_ghost.name = "conrad"
+    jumperEnemy_ghost.alpha = 0                                                  -- player_ghost is not visible
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
-    physics.addBody( jumper_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
-    jumper_ghost.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
+    physics.addBody( jumperEnemy_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
+    jumperEnemy_ghost.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
       
-    return jumper_ghost
+    return jumperEnemy_ghost
+end
+
+local function spawnHopperEnemy( x, y )
+    local hopperEnemy = display.newSprite( hopperEnemySheet, hopperEnemySheetInfo:getSequenceData() )
+    hopperEnemy.name = "abc"
+    hopperEnemy.x = x
+    hopperEnemy.y = y
+    --local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
+    --physics.addBody( jumperEnemy, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
+    --jumperEnemy.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
+    return hopperEnemy
+end
+
+local function spawnHopperEnemyGhost( x, y )
+    local hopperEnemy_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    hopperEnemy_ghost.name = "def"
+    hopperEnemy_ghost.alpha = 0                                                  -- player_ghost is not visible
+    local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
+    physics.addBody( hopperEnemy_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
+    hopperEnemy_ghost.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
+      
+    return hopperEnemy_ghost
 end
 
 local function setJumpDecrease( jd )
@@ -339,8 +390,8 @@ local function moveLeftButton( event )                                      -- c
     if ( event.phase == "began" ) then
         player.xScale = -0.4
         player.yScale = 0.4
-    	player:setSequence("walk")
-  		player:play()
+        player:setSequence("walk")
+        player:play()
         player_ghost.direction = "left"--nil
         else if (event.phase == "ended") then
             player_ghost.direction = ""
@@ -357,8 +408,8 @@ local function moveRightButton( event )                                     -- c
     if ( event.phase == "began" ) then
         player.xScale = 0.4
         player.yScale = 0.4
-    	player:setSequence("walk")
-	    player:play()
+        player:setSequence("walk")
+        player:play()
         player_ghost.direction = "right"--nil
         else if (event.phase == "ended") then
             player_ghost.direction = ""
@@ -460,6 +511,15 @@ function scene:create( event )
     enemies:insert( jumperEnemy )
     enemie_ghosts:insert( jumperEnemy_ghost )
     jumperEnemy1MovementRight()
+
+    hopperEnemy = spawnHopperEnemy( 70, 160 )
+    hopperEnemy.xScale=0.1
+    hopperEnemy.yScale=0.1
+    hopperEnemy:play()
+    hopperEnemy_ghost = spawnHopperEnemyGhost( 70, 160 )
+    enemies:insert( hopperEnemy )
+    enemie_ghosts:insert( hopperEnemy_ghost )
+    hopperEnemy1MovementRightUp()
 
     platform2 = spawnPlatform( 460, 200, 80, 10 )                           -- adding level component
     platform3 = spawnPlatform( 700, 200, 80, 10 )                           -- adding level component
@@ -580,6 +640,8 @@ function scene:show( event )
                         enemies[i]:play()
                         walkerEnemy.x = walkerEnemy_ghost.x
                         jumperEnemy.y = jumperEnemy_ghost.y
+                        hopperEnemy.y = hopperEnemy_ghost.y
+                        hopperEnemy.x = hopperEnemy_ghost.x
                     end
                     player.x = player_ghost.x                               -- player position gets synchronized with its ghost-self
                     player.y = player_ghost.y                               -- player position gets synchronized with its ghost-self
@@ -708,6 +770,10 @@ function scene:hide( event )                                                    
         transition.cancel(jumperEnemy_ghost)
         jumperEnemy:removeSelf()
         jumperEnemy_ghost:removeSelf()
+
+        transition.cancel(hopperEnemy_ghost)
+        hopperEnemy:removeSelf()
+        hopperEnemy_ghost:removeSelf()
 
         finishPlatform:removeSelf()
         finishCoverPlatform:removeSelf()
