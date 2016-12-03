@@ -712,6 +712,7 @@ function scene:hide( event )                                                    
         timer.cancel(countdowntimer)
         text:removeSelf()
         timeLeft:removeSelf()
+        resetButton:removeSelf()
         if ( myData.settings.musicOn ) then
             audio.stop()
             audio.play( audio.loadStream( "audio/menuMusic.mp3" ), { channel=1, loops=-1 } )
