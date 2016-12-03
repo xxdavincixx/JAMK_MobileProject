@@ -16,7 +16,7 @@ local currentScoreDisplay                                                   -- w
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
 local spawnTimer                                                            -- will be used to hold the timer for the spawning engine
 local timerRefresh = 1000                                                   -- will be used to calculate fps-update
-local fps_multiplicator = 1                                              -- will be used to calculate fps-update
+local fps_multiplicator = 30                                              -- will be used to calculate fps-update
 local timerDelay = 0                                                        -- will be used to calculate fps-update
 local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
@@ -29,6 +29,7 @@ local enemies = display.newGroup()
 local enemie_ghosts = display.newGroup()
 local levelNumber = 1
 local winningBestTime, winningBestOnlineTime
+local finishFlag = false
 composer.removeScene(composer.getSceneName("previous"))
 camera = perspective.createView()                                           -- camera is created
 
@@ -43,6 +44,7 @@ local function getHighscoreListener(query)
         local getHighscoreJSON = json.decode( query.response )
 
         winningBestOnlineTime = getHighscoreJSON.highscore
+
     end
 
 
@@ -57,7 +59,6 @@ local function getHighscoreListener(query)
     composer.gotoScene( "winning", options ) -- switch to winning-scene  
 
 
-    
 end
 
 local function getHighscore(level)
@@ -587,16 +588,16 @@ function scene:show( event )
                     composer.removeScene( "gameover" )                      -- if there is a gameover-scene already running we delete it
                     composer.gotoScene( "gameover", { time= 500, effect = "crossFade" } )   -- switch to gameover-scene
                 elseif ( player.didFinish == true ) then
-                    endScore = neededtime
-                    print(neededtime)
-                    compareLocalHighscore(neededtime)
-                    compateWithOnlineHighscore()
+                    
+                    if(finishFlag == false) then
+                        finishFlag = true
 
-                    --print("wbot " .. winningBestOnlineTime)
-                    --print("endScore " .. endScore)
+                        endScore = neededtime
+                        print(neededtime)
+                        compareLocalHighscore(neededtime)
+                        compateWithOnlineHighscore()
 
-                 
-           
+                    end
 
                 end
             end
