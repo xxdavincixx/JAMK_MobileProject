@@ -117,6 +117,36 @@ local function compareLocalHighscore(endScore)
     utility.saveTable(myData.settings, "settings.json")
 end
 
+
+-- Creating function to reset level --
+
+local options ={
+    effect = "fade",
+    time = 0,
+    params =
+    {
+        myData = 1234
+    }
+}
+
+local function resetLevel()
+    composer.gotoScene( "restart", options )
+end
+
+-- Creating reset button --
+resetButton = display.newImageRect("images/reset.png", 20, 20 )
+resetButton.x = 445
+resetButton.y = 13
+resetButton:addEventListener( "tap", resetLevel )
+
+
+-- Create timer  --
+text = display.newText("Time left: ", 500, 10, native.systemFont, 16)
+timeLeft = display.newText(timeLimit, 550, 10, native.systemFont, 16)
+text:setTextColor(255,255,255)
+timeLeft:setTextColor(255,255,255)
+
+
 -- Create timer  --
 text = display.newText("Time left: ", 500, 10, native.systemFont, 16)
 timeLeft = display.newText(timeLimit, 550, 10, native.systemFont, 16)
