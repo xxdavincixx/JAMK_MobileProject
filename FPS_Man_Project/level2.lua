@@ -152,7 +152,7 @@ end
 
 local function restartFunction(event)
     if event.phase == "ended" then
-        composer.gotoScene( "restartLvl1", { time= 100, effect = "crossFade" } )
+        composer.gotoScene( "restartLvl2", { time= 100, effect = "crossFade" } )
         print("restart")
     end
     return true
