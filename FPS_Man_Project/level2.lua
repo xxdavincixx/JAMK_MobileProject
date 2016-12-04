@@ -10,13 +10,13 @@ local utility = require( "utility" )
 local physics = require( "physics" )
 local myData = require( "mydata" )
 local perspective = require( "perspective" )
-local counter=0
+
 local currentScore                                                          -- used to hold the numeric value of the current score
 local currentScoreDisplay                                                   -- will be a display.newText() that draws the score on the screen
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
 local spawnTimer                                                            -- will be used to hold the timer for the spawning engine
 local timerRefresh = 1000                                                   -- will be used to calculate fps-update
-local fps_multiplicator = 30                                              -- will be used to calculate fps-update
+local fps_multiplicator = 60                                              -- will be used to calculate fps-update
 local timerDelay = 0                                                        -- will be used to calculate fps-update
 local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
@@ -25,6 +25,7 @@ local neededtime
 local timeLimit = 300
 local highscoretime = 0
 local endScore
+local backgroundClouds = display.newGroup()
 local platformHover_list = display.newGroup()
 local hill_list = display.newGroup()
 local wall_list = display.newGroup()
@@ -35,12 +36,50 @@ local platformGround_list = display.newGroup()
 local enemies = display.newGroup()
 local enemie_ghosts = display.newGroup()
 local levelNumber = 1
+local winningBestTime, winningBestOnlineTime
+local finishFlag = false
+local sceneGroup
+local countdowntimer = timer.performWithDelay(1000,timerDown,timeLimit)
+local highscoretimer = timer.performWithDelay(100,timerUp,highscoretime)
+local timeLeft = timeLeft
 composer.removeScene(composer.getSceneName("previous"))
 camera = perspective.createView()                                           -- camera is created
 
 
 -- SQL Online Server Part - Start
 local url = 'https://skaja.eu/fps-game/highscore.php'
+
+local function getHighscoreListener(query)
+    if ( query.isError ) then
+        print( "Network error!", query.response )
+    else
+        local getHighscoreJSON = json.decode( query.response )
+
+        winningBestOnlineTime = getHighscoreJSON.highscore
+
+    end
+
+
+    local options =
+    {
+        effect = "crossFade",
+        time = 500,
+        params = { fps = fps_multiplicator, myTime = neededtime, localTime = myData.settings.levels[tostring(levelNumber)], onlineTime= winningBestOnlineTime }
+    }
+
+    composer.removeScene( "winning" )                       -- if there is a winning-scene already running we delete it
+    composer.gotoScene( "winning", options ) -- switch to winning-scene  
+
+
+end
+
+local function getHighscore(level)
+    local params = {
+        body = "level=" .. levelNumber .. "&getHighscore=1"
+    };
+    print("Sending Request to Server...")
+    network.request(url,"POST",getHighscoreListener, params)
+end
 
 local function compateWithOnlineHighscoreListener(query)
     if ( query.isError ) then
@@ -49,14 +88,17 @@ local function compateWithOnlineHighscoreListener(query)
         -- new record -> 1 back | no record -> 0 back
         if(query.response == "1") then
             print("new record!")
+            winningBestOnlineTime = endScore
         else
             if(query.response == "0") then
                 print("no record")
+                getHighscore()
             end            
         end
 
         print ( "RESPONSE: " .. query.response )
     end
+
 end
 
 local function compateWithOnlineHighscore()
@@ -87,33 +129,48 @@ local function compareLocalHighscore(endScore)
     utility.saveTable(myData.settings, "settings.json")
 end
 
--- Creating function to reset level --
+local function pauseFunction(event)
+    
+    if event.phase == "ended" then
+        physics.pause()
+        for i=1, camera.numChildren, 1 do
+            camera[i].alpha = 0
+        end
 
-local options ={
-    effect = "fade",
-    time = 0,
-    params =
-    {
-        myData = 1234
-    }
-}
+        transition.pause()
+        composer.showOverlay( "pause" , { effect = "crossFade", time = 333, isModal = true } )
+        
 
-local function resetLevel()
-    composer.gotoScene( "restartLvl2", options )
+        --print("timer" .. countdowntimer)
+        timer.pause( countdowntimer )
+        timer.pause( highscoretimer )
+    end
+    
+    return true
+
 end
 
--- Creating reset button --
-resetButton = display.newImageRect("images/resetbutton.png", 20, 20 )
-resetButton.x = 445
-resetButton.y = 13
-resetButton:addEventListener( "tap", resetLevel )
+local function restartFunction(event)
+    if event.phase == "ended" then
+        composer.gotoScene( "restartLvl1", { time= 100, effect = "crossFade" } )
+        print("restart")
+    end
+    return true
+end
 
--- Create timer  --
-text = display.newText("Time left: ", 500, 10, native.systemFont, 16)
-timeLeft = display.newText(timeLimit, 550, 10, native.systemFont, 16)
-text:setTextColor(255,255,255)
-timeLeft:setTextColor(255,255,255)
+-- Custom function for resuming the game (from pause state)
+function scene:resumeGame()
+    print("im back")
+    for i=1, camera.numChildren, 1 do
+        camera[i].alpha = 1
+    end
+    transition.resume()
+    physics.start()
 
+    timer.resume( countdowntimer )
+    timer.resume( highscoretimer )
+
+end
 
 -- Function for timer --
 local function timerDown()
@@ -130,8 +187,7 @@ local function timerUp()
     neededtime = highscoretime * 10 / 100
 end
 
-local countdowntimer = timer.performWithDelay(1000,timerDown,timeLimit)
-local highscoretimer = timer.performWithDelay(100,timerUp,highscoretime)
+
 
 
 -- Creating image sheet and info for character --
@@ -145,6 +201,10 @@ local walkerEnemySheet = graphics.newImageSheet("images/fps_walker_spritesheet.p
 -- Creating image sheet and info for jumper enemy --
 local jumperEnemySheetInfo = require("fps_jumper_spritesheet")
 local jumperEnemySheet = graphics.newImageSheet("images/fps_jumper_spritesheet.png", jumperEnemySheetInfo:getSheet() )
+
+-- Creating image sheet and info for hopper enemy --
+local hopperEnemySheetInfo = require("fps_hopper_spritesheet")
+local hopperEnemySheet = graphics.newImageSheet("images/fps_hopper_spritesheet.png", hopperEnemySheetInfo:getSheet() )
 
 -- looping movement walker enemy 1 --
 local function walkerEnemy1MovementRight()
@@ -171,6 +231,31 @@ local function jumperEnemy1MovementRight()
     jumperEnemy.xScale =1/20*3-- 0.15
     jumperEnemy.yScale = 1/20*3
 end
+
+-- looping movement hopper enemy 1 -- -- x 50 more, y 40 more spawn -- -- 70 / 160 --
+local function hopperEnemy1MovementRightUp()
+    local function hopperEnemy1MovementRightDown()
+            local function hopperEnemy1MovementLeftUp()
+                local function hopperEnemy1MovementLeftDown()
+                    transition.to(hopperEnemy_ghost, {x = 70, y = 160, time=400, onComplete=hopperEnemy1MovementRightUp})
+                    hopperEnemy.xScale = -1/20*2-- 0.15
+                    hopperEnemy.yScale = 1/20*2
+                end
+            transition.to(hopperEnemy_ghost, {x = 140, y = 120, time=400, onComplete=hopperEnemy1MovementLeftDown})
+            hopperEnemy.xScale = -1/20*2-- 0.15
+            hopperEnemy.yScale = 1/20*2
+        end
+        transition.to(hopperEnemy_ghost, {x = 210, y = 160, time=400, onComplete=hopperEnemy1MovementLeftUp})
+        hopperEnemy.xScale = 1/20*2
+        hopperEnemy.yScale = 1/20*2
+    end
+    transition.to(hopperEnemy_ghost, {x = 140, y = 120, time=400, onComplete=hopperEnemy1MovementRightDown})
+    hopperEnemy.xScale =1/20*2-- 0.15
+    hopperEnemy.yScale = 1/20*2
+end
+
+
+
 
 local function spawnWall( x, height, choice)                                      -- create a wall 
     if(choice == 0) then -- in the middle of a level
@@ -271,22 +356,8 @@ local function spawnHill( x, y, x_elements, y_steps_front, y_steps_back)
     return hill_list
 end
 
-
-local function spawnPlayer( x, y )
-    player = display.newSprite(characterSheet, characterSheetInfo:getSequenceData() )            -- starting point and seize of the object (old 30x60)
-    player.x = x
-    player.y = y
-    --local playerCollisionFilter = { categoryBits = 2, maskBits=5 }          -- create collision filter for object, its own number is 2 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
-    player.alpha = 1                                                        -- is visible
-    player.isJumping =false                                                 -- at the start the object is not jumping
-    player.prevX = player.x                                                 -- gets the start value as previous x value
-    player.prevY = player.y                                                 -- gets the start value as previous y value
-    player.isDead = false                                                   -- value to check if player died
-    player.didFinish = false
-    return player
-end
-
 local function spawnFloor(x_start, y_position, numOf)
+    local counter = 0
     for i=1,(numOf),1 do
         if(i==1)then
             floor = display.newImage("images/Floor11.png",x_start+(-30+52*i), y_position)
@@ -316,8 +387,21 @@ local function spawnHoverPlatform( x, y )
 end
 
 
-local function spawnPlatform( x_start, y_position, width, height )                                  -- create a platform a player can get through by jumping at x-position (x) and y-position (y) with width (w) and height (h)
+local function spawnPlayer( x, y )
+    player = display.newSprite(characterSheet, characterSheetInfo:getSequenceData() )            -- starting point and seize of the object (old 30x60)
+    player.x = 5111
+    player.y = y
+    --local playerCollisionFilter = { categoryBits = 2, maskBits=5 }          -- create collision filter for object, its own number is 2 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
+    player.alpha = 1                                                        -- is visible
+    player.isJumping =false                                                 -- at the start the object is not jumping
+    player.prevX = player.x                                                 -- gets the start value as previous x value
+    player.prevY = player.y                                                 -- gets the start value as previous y value
+    player.isDead = false                                                   -- value to check if player died
+    player.didFinish = false
+    return player
+end
 
+local function spawnPlatform( x_start, y_position, width, height, type )                                  -- create a platform a player can get through by jumping at x-position (x) and y-position (y) with width (w) and height (h)
     for i=1, width, 1 do
         platform = display.newRect( x_start+(-30+52*i), y_position-26, 52, 1 )
         platform.alpha = 0
@@ -328,7 +412,12 @@ local function spawnPlatform( x_start, y_position, width, height )              
             platformGround_list:insert(platformGround)
         end
         local platformCollisionFilter = { categoryBits = 4, maskBits = 8 }      -- create collision filter, own value = 4 and collides with the sum of values equal to 8 (player_ghost)
-        platform.typ = "ground"                                                 -- will set jump-counter to 0 if player is landing on platform
+        if(type == nil) then
+            platform.typ = "ground" 
+        else
+            platform.typ = "finish"
+        end
+                                                      -- will set jump-counter to 0 if player is landing on platform
         platform.collType = "passthru"                                          -- a player is able to get through this platform
         physics.addBody( platform, "static", { bounce=0.0, friction=1, filter = platformCollisionFilter } )       -- adding physic to object: static objects are not affected by gravity, platform is not bouncy and friction is as high as possible
         platform_list:insert(platform)
@@ -340,7 +429,7 @@ end
 
 local function spawnPlayerGhost( x, y )                                           -- create a ghost of player object
 
-    local player_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    local player_ghost = display.newRect( 5111, y, 41, 90 )             -- starting point and seize of the object
     local playerGhostCollisionFilter = { categoryBits = 8, maskBits = 21 }  -- create collision filter for ghost object, its own number is 8 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
     player_ghost.alpha = 0                                                  -- player_ghost is not visible
     player_ghost.isJumping =false                                           -- at the start the object is not jumping
@@ -374,7 +463,6 @@ end
 
 local function spawnWalkerEnemy( x, y )
     local walkerEnemy = display.newSprite( walkerEnemySheet, walkerEnemySheetInfo:getSequenceData() )
-    walkerEnemy.name = "sebastian"
     walkerEnemy.x = x
     walkerEnemy.y = y
     --local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
@@ -384,19 +472,17 @@ local function spawnWalkerEnemy( x, y )
 end
 
 local function spawnWalkerEnemyGhost( x, y )
-    local walker_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
-    walker_ghost.name = "conrad"
-    walker_ghost.alpha = 0                                                  -- player_ghost is not visible
+    local walkerEnemy_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    walkerEnemy_ghost.alpha = 0                                                  -- player_ghost is not visible
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
-    physics.addBody( walker_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
-    walker_ghost.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
+    physics.addBody( walkerEnemy_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
+    walkerEnemy_ghost.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
       
-    return walker_ghost
+    return walkerEnemy_ghost
 end
 
 local function spawnJumperEnemy( x, y )
     local jumperEnemy = display.newSprite( jumperEnemySheet, jumperEnemySheetInfo:getSequenceData() )
-    jumperEnemy.name = "sebastian"
     jumperEnemy.x = x
     jumperEnemy.y = y
     --local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
@@ -406,14 +492,82 @@ local function spawnJumperEnemy( x, y )
 end
 
 local function spawnJumperEnemyGhost( x, y )
-    local jumper_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
-    jumper_ghost.name = "conrad"
-    jumper_ghost.alpha = 0                                                  -- player_ghost is not visible
+    local jumperEnemy_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    jumperEnemy_ghost.alpha = 0                                                  -- player_ghost is not visible
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
-    physics.addBody( jumper_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
-    jumper_ghost.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
+    physics.addBody( jumperEnemy_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
+    jumperEnemy_ghost.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
       
-    return jumper_ghost
+    return jumperEnemy_ghost
+end
+
+local function spawnHopperEnemy( x, y )
+    local hopperEnemy = display.newSprite( hopperEnemySheet, hopperEnemySheetInfo:getSequenceData() )
+    hopperEnemy.x = x
+    hopperEnemy.y = y
+    --local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
+    --physics.addBody( jumperEnemy, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
+    --jumperEnemy.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
+    return hopperEnemy
+end
+
+local function spawnHopperEnemyGhost( x, y )
+    local hopperEnemy_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    hopperEnemy_ghost.alpha = 0                                                  -- player_ghost is not visible
+    local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
+    physics.addBody( hopperEnemy_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
+    hopperEnemy_ghost.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
+      
+    return hopperEnemy_ghost
+end
+
+local function spawnCloudsAndHills()
+    for i=1, 5200/800, 1 do
+        local x = 0 
+        x = math.random()
+        if( x < 1/3) then
+            local hill = display.newImage("images/Background/hill_02.png",display.contentCenterX+800*(i-1)+35, display.contentCenterY+100)
+            hill.yScale = 0.5
+            hill.xScale = 0.5
+            backgroundClouds:insert(hill)
+            local hill1 = display.newImage("images/Background/hill_01.png", display.contentCenterX+800*(i-1), display.contentCenterY)
+            hill1.yScale = x
+            hill1.xScale = x
+            hill1.y = 300
+            backgroundClouds:insert(hill1)
+        end
+        if( x > 1/3 and x < 2/3) then
+            local hill = display.newImage("images/Background/hill_03.png",display.contentCenterX+800*(i-1)-120, display.contentCenterY+100)
+            hill.yScale = 0.5
+            hill.xScale = 0.5
+            backgroundClouds:insert(hill)
+            local hill2 = display.newImage("images/Background/hill_02.png",display.contentCenterX+800*(i-1)+35, display.contentCenterY+100)
+            hill2.yScale = 0.5
+            hill2.xScale = 0.5
+            hill2.y = 300
+            backgroundClouds:insert(hill2)
+            local hill1 = display.newImage("images/Background/hill_01.png", display.contentCenterX+800*(i-1), display.contentCenterY)
+            hill1.yScale = x
+            hill1.xScale = x
+            hill1.y = 300
+            backgroundClouds:insert(hill1)
+        end
+        if (x > 2/3)then 
+            local hill = display.newImage("images/Background/hill_01.png", display.contentCenterX+800*(i-1), display.contentCenterY)
+            hill.xScale = x
+            hill.yScale = x
+            hill.y = 300
+            backgroundClouds:insert(hill)
+        end
+
+        print(x)
+        local clouds = display.newImage("images/Background/clouds.png", display.contentCenterX+800*(i-1), display.contentCenterY)
+        clouds.yScale = 0.5
+        clouds.xScale = 0.4
+        backgroundClouds:insert( clouds )
+        
+    end
+    return backgroundClouds
 end
 
 local function setJumpDecrease( jd )
@@ -439,8 +593,8 @@ local function moveLeftButton( event )                                      -- c
     if ( event.phase == "began" ) then
         player.xScale = -0.4
         player.yScale = 0.4
-    	player:setSequence("walk")
-  		player:play()
+        player:setSequence("walk")
+        player:play()
         player_ghost.direction = "left"--nil
         else if (event.phase == "ended") then
             player_ghost.direction = ""
@@ -457,8 +611,8 @@ local function moveRightButton( event )                                     -- c
     if ( event.phase == "began" ) then
         player.xScale = 0.4
         player.yScale = 0.4
-    	player:setSequence("walk")
-	    player:play()
+        player:setSequence("walk")
+        player:play()
         player_ghost.direction = "right"--nil
         else if (event.phase == "ended") then
             player_ghost.direction = ""
@@ -477,10 +631,9 @@ local function moveUpButton( event )                                        -- c
 end
 
 function jump( ) 
-    if ( jumpDecrease < 2 ) then                                            -- if player did not already jumped two times
+    if ( jumpDecrease < 1 ) then                                            -- if player did not already jumped two times
         --player_ghost:applyLinearImpulse( 0, -0.1, player_ghost.x, player_ghost.y )    -- give player a linear impuls for jumping
         player_ghost:setLinearVelocity( 0, -275 )                           -- give player a linear velocity for jumping
-        transition.to(player_ghost, {y = player_ghost.y - 100, time=500})
         jumpDecrease = jumpDecrease + 1                                     -- increase jump counter
         player:setSequence("jump")
     end
@@ -489,7 +642,7 @@ end
 
 local function getDeltaTime( )
     local temp = system.getTimer()                                          -- Get current game time in ms
-    local dt = ( temp-runtime ) / ( 1000/30 )                               -- 60 fps or 30 fps as base
+    local dt = ( temp-runtime ) / ( 1000/60 )                               -- 60 fps or 30 fps as base
     runtime = temp                                                          -- Store game time
 
     return dt
@@ -546,7 +699,7 @@ function scene:create( event )
     platform, platformFassade, platformGround_list = spawnPlatform( 66*52, 173, 1, 3 )                             -- adding level component
     platform, platformFassade, platformGround_list = spawnPlatform( 69*52, 173, 1, 3 )                             -- adding level component
     platform, platformFassade, platformGround_list = spawnPlatform( 72*52, 173, 2, 3 )                             -- adding level component
-   
+    platform, platformFassade, platformGround_list = spawnPlatform( 5200-52/2, 330, 1, 1, "finish")                       -- adding level component
     -- wände --
     wall = spawnWall( 0, 8, 1)
     wall = spawnWall( 86*52, 3, 2)
@@ -562,6 +715,8 @@ function scene:create( event )
 
     hill = spawnHill(50*52, 330, 2, 3, 3)
   
+    clouds = spawnCloudsAndHills()
+
     increaseObject = spawnIncreasingObject( 890, 110 )                      -- adding level component
     increaseObject1 = spawnIncreasingObject( 969, 245 )                     -- adding level component
     increaseObject2 = spawnIncreasingObject( 643, 157 )                     -- adding level component
@@ -611,10 +766,29 @@ function scene:create( event )
     mButton.alpha = 0
     mButton.isHitTestable = true
     mButton:addEventListener( "touch", jump )                               -- jumpButton    
-
-    local background = display.newRect( display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
-    background:setFillColor( 0.6, 0.7, 0.3 )
     
+    local background = display.newImage( "images/Background/sky_low.png",display.contentCenterX, display.contentCenterY )
+
+    --local pauseButton = display.newRect(display.contentWidth*0.95, 10, 10, 10)
+    local pauseButton = display.newImageRect("images/Buttons/pause_button.png", 32, 32)
+    pauseButton.x = display.contentWidth*0.95
+    pauseButton.y = 20
+    --pauseButton:setFillColor(0)
+    pauseButton:addEventListener( "touch", pauseFunction )    
+
+    local restartButton = display.newImageRect("images/resetbutton.png", 32, 32 )
+    restartButton.x = display.contentWidth*0.85
+    restartButton.y = 20
+    --restartButton:setFillColor(0)
+    restartButton:addEventListener( "touch", restartFunction )    
+
+    -- Create timer  --
+    local text = display.newText("Time left: ", display.contentCenterX-25, 10, native.systemFont, 16)
+    text:setTextColor(255,255,255)
+    
+    timeLeft = display.newText(timeLimit, display.contentCenterX+25, 10, native.systemFont, 16)
+    timeLeft:setTextColor(255,255,255)
+
     --
     -- Insert objects into the scene to be managed by Composer
     --
@@ -628,6 +802,7 @@ function scene:create( event )
 
     -- these objects are effected by the camera movement --
     camera:add( player, 1 )
+    camera:add( clouds )
     camera:add( platformHover_list )
     camera:add( floor ) 
     camera:add( hill_list )
@@ -657,16 +832,19 @@ function scene:show( event )
     camera:setFocusY( player )                                              -- sets the camera on the right position before the game starts. 
     camera:trackY()                                                         -- camera will be focused in the y-axis of the player
     camera:cancel()                                                         -- camera stops tracking
+
     if ( event.phase == "did" ) then
 
         physics.start()                                                     -- enable physics
+        countdowntimer = timer.performWithDelay(1000,timerDown,timeLimit)
+        highscoretimer = timer.performWithDelay(100,timerUp,highscoretime)
+
         function player_ghost:enterFrame()                                  -- each frame
             player:pause()
             for i=1, enemies.numChildren, 1 do
                 enemies[i]:pause()
             end
             if ( player.y >= 400 ) then                                 -- if the player is beneathe the lowest platform e.g. the floor
-               
                 player.isDead = true                                        -- the player is dead
             end
             if ( player.isDead ~= true ) then
@@ -691,6 +869,7 @@ function scene:show( event )
                         player_ghost.isJumping = true                       -- set player_ghost jumping value to "true"
                     end
                 end
+                
                 player_ghost.prevX, player_ghost.prevY = player_ghost.x, player_ghost.y     -- synchronize players position for next frame
 
                 --CAMERA MOVEMENT--
@@ -733,12 +912,16 @@ function scene:show( event )
                     composer.removeScene( "gameover" )                      -- if there is a gameover-scene already running we delete it
                     composer.gotoScene( "gameover", { time= 500, effect = "crossFade" } )   -- switch to gameover-scene
                 elseif ( player.didFinish == true ) then
-                    composer.removeScene( "winning" )                       -- if there is a winning-scene already running we delete it
-                    composer.gotoScene( "winning", {time = 500, effect = "crossFade"} ) -- switch to winning-scene
-                    endScore = neededtime
-                    print(neededtime)
-					compareLocalHighscore(neededtime)
-                    compateWithOnlineHighscore()
+                    
+                    if(finishFlag == false) then
+                        finishFlag = true
+
+                        endScore = neededtime
+                        print(neededtime)
+                        compareLocalHighscore(neededtime)
+                        compateWithOnlineHighscore()
+
+                    end
                 end
             end
         end
@@ -807,7 +990,7 @@ function scene:hide( event )                                                    
         platform:removeSelf()
         platformFassade:removeSelf()
         platformGround_list:removeSelf()
-        hill_list:removeSelf()
+        clouds:removeSelf()
         platformHover_list:removeSelf()
         increaseObject:removeSelf()
         increaseObject1:removeSelf()
@@ -826,12 +1009,12 @@ function scene:hide( event )                                                    
         jumperEnemy:removeSelf()
         jumperEnemy_ghost:removeSelf()
 
-        --finishPlatform:removeSelf()
-        --finishCoverPlatform:removeSelf()
+        
         timer.cancel(countdowntimer)
-        text:removeSelf()
+        --text:removeSelf()
         timeLeft:removeSelf()
-        resetButton:removeSelf()
+        --resetButton:removeSelf()
+        --pauseButton:removeSelf()
         if ( myData.settings.musicOn ) then
             audio.stop()
             audio.play( audio.loadStream( "audio/menuMusic.mp3" ), { channel=1, loops=-1 } )
