@@ -6,7 +6,9 @@ local utility = require( "utility" )
 local ads = require( "ads" )
 
 local params
+
 local myData = require( "mydata" )
+
 if ( myData.settings.musicOn == true) then
         local backgroundMusicChannel = audio.play( audio.loadStream( "audio/menuMusic.mp3" ), { channel=1, loops=-1 } )
 end
@@ -16,10 +18,17 @@ if ( myData.settings.username == "") then
 end
 
 local function handlePlayButtonEvent( event )
-    if ( "ended" == event.phase ) then
-        composer.removeScene( "levelselect", false )
-        composer.gotoScene("levelselect", { effect = "crossFade", time = 333 })
+    
+    if ( "began" == event.phase ) then
+
+    else
+        if ( "ended" == event.phase ) then
+            composer.removeScene( "levelselect", false )
+            composer.gotoScene("levelselect", { effect = "crossFade", time = 333 })
+        end
     end
+
+    
 end
 
 local function handleHelpButtonEvent( event )
@@ -56,63 +65,34 @@ function scene:create( event )
     -- setup a page background, really not that important though composer
     -- crashes out if there isn't a display object in the view.
     --
-    local background = display.newRect( 0, 0, 570, 360 )
+    local background = display.newImageRect( "images/Titelbildschirm.png", display.contentWidth, display.contentHeight )
     background.x = display.contentCenterX
     background.y = display.contentCenterY
     sceneGroup:insert( background )
 
-    local title = display.newText("Frames per second", 100, 32, native.systemFontBold, 32 )
-    title.x = display.contentCenterX
-    title.y = 40
-    title:setFillColor( 0 )
-    sceneGroup:insert( title )
 
-    -- Create the widget
-    local playButton = widget.newButton({
-        id = "button1",
-        label = "Play",
-        width = 100,
-        height = 32,
-        onEvent = handlePlayButtonEvent
-    })
-    playButton.x = display.contentCenterX
-    playButton.y = display.contentCenterY - 60
+    local playButton = display.newImageRect( "images/Buttons/Main Menu/button_play.png", 132, 40 )
+    playButton.x = display.contentCenterX + 70
+    playButton.y = display.contentCenterY - 40
+    playButton:addEventListener("touch", handlePlayButtonEvent)
     sceneGroup:insert( playButton )
 
-    -- Create the widget
-    local settingsButton = widget.newButton({
-        id = "button2",
-        label = "Settings",
-        width = 100,
-        height = 32,
-        onEvent = handleSettingsButtonEvent
-    })
-    settingsButton.x = display.contentCenterX
-    settingsButton.y = display.contentCenterY 
+    local settingsButton = display.newImageRect( "images/Buttons/Main Menu/button_settings.png", 132, 40 )
+    settingsButton.x = display.contentCenterX + 70
+    settingsButton.y = display.contentCenterY + 10
+    settingsButton:addEventListener("touch", handleSettingsButtonEvent) 
     sceneGroup:insert( settingsButton )
 
-    -- Create the widget
-    local helpButton = widget.newButton({
-        id = "button3",
-        label = "Help",
-        width = 100,
-        height = 32,
-        onEvent = handleHelpButtonEvent
-    })
-    helpButton.x = display.contentCenterX
+    local helpButton = display.newImageRect( "images/Buttons/Main Menu/button_help.png", 132, 40 )
+    helpButton.x = display.contentCenterX + 70
     helpButton.y = display.contentCenterY + 60
+    helpButton:addEventListener("touch", handleHelpButtonEvent)
     sceneGroup:insert( helpButton )
 
-    -- Create the widget
-    local creditsButton = widget.newButton({
-        id = "button4",
-        label = "Credits",
-        width = 100,
-        height = 32,
-        onEvent = handleCreditsButtonEvent
-    })
-    creditsButton.x = display.contentCenterX
-    creditsButton.y = display.contentCenterY + 120
+    local creditsButton = display.newImageRect( "images/Buttons/Main Menu/button_credits.png", 132, 40 )
+    creditsButton.x = display.contentCenterX + 70
+    creditsButton.y = display.contentCenterY + 110
+    creditsButton:addEventListener("touch", handleCreditsButtonEvent)
     sceneGroup:insert( creditsButton )
 
 end
