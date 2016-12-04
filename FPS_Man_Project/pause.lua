@@ -21,7 +21,7 @@ end
 local function restartFunction(event)
     --parentScene
     if event.phase == "ended" then
-        print("restart")
+        composer.gotoScene( "restartLvl1", { time= 100, effect = "crossFade" } )
     end
 
     return true   
