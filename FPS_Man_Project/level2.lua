@@ -467,6 +467,7 @@ local function spawnIncreasingObject( x, y )                                -- c
     return object
 end
 
+--[[
 local function spawnDecreasingObject( x, y )                                -- create an object you can collect which decreases the fps of the player
 
     local object = display.newImageRect("images/Symbols/fps_down_symbol.png", 20, 20)
@@ -478,6 +479,7 @@ local function spawnDecreasingObject( x, y )                                -- c
     object:setFillColor( 0.5, 1, 0.2 )  
     return object
 end
+]]
 
 local function spawnWalkerEnemy( x, y )
     local walkerEnemy = display.newSprite( walkerEnemySheet, walkerEnemySheetInfo:getSequenceData() )
@@ -740,9 +742,9 @@ function scene:create( event )
     increaseObject2 = spawnIncreasingObject( 643, 157 )                     -- adding level component
     increaseObject3 = spawnIncreasingObject( 827, 12 )                      -- adding level component
     decreaseObject = spawnIncreasingObject( 337, 253 )                      -- adding level component
-    decreaseObject1 = spawnDecreasingObject( 817, 112 )                     -- adding level component
+    --decreaseObject1 = spawnDecreasingObject( 817, 112 )                     -- adding level component
     decreaseObject2 = spawnIncreasingObject( 86, 227)                       -- adding level component
-    decreaseObject3 = spawnDecreasingObject( 734, 60 )                      -- adding level component
+    --decreaseObject3 = spawnDecreasingObject( 734, 60 )                      -- adding level component
 
     walkerEnemy = spawnWalkerEnemy( 250, 260 )
     walkerEnemy.xScale=0.15
@@ -838,9 +840,9 @@ function scene:create( event )
     camera:add( increaseObject2 )
     camera:add( increaseObject3 )
     camera:add( decreaseObject )
-    camera:add( decreaseObject1 )
+    --camera:add( decreaseObject1 )
     camera:add( decreaseObject2 )
-    camera:add( decreaseObject3 )
+    --camera:add( decreaseObject3 )
     camera:add( enemies ) 
     camera:add( enemie_ghosts )
     --camera:add( finishPlatform )
@@ -1019,9 +1021,9 @@ function scene:hide( event )                                                    
         increaseObject2:removeSelf()
         increaseObject3:removeSelf()
         decreaseObject:removeSelf()
-        decreaseObject1:removeSelf()
+        --decreaseObject1:removeSelf()
         decreaseObject2:removeSelf()
-        decreaseObject3:removeSelf()
+        --decreaseObject3:removeSelf()
         
         transition.cancel(walkerEnemy_ghost)
         walkerEnemy:removeSelf()
