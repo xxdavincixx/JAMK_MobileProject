@@ -443,7 +443,9 @@ end
 
 local function spawnIncreasingObject( x, y )                                -- create an object you can collect which increases the fps of the player
 
-    local object = display.newRect( x, y, 20, 20 )
+    local object = display.newImageRect("images/Symbols/fps_up_symbol.png", 20, 20)
+    object.x = x
+    object.y = y
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }       -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
     physics.addBody( object, "static", { bounce = 0.1, filter = objectCollisionFilter} )    -- adding physics to object, "static" = not affected by gravity, no bounce of object    
     object.collType = "increase"  
@@ -453,7 +455,9 @@ end
 
 local function spawnDecreasingObject( x, y )                                -- create an object you can collect which decreases the fps of the player
 
-    local object = display.newRect( x, y, 20, 20 )                                           
+    local object = display.newImageRect("images/Symbols/fps_down_symbol.png", 20, 20)
+    object.x = x
+    object.y = y                                           
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }       -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
     physics.addBody( object, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
     object.collType = "decrease"                                            -- parameter for collision to ask which object the player collides with
