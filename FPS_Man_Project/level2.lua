@@ -16,7 +16,7 @@ local currentScoreDisplay                                                   -- w
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
 local spawnTimer                                                            -- will be used to hold the timer for the spawning engine
 local timerRefresh = 1000                                                   -- will be used to calculate fps-update
-local fps_multiplicator = 60                                              -- will be used to calculate fps-update
+local fps_multiplicator = 30                                              -- will be used to calculate fps-update
 local timerDelay = 0                                                        -- will be used to calculate fps-update
 local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
@@ -87,6 +87,27 @@ local function compareLocalHighscore(endScore)
     utility.saveTable(myData.settings, "settings.json")
 end
 
+-- Creating function to reset level --
+
+local options ={
+    effect = "fade",
+    time = 0,
+    params =
+    {
+        myData = 1234
+    }
+}
+
+local function resetLevel()
+    composer.gotoScene( "restartLvl2", options )
+end
+
+-- Creating reset button --
+resetButton = display.newImageRect("images/resetbutton.png", 20, 20 )
+resetButton.x = 445
+resetButton.y = 13
+resetButton:addEventListener( "tap", resetLevel )
+
 -- Create timer  --
 text = display.newText("Time left: ", 500, 10, native.systemFont, 16)
 timeLeft = display.newText(timeLimit, 550, 10, native.systemFont, 16)
@@ -142,11 +163,11 @@ end
 local function jumperEnemy1MovementRight()
     local function jumperEnemy1MovementLeft()
         
-        transition.to(jumperEnemy_ghost, {y = 220, time=1200, onComplete=jumperEnemy1MovementRight})
+        transition.to(jumperEnemy_ghost, {y = 250, time=400, onComplete=jumperEnemy1MovementRight})
         jumperEnemy.xScale = 1/20*3
         jumperEnemy.yScale = 1/20*3
     end
-    transition.to(jumperEnemy_ghost, {y = 275, time=1200, onComplete=jumperEnemy1MovementLeft})
+    transition.to(jumperEnemy_ghost, {y = 275, time=400, onComplete=jumperEnemy1MovementLeft})
     jumperEnemy.xScale =1/20*3-- 0.15
     jumperEnemy.yScale = 1/20*3
 end
@@ -253,8 +274,8 @@ end
 
 local function spawnPlayer( x, y )
     player = display.newSprite(characterSheet, characterSheetInfo:getSequenceData() )            -- starting point and seize of the object (old 30x60)
-    player.x = 36
-    player.y = 260
+    player.x = x
+    player.y = y
     --local playerCollisionFilter = { categoryBits = 2, maskBits=5 }          -- create collision filter for object, its own number is 2 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
     player.alpha = 1                                                        -- is visible
     player.isJumping =false                                                 -- at the start the object is not jumping
@@ -500,11 +521,11 @@ function scene:create( event )
     local thisLevel = myData.settings.currentLevel
 
     -- spieler --
-    player = spawnPlayer( 70, 260 )                                     -- create a player
+    player = spawnPlayer( 50, 258 )                                     -- create a player
     player.xScale = 0.4
     player.yScale = 0.4
     player:setFrame(10)
-    player_ghost = spawnPlayerGhost( 70, 260 )                          -- create its ghost
+    player_ghost = spawnPlayerGhost( 50, 258 )                          -- create its ghost
     player_ghost.isFixedRotation = true                                     -- set its rotation to fixed so the player does not fall over when he jumps
 
     -- bodenelemente --
@@ -799,15 +820,18 @@ function scene:hide( event )                                                    
         
         transition.cancel(walkerEnemy_ghost)
         walkerEnemy:removeSelf()
+        walkerEnemy_ghost:removeSelf()
 
         transition.cancel(jumperEnemy_ghost)
         jumperEnemy:removeSelf()
+        jumperEnemy_ghost:removeSelf()
 
         --finishPlatform:removeSelf()
         --finishCoverPlatform:removeSelf()
         timer.cancel(countdowntimer)
         text:removeSelf()
         timeLeft:removeSelf()
+        resetButton:removeSelf()
         if ( myData.settings.musicOn ) then
             audio.stop()
             audio.play( audio.loadStream( "audio/menuMusic.mp3" ), { channel=1, loops=-1 } )
