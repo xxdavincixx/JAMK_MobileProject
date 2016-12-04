@@ -389,7 +389,7 @@ end
 
 local function spawnPlayer( x, y )
     player = display.newSprite(characterSheet, characterSheetInfo:getSequenceData() )            -- starting point and seize of the object (old 30x60)
-    player.x = 5111
+    player.x = x
     player.y = y
     --local playerCollisionFilter = { categoryBits = 2, maskBits=5 }          -- create collision filter for object, its own number is 2 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
     player.alpha = 1                                                        -- is visible
@@ -429,7 +429,7 @@ end
 
 local function spawnPlayerGhost( x, y )                                           -- create a ghost of player object
 
-    local player_ghost = display.newRect( 5111, y, 41, 90 )             -- starting point and seize of the object
+    local player_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
     local playerGhostCollisionFilter = { categoryBits = 8, maskBits = 21 }  -- create collision filter for ghost object, its own number is 8 and collides with the sum of 5 (wall and platform //maybe it has to be changed when adding enemies)
     player_ghost.alpha = 0                                                  -- player_ghost is not visible
     player_ghost.isJumping =false                                           -- at the start the object is not jumping
