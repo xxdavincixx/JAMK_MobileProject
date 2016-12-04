@@ -10,6 +10,8 @@ local device = require( "device" )
 
 local params
 local newHighScore = false
+local localRecordText = ""
+local onlineRecordText = ""
 
 local function handleButtonEvent( event )
 
@@ -130,14 +132,22 @@ function scene:create( event )
     yourTime.y = 140
     sceneGroup:insert(yourTime)
 
+    if(params.localRecord) then
+        localRecordText = " new"
+    end
+
     local bestTime = display.newText(options2)
-    bestTime.text = params.localTime
+    bestTime.text = params.localTime .. localRecordText
     bestTime:setFillColor( 0 )
     bestTime.y = 180
     sceneGroup:insert(bestTime)
 
+    if(params.onlineRecord) then
+        onlineRecordText = " new"
+    end
+
     local bestOnlineTime = display.newText(options2)
-    bestOnlineTime.text = params.onlineTime
+    bestOnlineTime.text = params.onlineTime .. onlineRecordText
     bestOnlineTime:setFillColor( 0 )
     bestOnlineTime.y = 220
     sceneGroup:insert(bestOnlineTime)

@@ -42,9 +42,28 @@ local sceneGroup
 local countdowntimer = timer.performWithDelay(1000,timerDown,timeLimit)
 local highscoretimer = timer.performWithDelay(100,timerUp,highscoretime)
 local timeLeft = timeLeft
+local onlineRecordFlag = false
+local localRecordFlag = false
 composer.removeScene(composer.getSceneName("previous"))
 camera = perspective.createView()                                           -- camera is created
 
+
+local function winningScreen()
+    local options =
+    {
+        effect = "crossFade",
+        time = 500,
+        params = { fps = fps_multiplicator, myTime = endScore, localTime = myData.settings.levels[tostring(levelNumber)], onlineTime= winningBestOnlineTime, onlineRecord = onlineRecordFlag, localRecord = localRecordFlag }
+    }
+
+    if(tonumber(myData.settings.maxLevel) < tonumber(levelNumber)) then
+        myData.settings.maxLevel = levelNumber
+        utility.saveTable(myData.settings, "settings.json")
+    end
+
+    composer.removeScene( "winning" )                       -- if there is a winning-scene already running we delete it
+    composer.gotoScene( "winning", options ) -- switch to winning-scene  
+end
 
 -- SQL Online Server Part - Start
 local url = 'https://skaja.eu/fps-game/highscore.php'
@@ -60,15 +79,7 @@ local function getHighscoreListener(query)
     end
 
 
-    local options =
-    {
-        effect = "crossFade",
-        time = 500,
-        params = { fps = fps_multiplicator, myTime = neededtime, localTime = myData.settings.levels[tostring(levelNumber)], onlineTime= winningBestOnlineTime }
-    }
-
-    composer.removeScene( "winning" )                       -- if there is a winning-scene already running we delete it
-    composer.gotoScene( "winning", options ) -- switch to winning-scene  
+    winningScreen()
 
 
 end
@@ -88,10 +99,13 @@ local function compateWithOnlineHighscoreListener(query)
         -- new record -> 1 back | no record -> 0 back
         if(query.response == "1") then
             print("new record!")
+            onlineRecordFlag = true
             winningBestOnlineTime = endScore
+            winningScreen()
         else
             if(query.response == "0") then
                 print("no record")
+                onlineRecordFlag = false
                 getHighscore()
             end            
         end
@@ -116,13 +130,15 @@ end
 -- save highscore local
 local function compareLocalHighscore(endScore)
     local localHighscore = myData.settings.levels[tostring(levelNumber)]
-    
+    print("firstEndscore -> " .. endScore)
     if(myData.settings.levels[tostring(levelNumber)] == "/") then
         myData.settings.levels[tostring(levelNumber)] = endScore
+        localRecordFlag = true
         
     else
         if(endScore < localHighscore) then
-            myData.settings.levels[tostring(levelNumber)] = endScore        
+            myData.settings.levels[tostring(levelNumber)] = endScore
+            localRecordFlag = true        
         end
     end
 
@@ -907,8 +923,8 @@ function scene:show( event )
                         finishFlag = true
 
                         endScore = neededtime
-                        print(neededtime)
-                        compareLocalHighscore(neededtime)
+                        print(endScore)
+                        compareLocalHighscore(endScore)
                         compateWithOnlineHighscore()
 
                     end

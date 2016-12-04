@@ -24,8 +24,8 @@ local function getHighscoreListener(query)
         print( "Network error!", query.response )
     else
         local getHighscoreJSON = json.decode( query.response )
-        
-        if(getHighscoreJSON.highscore == "" or getHighscoreJSON.username == "") then
+
+        if(getHighscoreJSON.highscore == "/" or getHighscoreJSON.username == "") then
             bestHighscore = "/"
             bestHighscoreName = "/"
         else
@@ -119,8 +119,15 @@ local function handleLevelSelect( event )                                       
         button.x = event.target.x                                               -- copy pressed button position
         button.y = event.target.y+1                                             -- copy pressed button position
 
-        if ( event.target.id == "1") then                                       -- this statement has to be changed! we have to ask if level is already completed
-            levelCompleteText.text = "Level " .. event.target.id .. " completed"    -- e.g. write "Level 1 completed"
+        if ( event.target.id ) then                                       -- this statement has to be changed! we have to ask if level is already completed
+            
+            local completeText = "uncompleted"
+
+            if (tonumber(myData.settings.maxLevel) >= tonumber(event.target.id) ) then
+                completeText = "completed"
+            end
+
+            levelCompleteText.text = "Level " .. event.target.id .. " " .. completeText    -- e.g. write "Level 1 completed"
             levelCompleteText.alpha = 1                                         -- set text visible
             levelHighscoreText.alpha = 1                                        -- set highscore visible
             if(myData.settings.levels[tostring(event.target.id)] == "/") then
