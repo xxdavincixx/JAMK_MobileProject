@@ -30,6 +30,10 @@ local enemie_ghosts = display.newGroup()
 local levelNumber = 1
 local winningBestTime, winningBestOnlineTime
 local finishFlag = false
+local sceneGroup
+local countdowntimer = timer.performWithDelay(1000,timerDown,timeLimit)
+local highscoretimer = timer.performWithDelay(100,timerUp,highscoretime)
+local timeLeft = timeLeft
 composer.removeScene(composer.getSceneName("previous"))
 camera = perspective.createView()                                           -- camera is created
 
@@ -117,12 +121,48 @@ local function compareLocalHighscore(endScore)
     utility.saveTable(myData.settings, "settings.json")
 end
 
--- Create timer  --
-text = display.newText("Time left: ", 500, 10, native.systemFont, 16)
-timeLeft = display.newText(timeLimit, 550, 10, native.systemFont, 16)
-text:setTextColor(255,255,255)
-timeLeft:setTextColor(255,255,255)
 
+local function pauseFunction(event)
+    
+    if event.phase == "ended" then
+        physics.pause()
+        for i=1, camera.numChildren, 1 do
+            camera[i].alpha = 0
+        end
+
+        transition.pause()
+        composer.showOverlay( "pause" , { effect = "crossFade", time = 333, isModal = true } )
+        
+
+        --print("timer" .. countdowntimer)
+        timer.pause( countdowntimer )
+        timer.pause( highscoretimer )
+    end
+    
+    return true
+
+end
+
+local function restartFunction(event)
+    if event.phase == "ended" then
+        print("restart")
+    end
+    return true
+end
+
+-- Custom function for resuming the game (from pause state)
+function scene:resumeGame()
+    print("im back")
+    for i=1, camera.numChildren, 1 do
+        camera[i].alpha = 1
+    end
+    transition.resume()
+    physics.start()
+
+    timer.resume( countdowntimer )
+    timer.resume( highscoretimer )
+
+end
 
 -- Function for timer --
 local function timerDown()
@@ -139,8 +179,7 @@ local function timerUp()
     neededtime = highscoretime * 10 / 100
 end
 
-local countdowntimer = timer.performWithDelay(1000,timerDown,timeLimit)
-local highscoretimer = timer.performWithDelay(100,timerUp,highscoretime)
+
 
 
 -- Creating image sheet and info for character --
@@ -385,13 +424,12 @@ end
 
 
 function scene:create( event )                        
-    local sceneGroup = self.view
+    sceneGroup = self.view
 
     physics.start()                                                         -- physic has to be running to change value of gravity
     physics.setGravity( 0, 15 )                                             -- changing gravity of world (9.8 is gravity of earth)
     
     physics.pause()                                                         -- we don't need gravity by now so we stop it again
-    
     physics.setDrawMode( "normal" )                                         -- can also be "hybrid" or "debug"
     
     local thisLevel = myData.settings.currentLevel
@@ -467,6 +505,26 @@ function scene:create( event )
     local background = display.newRect( display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight )
     background:setFillColor( 0.6, 0.7, 0.3 )
     
+    --local pauseButton = display.newRect(display.contentWidth*0.95, 10, 10, 10)
+    local pauseButton = display.newImageRect("images/Buttons/pause_button.png", 32, 32)
+    pauseButton.x = display.contentWidth*0.95
+    pauseButton.y = 20
+    --pauseButton:setFillColor(0)
+    pauseButton:addEventListener( "touch", pauseFunction )    
+
+    local restartButton = display.newImageRect("images/Buttons/Pause/button_restart.png", 32, 32)
+    restartButton.x = display.contentWidth*0.85
+    restartButton.y = 20
+    --restartButton:setFillColor(0)
+    restartButton:addEventListener( "touch", restartFunction )    
+
+    -- Create timer  --
+    local text = display.newText("Time left: ", display.contentCenterX-25, 10, native.systemFont, 16)
+    text:setTextColor(255,255,255)
+    
+    timeLeft = display.newText(timeLimit, display.contentCenterX+25, 10, native.systemFont, 16)
+    timeLeft:setTextColor(255,255,255)
+
     --
     -- Insert objects into the scene to be managed by Composer
     --
@@ -476,6 +534,10 @@ function scene:create( event )
     sceneGroup:insert( lButton )
     sceneGroup:insert( rButton )
     sceneGroup:insert( mButton )
+    sceneGroup:insert( pauseButton )
+    sceneGroup:insert( restartButton )
+    sceneGroup:insert( text )
+    sceneGroup:insert( timeLeft )
    
 
     -- these objects are effected by the camera movement --
@@ -514,7 +576,9 @@ function scene:show( event )
     if ( event.phase == "did" ) then
 
         physics.start()                                                     -- enable physics
-        
+        countdowntimer = timer.performWithDelay(1000,timerDown,timeLimit)
+        highscoretimer = timer.performWithDelay(100,timerUp,highscoretime)
+
         function player_ghost:enterFrame()                                  -- each frame
             player:pause()
             for i=1, enemies.numChildren, 1 do
@@ -687,7 +751,7 @@ function scene:hide( event )                                                    
         finishPlatform:removeSelf()
         finishCoverPlatform:removeSelf()
         timer.cancel(countdowntimer)
-        text:removeSelf()
+        --text:removeSelf()
         timeLeft:removeSelf()
         if ( myData.settings.musicOn ) then
             audio.stop()
