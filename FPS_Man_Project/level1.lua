@@ -121,31 +121,6 @@ local function compareLocalHighscore(endScore)
     utility.saveTable(myData.settings, "settings.json")
 end
 
--- HEAD ###
-
--- Creating function to reset level --
-
-local options ={
-    effect = "fade",
-    time = 0,
-    params =
-    {
-        myData = 1234
-    }
-}
-
-local function resetLevel()
-    composer.gotoScene( "restartLvl1", options )
-end
-
--- Creating reset button --
-resetButton = display.newImageRect("images/resetbutton.png", 20, 20 )
-resetButton.x = 445
-resetButton.y = 13
-resetButton:addEventListener( "tap", resetLevel )
-
--- HEAD ### end
-
 local function pauseFunction(event)
     
     if event.phase == "ended" then
@@ -169,6 +144,7 @@ end
 
 local function restartFunction(event)
     if event.phase == "ended" then
+        composer.gotoScene( "restartLvl1", { time= 100, effect = "crossFade" } )
         print("restart")
     end
     return true
@@ -596,7 +572,7 @@ function scene:create( event )
     --pauseButton:setFillColor(0)
     pauseButton:addEventListener( "touch", pauseFunction )    
 
-    local restartButton = display.newImageRect("images/Buttons/Pause/button_restart.png", 32, 32)
+    local restartButton = display.newImageRect("images/resetbutton.png", 32, 32 )
     restartButton.x = display.contentWidth*0.85
     restartButton.y = 20
     --restartButton:setFillColor(0)
@@ -845,7 +821,7 @@ function scene:hide( event )                                                    
         timer.cancel(countdowntimer)
         --text:removeSelf()
         timeLeft:removeSelf()
-        resetButton:removeSelf()
+        --resetButton:removeSelf()
         if ( myData.settings.musicOn ) then
             audio.stop()
             audio.play( audio.loadStream( "audio/menuMusic.mp3" ), { channel=1, loops=-1 } )
