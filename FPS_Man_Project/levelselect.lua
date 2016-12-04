@@ -152,15 +152,15 @@ end
 function scene:create( event )
 
     local sceneGroup = self.view
-    local background = display.newRect( 0, 0, 570, 360 )                        -- create background
-    background.x = display.contentCenterX
-    background.y = display.contentCenterY
+    local background = display.newImageRect("images/Background/sky_low.png", display.contentWidth*2, display.contentHeight*2 )                        -- create background
+    --background.x = display.contentCenterX
+    --background.y = display.contentCenterY
     sceneGroup:insert( background )
  
-    local title = display.newText("Frames per second", 100, 32, native.systemFontBold, 32 ) -- create title
+    local title = display.newImageRect("images/Logo.png", 400, 75) -- create title
     title.x = display.contentCenterX
     title.y = 40
-    title:setFillColor( 0 )
+    --title:setFillColor( 0 )
     sceneGroup:insert( title )
 
     scrollViewLevelList = widget.newScrollView                                  -- create scrollView for levelselection
@@ -170,7 +170,8 @@ function scene:create( event )
         width = ( display.contentWidth/3 ) * 2,
         height = ( display.contentHeight/3 ) * 2,
         horizontalScrollDisabled = true,                                        -- enable to scroll horizontal
-        listener = levelSelect                                                  -- constructor needs a listener to enable scrolling without snapping back. listener can be empty
+        listener = levelSelect,                                                  -- constructor needs a listener to enable scrolling without snapping back. listener can be empty
+        hideBackground = true
     }
 
     button = widget.newButton({                                                 -- create Button to start a level
@@ -194,6 +195,7 @@ function scene:create( event )
         y = 50/2-2,
         onEvent = handleLevelSelect
     })
+    levelOneButton:setFillColor(137/255, 184/255, 206/255)
     
     local levelTwoButton = widget.newButton({                                   -- create button for level selection
         id = "2",
@@ -205,6 +207,7 @@ function scene:create( event )
         y = levelOneButton.y + 48,                                              -- just beneathe upper button
         onEvent = handleLevelSelect
     })
+    levelTwoButton:setFillColor(137/255, 184/255, 206/255)
     
     local levelThreeButton = widget.newButton({                                 -- create button for level selection
         id = "3",
@@ -216,6 +219,7 @@ function scene:create( event )
         y = levelTwoButton.y + 48,                                              -- just beneathe upper button
         onEvent = handleLevelSelect
     })
+    levelThreeButton:setFillColor(137/255, 184/255, 206/255)
     
     local levelFourButton = widget.newButton({                                  -- create button for level selection
         id = "4",
@@ -228,6 +232,7 @@ function scene:create( event )
         
         onEvent = handleLevelSelect
     })
+    levelFourButton:setFillColor(137/255, 184/255, 206/255)
     
     local levelFiveButton = widget.newButton({                                  -- create button for level selection
         id = "5",
@@ -239,6 +244,7 @@ function scene:create( event )
         y = levelFourButton.y + 48,                                             -- just beneathe upper button
         onEvent = handleLevelSelect
     })
+    levelFiveButton:setFillColor(137/255, 184/255, 206/255)
 
     scrollViewLevelList:insert( levelOneButton )
     scrollViewLevelList:insert( levelTwoButton )
@@ -249,11 +255,15 @@ function scene:create( event )
     
 
     -- area where the name will be displayed in
-    local userNameDisplay = display.newRoundedRect ( xLevelInformationRectangle, yLevelInformationRectangle+1 - ( display.contentHeight/9 ) * 3, display.contentWidth/3-10, ( display.contentHeight/9 ) * 2, 16)
-    userNameDisplay:setFillColor( 0.75 )
+    local userNameDisplay = display.newImageRect ("images/Windows/namebox.png", display.contentWidth/3-10, ( display.contentHeight/9 ) * 2) -- ,16
+    userNameDisplay.x = xLevelInformationRectangle
+    userNameDisplay.y = yLevelInformationRectangle+1 - ( display.contentHeight/9 ) * 3
+    --userNameDisplay:setFillColor( 0.75 )
     -- area where information of selected level will be displayed in
-    local levelInformationRectangle = display.newRoundedRect( xLevelInformationRectangle, yLevelInformationRectangle+3, display.contentWidth/3 -10, ( display.contentHeight/9 ) * 4, 16 )
-    levelInformationRectangle:setFillColor ( 0.75 )
+    local levelInformationRectangle = display.newImageRect("images/Windows/level_info.png", display.contentWidth/3 -10, ( display.contentHeight/9 ) * 4 ) -- ,16
+    levelInformationRectangle.x = xLevelInformationRectangle
+    levelInformationRectangle.y = yLevelInformationRectangle+3
+    --levelInformationRectangle:setFillColor ( 0.75 )
     
     local userNameOptions = {
         text = myData.settings.username,                                        -- get the current username
@@ -339,16 +349,11 @@ function scene:create( event )
 
 
     
-
-    local doneButton = widget.newButton({
-        id = "button1",
-        label = "Back to menu",
-        width = 120,
-        height = 32,
-        onEvent = handleButtonEvent
-    })
-    doneButton.x = display.contentCenterX
-    doneButton.y = title.y + doneButton.height + 10
+    local doneButton = display.newImageRect("images/Buttons/Pause/button_resume.png", 32+16, 32+16)
+    doneButton.x = display.contentWidth*0.075
+    doneButton.y = 32+16
+    doneButton:scale( -1,1 )
+    doneButton:addEventListener("touch", handleButtonEvent)
     sceneGroup:insert( doneButton )
 
     sceneGroup:insert( scrollViewLevelList )
