@@ -780,7 +780,7 @@ function scene:create( event )
     restartButton.x = display.contentWidth*0.85
     restartButton.y = 20
     --restartButton:setFillColor(0)
-    restartButton:addEventListener( "touch", restartFunction )    
+    restartButton:addEventListener( "touch", restartFunction )  
 
     -- Create timer  --
     local text = display.newText("Time left: ", display.contentCenterX-25, 10, native.systemFont, 16)
@@ -798,6 +798,10 @@ function scene:create( event )
     sceneGroup:insert( lButton )
     sceneGroup:insert( rButton )
     sceneGroup:insert( mButton )
+    sceneGroup:insert( pauseButton )
+    sceneGroup:insert( restartButton )
+    sceneGroup:insert( text )
+    sceneGroup:insert( timeLeft )
    
 
     -- these objects are effected by the camera movement --
