@@ -61,39 +61,58 @@ function scene:create( event )
     -- setup a page background, really not that important though composer
     -- crashes out if there isn't a display object in the view.
     --
+local function restartFunction(event)
+    --parentScene
+    if event.phase == "ended" then
+        composer.removeScene(composer.getSceneName("previous"))
+        composer.gotoScene(composer.getSceneName("previous"), options)
+    end
+    return true   
+end
+
+local function toMenuFunction(event)
+    composer.hideOverlay( "crossFade", 333 )
+    composer.removeScene( "menu" )                      
+    composer.gotoScene( "menu", { time= 500, effect = "crossFade" } )
+    return true  
+end
+
     local background = display.newRect( 0, 0, 570, 360)
     background.x = display.contentCenterX
     background.y = display.contentCenterY
-    background:setFillColor( 1 )
+    background:setFillColor( 0 )
     sceneGroup:insert(background)
 
-    local gameOverText = display.newText("Game Over", 0, 0, native.systemFontBold, 32 )
-    gameOverText:setFillColor( 0 )
+    local gameOverText = display.newText("0 Frames Per Second", 0, 0, native.systemFontBold, 24 )
+    gameOverText:setFillColor( 204/255, 0, 25/255 )
     gameOverText.x = display.contentCenterX
-    gameOverText.y = 50
+    gameOverText.y = 100
     sceneGroup:insert(gameOverText)
 
-    local leaderBoardButton = widget.newButton({
-        id = "leaderboard",
-        label = "Leaderboard",
-        width = 125,
-        height = 32,
-        onEvent = showLeaderboard
-    })
-    leaderBoardButton.x = display.contentCenterX 
-    leaderBoardButton.y = 225
-    sceneGroup:insert( leaderBoardButton )
+    local gameOverText = display.newText("Time has stopped. You lose.", 0, 0, native.systemFontBold, 24 )
+    gameOverText:setFillColor( 204/255, 0, 25/255 )
+    gameOverText.x = display.contentCenterX
+    gameOverText.y = 130
+    sceneGroup:insert(gameOverText)
 
-    local doneButton = widget.newButton({
-        id = "button1",
-        label = "Done",
-        width = 100,
-        height = 32,
-        onEvent = handleButtonEvent
-    })
-    doneButton.x = display.contentCenterX
-    doneButton.y = display.contentHeight - 40
-    sceneGroup:insert( doneButton )
+    --local gameOverText = display.newText("You lose.", 0, 0, native.systemFontBold, 32 )
+    --gameOverText:setFillColor( 204/255, 0, 25/255 )
+    --gameOverText.x = display.contentCenterX
+    --gameOverText.y = 150
+    --sceneGroup:insert(gameOverText)
+
+    local restartIcon = display.newImageRect( "images/Buttons/Gameover/button_restart_game_over.png", 72, 72 )
+    restartIcon.x = display.contentWidth -60
+    restartIcon.y = display.contentHeight -60
+    sceneGroup:insert(restartIcon)
+    restartIcon:addEventListener("touch", restartFunction)
+
+    local toMenuIcon = display.newImageRect( "images/Buttons/Gameover/button_menu_game_over.png", 72, 72 )
+    toMenuIcon.x = 60
+    toMenuIcon.y = display.contentHeight -60
+    sceneGroup:insert(toMenuIcon)
+    toMenuIcon:addEventListener("touch", toMenuFunction)
+
 end
 
 function scene:show( event )

@@ -7,9 +7,6 @@ local utility = require( "utility" )
 local device = require( "device" )
 
 local params
-if device.isAndroid then
-    widget.setTheme( "widget_theme_android_holo_dark" )
-end
 
 -- Handle press events for the switches
 local function onSoundSwitchPress( event )
@@ -67,9 +64,7 @@ function scene:create( event )
     -- setup a page background, really not that important though composer
     -- crashes out if there isn't a display object in the view.
     --
-    local background = display.newRect( 0, 0, 570, 360 )
-    background.x = display.contentCenterX
-    background.y = display.contentCenterY
+    local background = display.newImageRect("images/Background/sky_low.png", display.contentWidth*2, display.contentHeight*2 )
     sceneGroup:insert(background)
 
     --local title = display.newBitmapText( titleOptions )
