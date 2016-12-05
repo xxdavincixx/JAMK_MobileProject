@@ -13,7 +13,7 @@ local newHighScore = false
 local localRecordText = ""
 local onlineRecordText = ""
 
-local function handleButtonEvent( event )
+local function toLevelSelectFunction( event )
 
     if ( "ended" == event.phase ) then
         local options = {
@@ -25,7 +25,24 @@ local function handleButtonEvent( event )
             }
         }
         composer.removeScene(composer.getSceneName("previous"))
-        composer.gotoScene( "menu", options )
+        composer.gotoScene( "levelselect", options )
+    end
+    return true
+end
+
+local function restartFunction( event )
+
+    if ( "ended" == event.phase ) then
+        local options = {
+            effect = "crossFade",
+            time = 500,
+            params = {
+                someKey = "someValue",
+                someOtherKey = 10
+            }
+        }
+        composer.removeScene(composer.getSceneName("previous"))
+        composer.gotoScene(composer.getSceneName("previous"), options)
     end
     return true
 end
@@ -81,7 +98,6 @@ function scene:create( event )
        fontSize = 24,
        align = "left"
     }
-    --sceneGroup:insert(options)
 
     local completeFpsText = display.newText(options)
     completeFpsText.text = "Frames per second: "
@@ -115,7 +131,6 @@ function scene:create( event )
        fontSize = 24,
        align = "left"
     }
-    --sceneGroup:insert(options)
 
     local completeFps = display.newText(options2)
     completeFps.text = params.fps
@@ -134,6 +149,7 @@ function scene:create( event )
         localRecordText.x = 450
         localRecordText.y = 180
         localRecordText:scale(0.75, 0.75)
+        sceneGroup:insert(localRecordText)
     end
 
     local bestTime = display.newText(options2)
@@ -143,10 +159,11 @@ function scene:create( event )
     sceneGroup:insert(bestTime)
 
     if(params.onlineRecord) then
-        localRecordText = display.newImageRect("images/record_symbol.png", 100, 48)
-        localRecordText.x = 450
-        localRecordText.y = 220
-        localRecordText:scale(0.75, 0.75)
+        onlineRecordText = display.newImageRect("images/record_symbol.png", 100, 48)
+        onlineRecordText.x = 450
+        onlineRecordText.y = 220
+        onlineRecordText:scale(0.75, 0.75)
+        sceneGroup:insert(onlineRecordText)
     end
 
     local bestOnlineTime = display.newText(options2)
@@ -155,29 +172,18 @@ function scene:create( event )
     bestOnlineTime.y = 220
     sceneGroup:insert(bestOnlineTime)
 
---[[
-    local leaderBoardButton = widget.newButton({
-        id = "leaderboard",
-        label = "Leaderboard",
-        width = 125,
-        height = 32,
-        onEvent = showLeaderboard
-    })
-    leaderBoardButton.x = display.contentCenterX 
-    leaderBoardButton.y = 225
-    sceneGroup:insert( leaderBoardButton )
-]]--
+    local restartBtn = display.newImageRect("images/Buttons/Pause/button_restart.png", 64, 64)
+    restartBtn:addEventListener("touch", restartFunction)
+    restartBtn.x = display.contentWidth * 0.1
+    restartBtn.y = display.contentHeight - 40
+    sceneGroup:insert( restartBtn )
 
-    local doneButton = widget.newButton({
-        id = "button1",
-        label = "Done",
-        width = 100,
-        height = 32,
-        onEvent = handleButtonEvent
-    })
-    doneButton.x = display.contentCenterX
-    doneButton.y = display.contentHeight - 40
-    sceneGroup:insert( doneButton )
+    local toLevelSelectBtn = display.newImageRect("images/Buttons/Pause/button_backtomenu.png", 64, 64)
+    toLevelSelectBtn:addEventListener("touch", toLevelSelectFunction)
+    toLevelSelectBtn.x = display.contentWidth * 0.9
+    toLevelSelectBtn.y = display.contentHeight - 40
+    sceneGroup:insert( toLevelSelectBtn )
+
 end
 
 function scene:show( event )
