@@ -41,64 +41,33 @@ function scene:create( event )
     local sceneGroup = self.view
     parentScene = event.parent
 
-    bg = display.newRect(display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
+    bg = display.newImageRect("images/Background/sky_low.png", display.contentWidth*2, display.contentHeight*2)
     bg:setFillColor(1,1,1)
     --bg:scale(0.80, 0.80)
     sceneGroup:insert(bg)
 
-    pauseTitleText = display.newText("PAUSE MENU", display.contentCenterX, 25, native.systemFontBold, 32)
-    pauseTitleText:setFillColor(0,0,0)
+    pauseTitleText = display.newText("PAUSE", display.contentCenterX, 50, native.systemFontBold, 64)
+    pauseTitleText:setFillColor(1,1,1)
     sceneGroup:insert(pauseTitleText)
 
 
-    local resumeIcon = display.newImageRect( "images/Buttons/Pause/button_resume.png", 32, 32 )
-    resumeIcon.x = 200
-    resumeIcon.y = 100
+    local resumeIcon = display.newImageRect( "images/Buttons/Pause/button_resume.png", 128, 128 )
+    resumeIcon.x = display.contentWidth * 0.20
+    resumeIcon.y = display.contentHeight * 0.65
     sceneGroup:insert(resumeIcon)
     resumeIcon:addEventListener("touch", resumeFunction)
 
-    local restartIcon = display.newImageRect( "images/Buttons/Pause/button_restart.png", 32, 32 )
-    restartIcon.x = 200
-    restartIcon.y = 150
+    local restartIcon = display.newImageRect( "images/Buttons/Pause/button_restart.png", 128, 128 )
+    restartIcon.x = display.contentWidth * 0.5
+    restartIcon.y = display.contentHeight * 0.65
     sceneGroup:insert(restartIcon)
     restartIcon:addEventListener("touch", restartFunction)
 
-    local toMenuIcon = display.newImageRect( "images/Buttons/Pause/button_backtomenu.png", 32, 32 )
-    toMenuIcon.x = 200
-    toMenuIcon.y = 200
+    local toMenuIcon = display.newImageRect( "images/Buttons/Pause/button_backtomenu.png", 128, 128 )
+    toMenuIcon.x = display.contentWidth * 0.80
+    toMenuIcon.y = display.contentHeight * 0.65
     sceneGroup:insert(toMenuIcon)
     toMenuIcon:addEventListener("touch", toMenuFunction)
-
-    local options = {
-       text = "",
-       x = 375,
-       width = 300,
-       height = 32,
-       fontSize = 32,
-       align = "left"
-    }
-    --sceneGroup:insert(options)
-
-    local resumeText = display.newText(options)
-    resumeText.text = "RESUME"
-    resumeText:setFillColor( 0 )
-    resumeText.y = 100
-    resumeText:addEventListener("touch", resumeFunction)
-    sceneGroup:insert(resumeText)
-
-    local restartText = display.newText(options)
-    restartText.text = "RESTART"
-    restartText:setFillColor( 0 )
-    restartText.y = 150
-    restartText:addEventListener("touch", restartFunction)
-    sceneGroup:insert(restartText)
-
-    local toMenuText = display.newText(options)
-    toMenuText.text = "TO MENU"
-    toMenuText:setFillColor( 0 )
-    toMenuText.y = 200
-    toMenuText:addEventListener("touch", toMenuFunction)
-    sceneGroup:insert(toMenuText)
 
 end
 
