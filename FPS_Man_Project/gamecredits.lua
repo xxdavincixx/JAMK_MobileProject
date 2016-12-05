@@ -3,8 +3,10 @@ local scene = composer.newScene()
 
 local widget = require( "widget" )
 local utility = require( "utility" ) 
+local device = require( "device" )
 
 local params
+
 
 local function handleButtonEvent( event )
 
@@ -30,14 +32,20 @@ function scene:create( event )
     background.y = display.contentCenterY
     sceneGroup:insert(background)
 
-    local title = display.newText( "Frames per second", 100, 32, native.systemFontBold, 32)
+    local title = display.newImageRect("images/Logo.png", 400, 75) -- create title
     title.x = display.contentCenterX
     title.y = 40
-    title:setFillColor( 0 )
     sceneGroup:insert( title )
 
+    local doneButton = display.newImageRect("images/Buttons/Pause/button_resume.png", 32+16, 32+16)
+    doneButton.x = display.contentWidth*0.075
+    doneButton.y = 32+16
+    doneButton:scale( -1,1 )
+    doneButton:addEventListener("touch", handleButtonEvent)
+    sceneGroup:insert( doneButton )
+
     local creditText = display.newText( "This game was developed by: ", 250, 250, native.systemFont, 23 )
-    creditText:setFillColor( 0 )
+    creditText:setFillColor( 0)
     creditText.x = display.contentCenterX
     creditText.y = display.contentCenterY - 65
     sceneGroup:insert(creditText)
@@ -67,17 +75,6 @@ function scene:create( event )
     sceneGroup:insert(nameTimothy)
     -- http://www.freesfx.co.uk
     -- http://www.freesound.org
-
-    local doneButton = widget.newButton({
-        id = "button1",
-        label = "Done",
-        width = 100,
-        height = 32,
-        onEvent = handleButtonEvent
-    })
-    doneButton.x = display.contentCenterX
-    doneButton.y = display.contentHeight - 40
-    sceneGroup:insert( doneButton )
 
 end
 

@@ -72,17 +72,15 @@ function scene:create( event )
     background.y = display.contentCenterY
     sceneGroup:insert(background)
 
-    --local title = display.newBitmapText( titleOptions )
-    local title = display.newText("Frames per second", 100, 32, native.systemFontBold, 32 )
-    title.x = display.contentCenterX 
+    local title = display.newImageRect("images/Logo.png", 400, 75) -- create title
+    title.x = display.contentCenterX
     title.y = 40
-    title:setFillColor( 0 )
     sceneGroup:insert( title )
 
     local soundLabel = display.newText("Sound Effects", 100, 32, native.systemFont, 18 )
     soundLabel.x = display.contentCenterX - 75
     soundLabel.y = 100
-    soundLabel:setFillColor( 0 )
+    soundLabel:setFillColor( 1 )
     sceneGroup:insert( soundLabel )
 
     local soundOnOffSwitch = widget.newSwitch({
@@ -99,7 +97,7 @@ function scene:create( event )
     local musicLabel = display.newText("Music", 100, 32, native.systemFont, 18 )
     musicLabel.x = display.contentCenterX - 75
     musicLabel.y = 150
-    musicLabel:setFillColor( 0 )
+    musicLabel:setFillColor( 1 )
     sceneGroup:insert( musicLabel )
 
     local musicOnOffSwitch = widget.newSwitch({
@@ -129,6 +127,8 @@ function scene:create( event )
     local changeNameButton = widget.newButton({
         id = "button2",
         label = "Change Username",
+        --labelColor = {default = {1,1,1}},
+        --fillColor = {default = {0,0,0,0}},
         width = 150,
         height = 32,
         onEvent = handleChangeNameButtonEvent
@@ -137,18 +137,12 @@ function scene:create( event )
     changeNameButton.y = 200
     sceneGroup:insert( changeNameButton )
 
-    -- Create the widget
-    local doneButton = widget.newButton({
-        id = "button1",
-        label = "Done",
-        width = 100,
-        height = 32,
-        onEvent = handleButtonEvent
-    })
-    doneButton.x = display.contentCenterX 
-    doneButton.y = display.contentHeight - 40
+    -- Done Button --
+    local doneButton = display.newImageRect("images/Buttons/Pause/button_confirm.png", 32+16, 32+16)
+    doneButton.x = display.contentWidth*0.5
+    doneButton.y = 260
+    doneButton:addEventListener("touch", handleButtonEvent)
     sceneGroup:insert( doneButton )
-
 end
 
 function scene:show( event )

@@ -3,11 +3,14 @@ local scene = composer.newScene()
 
 local widget = require( "widget" )
 local utility = require( "utility" )
+local device = require( "device" )
  
 local params 
 
 local scrollView
 local icons = {}
+
+
 
 
 local function handleButtonEvent( event )
@@ -52,28 +55,23 @@ function scene:create( event )
     sceneGroup:insert(background)
 
     --local title = display.newBitmapText( titleOptions )
-    local title = display.newText("Frames per second", 125, 32, native.systemFontBold, 32)
+    local title = display.newImageRect("images/Logo.png", 400, 75) -- create title
     title.x = display.contentCenterX
     title.y = 40
-    title:setFillColor( 0 )
     sceneGroup:insert( title )
+
+    local doneButton = display.newImageRect("images/Buttons/Pause/button_resume.png", 32+16, 32+16)
+    doneButton.x = display.contentWidth*0.075
+    doneButton.y = 32+16
+    doneButton:scale( -1,1 )
+    doneButton:addEventListener("touch", handleButtonEvent)
+    sceneGroup:insert( doneButton )
 
     local gameText = display.newText("this is the place where we can describe our game in more detail", 1, 1, 500, 100, native.systemFont, 18)
     gameText.x = display.contentCenterX
     gameText.y = title.y + 100
     gameText:setTextColor(0,0,0)
     sceneGroup:insert (gameText)
-
-    local doneButton = widget.newButton({
-        id = "button1",
-        label = "Done",
-        width = 100,
-        height = 32,
-        onEvent = handleButtonEvent
-    })
-    doneButton.x = display.contentCenterX
-    doneButton.y = display.contentHeight - 40
-    sceneGroup:insert( doneButton )
 
 end
 

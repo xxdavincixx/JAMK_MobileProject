@@ -5,6 +5,7 @@ local widget = require( "widget" )
 local utility = require( "utility" )
 local myData = require( "mydata" )
 local json = require "json"
+local device = require( "device" )
 
 local params
 local scrollViewLevelList
@@ -362,7 +363,6 @@ function scene:create( event )
     doneButton:scale( -1,1 )
     doneButton:addEventListener("touch", handleButtonEvent)
     sceneGroup:insert( doneButton )
-
     sceneGroup:insert( scrollViewLevelList )
 end
 
