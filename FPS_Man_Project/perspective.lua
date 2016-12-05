@@ -336,15 +336,32 @@ lib_perspective.createView = function(layerCount)
 	-- Begin auto-tracking
 	function view:track() if not isTracking then Runtime:addEventListener("enterFrame", view.trackFocus) isTracking = true end end
 	function view:trackX() if not isTracking then Runtime:addEventListener("enterFrame", view.xTrackFocus) isTracking = true end end
-	function view:trackY() if not isTracking then Runtime:addEventListener("enterFrame", view.yTrackFocus) isTracking = true end end
+	function view:trackY() 
+		if not isTracking then 
+			Runtime:addEventListener("enterFrame", view.yTrackFocus) 
+			isTracking = true 
+		end 
+	end
 	-- Stop auto-tracking
-	function view:cancel() if isTracking then Runtime:removeEventListener("enterFrame", view.trackFocus) isTracking = false end end
+	function view:cancel() 
+		if isTracking then
+			Runtime:removeEventListener("enterFrame", view.trackFocus) 
+			isTracking = false 
+		end 
+	end
 	-- Remove an object from the view
 	function view:remove(obj) if obj and obj._perspectiveLayer then layers[obj._perspectiveLayer]:remove(obj) end end
 	-- Set the view's focus
 	function view:setFocus(obj) if obj then internal.focus = obj end if view.snapWhenFocused then view.snap() end end
 	function view:setFocusX(obj) if obj then internal.focus = obj end if view.snapWhenFocused then view.snapX() end end
-	function view:setFocusY(obj) if obj then internal.focus = obj end if view.snapWhenFocused then view.snapY() end end
+	function view:setFocusY(obj) 
+		if obj then 
+			internal.focus = obj 
+		end 
+		if view.snapWhenFocused then 
+			view.snapY() 
+		end 
+	end
 	-- Snap the view to the focus point
 	function view:snap() local t = internal.trackingLevel local d = internal.damping internal.trackingLevel = 1 internal.damping = view.damping view:trackFocus() internal.trackingLevel = t internal.damping = d end
 	function view:snapX() local t = internal.trackingLevel local d = internal.damping internal.trackingLevel = 1 internal.damping = view.damping view:xTrackFocus() internal.trackingLevel = t internal.damping = d end
