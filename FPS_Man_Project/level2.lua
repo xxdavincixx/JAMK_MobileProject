@@ -214,6 +214,10 @@ local jumperEnemySheet = graphics.newImageSheet("images/fps_jumper_spritesheet.p
 local hopperEnemySheetInfo = require("fps_hopper_spritesheet")
 local hopperEnemySheet = graphics.newImageSheet("images/fps_hopper_spritesheet.png", hopperEnemySheetInfo:getSheet() )
 
+-- Creating image sheet and info for increase objects --
+local increaseObjectSheetInfo = require("Upgrade_spritesheet")
+local increaseObjectSheet = graphics.newImageSheet("images/Assets/Symbols/Upgrade/Upgrade_spritesheet.png", increaseObjectSheetInfo:getSheet() )
+
 -- looping movement walker enemy 1 --
 local function walkerEnemy1MovementRight()
     local function walkerEnemy1MovementLeft()
@@ -449,17 +453,29 @@ local function spawnPlayerGhost( x, y )                                         
 end
 
 local function spawnIncreasingObject( x, y )                                -- create an object you can collect which increases the fps of the player
-
-    local object = display.newRect( x, y, 20, 20)
+    local object = display.newSprite(increaseObjectSheet, increaseObjectSheetInfo:getSequenceData() )
+    object.x = x
+    object.y = y
     object.name = "Lisa"
     --object.alpha = 0
-    local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }       -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
-    physics.addBody( object, "static", { bounce = 0.1, filter = objectCollisionFilter} )    -- adding physics to object, "static" = not affected by gravity, no bounce of object    
-    object.collType = "increase"  
+    --local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }       -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
+    --physics.addBody( object, "static", { bounce = 0.1, filter = objectCollisionFilter} )    -- adding physics to object, "static" = not affected by gravity, no bounce of object    
+    --object.collType = "increase"  
     -- spritesheet animation on position x and y 
     -- powerUps:insert(spritesheet)
     return object
 end
+
+local function spawnIncreasingObjectGhost( x, y )
+    local object_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    object_ghost.alpha = 0                                                  -- player_ghost is not visible
+    local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
+    physics.addBody( object_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
+    object_ghost.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
+    return object_ghost
+end
+
+
 local function spawnWalkerEnemyGhost( x, y )
     local walkerEnemy_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
     walkerEnemy_ghost.alpha = 0                                                  -- player_ghost is not visible
@@ -539,7 +555,6 @@ local function spawnHopperEnemyGhost( x, y )
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
     physics.addBody( hopperEnemy_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
     hopperEnemy_ghost.collType = "decrease"                                                            -- parameter for collision to ask which object the player collides with
-      
     return hopperEnemy_ghost
 end
 
@@ -689,7 +704,7 @@ function scene:create( event )
     
     physics.pause()                                                         -- we don't need gravity by now so we stop it again
     
-    physics.setDrawMode( "normal" )                                         -- can also be "hybrid" or "debug"
+    physics.setDrawMode( "hybrid" )                                         -- can also be "hybrid" or "debug"
     
     local thisLevel = myData.settings.currentLevel
 
@@ -738,19 +753,65 @@ function scene:create( event )
     clouds = spawnCloudsAndHills()
 
     increaseObject = spawnIncreasingObject( 890, 110 )                      -- adding level component
+    increaseObject_ghost = spawnIncreasingObjectGhost ( 890, 110 )
     powerUpsBoxes:insert(increaseObject)
+    powerUps:insert(increaseObject_ghost)
+    increaseObject:play()
+    increaseObject.xScale=0.1
+    increaseObject.yScale=0.1
+    powerUpsBoxes:insert(increaseObject)
+
     increaseObject1 = spawnIncreasingObject( 969, 245 )                     -- adding level component
+    increaseObject1_ghost = spawnIncreasingObjectGhost ( 969, 245 )
     powerUpsBoxes:insert(increaseObject1)
+    powerUps:insert(increaseObject1_ghost)
+    increaseObject1:play()
+    increaseObject1.xScale=0.1
+    increaseObject1.yScale=0.1
+
     increaseObject2 = spawnIncreasingObject( 643, 157 )                     -- adding level component
+    increaseObject2_ghost = spawnIncreasingObjectGhost ( 643, 157 )
     powerUpsBoxes:insert(increaseObject2)
+    powerUps:insert(increaseObject2_ghost)
+    increaseObject2:play()
+    increaseObject2.xScale=0.1
+    increaseObject2.yScale=0.1
+
+
     increaseObject3 = spawnIncreasingObject( 827, 12 )                      -- adding level component
+    increaseObject3_ghost = spawnIncreasingObjectGhost ( 827, 12 )
     powerUpsBoxes:insert(increaseObject3)
+    powerUps:insert(increaseObject3_ghost)
+    increaseObject3:play()
+    increaseObject3.xScale=0.1
+    increaseObject3.yScale=0.1
+
+
     increaseObject4 = spawnIncreasingObject( 999,99)
+    increaseObject4_ghost = spawnIncreasingObjectGhost ( 999, 99 )
     powerUpsBoxes:insert(increaseObject4)
+    powerUps:insert(increaseObject4_ghost)
+    increaseObject4:play()
+    increaseObject4.xScale=0.1
+    increaseObject4.yScale=0.1
+
+
     increaseObject5 = spawnIncreasingObject( 337, 253 )                      -- adding level component
+    increaseObject5_ghost = spawnIncreasingObjectGhost ( 337, 253 )
     powerUpsBoxes:insert(increaseObject5)
-    increaseObject6 = spawnIncreasingObject( 86, 227)                       -- adding level component
+    powerUps:insert(increaseObject5_ghost)
+    increaseObject5:play()
+    increaseObject5.xScale=0.1
+    increaseObject5.yScale=0.1
+
+    increaseObject6 = spawnIncreasingObject( 99, 227)                       -- adding level component
+    increaseObject6_ghost = spawnIncreasingObjectGhost ( 99, 227 )
     powerUpsBoxes:insert(increaseObject6)
+    powerUps:insert(increaseObject6_ghost)
+    increaseObject6:play()
+    increaseObject6.xScale=0.1
+    increaseObject6.yScale=0.1
+
     
     walkerEnemy = spawnWalkerEnemy( 250, 260 )
     walkerEnemy.xScale=0.15
@@ -901,6 +962,7 @@ function scene:show( event )
                         enemies[i]:play()
                         walkerEnemy.x = walkerEnemy_ghost.x
                         jumperEnemy.y = jumperEnemy_ghost.y
+                        increaseObject.x = increaseObject
                     end
                     player.x = player_ghost.x                               -- player position gets synchronized with its ghost-self
                     player.y = player_ghost.y                               -- player position gets synchronized with its ghost-self

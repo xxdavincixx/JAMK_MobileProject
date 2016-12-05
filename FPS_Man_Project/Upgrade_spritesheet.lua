@@ -142,12 +142,21 @@ SheetInfo.frameIndex =
     ["Upgrade_0008_Vektor-Smartobjekt"] = 9,
 }
 
+SheetInfo.sequenceData =
+{
+    {name = "animate", start = 1, count = 9, time = 420}
+}
+
 function SheetInfo:getSheet()
     return self.sheet;
 end
 
 function SheetInfo:getFrameIndex(name)
     return self.frameIndex[name];
+end
+
+function SheetInfo:getSequenceData()
+    return self.sequenceData;
 end
 
 return SheetInfo
