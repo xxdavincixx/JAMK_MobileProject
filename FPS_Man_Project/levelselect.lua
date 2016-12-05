@@ -292,8 +292,9 @@ function scene:create( event )
         x = userNameDisplay.width/2 + userNameDisplay.width/4,
         y = userNameOptions.y,
         fontSize = 10,
-        onEvent = handleChangeNameEvent                                         -- this method will save the username in our app-settings
+        onEvent = handleChangeNameEvent                                        -- this method will save the username in our app-settings
     })
+    changeNameButton:setFillColor(137/255, 184/255, 206/255)
     
     local levelCompleteOptions = {                                              -- set options for level information
         text = "Level completed", 
