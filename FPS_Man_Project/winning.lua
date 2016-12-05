@@ -68,7 +68,7 @@ function scene:create( event )
     sceneGroup:insert(background)
 
     local gameOverText = display.newText("LEVEL COMPLETE", 0, 0, native.systemFontBold, 32 )
-    gameOverText:setFillColor( 0 )
+    gameOverText:setFillColor( 1 )
     gameOverText.x = display.contentCenterX
     gameOverText.y = 50
     sceneGroup:insert(gameOverText)
@@ -85,25 +85,25 @@ function scene:create( event )
 
     local completeFpsText = display.newText(options)
     completeFpsText.text = "Frames per second: "
-    completeFpsText:setFillColor( 0 )
+    completeFpsText:setFillColor( 1 )
     completeFpsText.y = 100
     sceneGroup:insert(completeFpsText)
 
     local yourTimeText = display.newText(options)
     yourTimeText.text = "Your time: "
-    yourTimeText:setFillColor( 0 )
+    yourTimeText:setFillColor( 1 )
     yourTimeText.y = 140
     sceneGroup:insert(yourTimeText)
 
     local bestTimeText = display.newText(options)
     bestTimeText.text = "Best time: "
-    bestTimeText:setFillColor( 0 )
+    bestTimeText:setFillColor( 1 )
     bestTimeText.y = 180
     sceneGroup:insert(bestTimeText)
 
     local bestOnlineTimeText = display.newText(options)
     bestOnlineTimeText.text = "Best online time: "
-    bestOnlineTimeText:setFillColor( 0 )
+    bestOnlineTimeText:setFillColor( 1 )
     bestOnlineTimeText.y = 220
     sceneGroup:insert(bestOnlineTimeText)
 
@@ -119,13 +119,13 @@ function scene:create( event )
 
     local completeFps = display.newText(options2)
     completeFps.text = params.fps
-    completeFps:setFillColor( 0 )
+    completeFps:setFillColor( 1 )
     completeFps.y = 100
     sceneGroup:insert(completeFps)
 
     local yourTime = display.newText(options2)
     yourTime.text = params.myTime
-    yourTime:setFillColor( 0 )
+    yourTime:setFillColor( 1 )
     yourTime.y = 140
     sceneGroup:insert(yourTime)
 
@@ -135,7 +135,7 @@ function scene:create( event )
 
     local bestTime = display.newText(options2)
     bestTime.text = params.localTime .. localRecordText
-    bestTime:setFillColor( 0 )
+    bestTime:setFillColor( 1 )
     bestTime.y = 180
     sceneGroup:insert(bestTime)
 
@@ -145,7 +145,7 @@ function scene:create( event )
 
     local bestOnlineTime = display.newText(options2)
     bestOnlineTime.text = params.onlineTime .. onlineRecordText
-    bestOnlineTime:setFillColor( 0 )
+    bestOnlineTime:setFillColor( 1 )
     bestOnlineTime.y = 220
     sceneGroup:insert(bestOnlineTime)
 
