@@ -130,21 +130,27 @@ function scene:create( event )
     sceneGroup:insert(yourTime)
 
     if(params.localRecord) then
-        localRecordText = " new"
+        localRecordText = display.newImageRect("images/record_symbol.png", 100, 48)
+        localRecordText.x = 450
+        localRecordText.y = 180
+        localRecordText:scale(0.75, 0.75)
     end
 
     local bestTime = display.newText(options2)
-    bestTime.text = params.localTime .. localRecordText
+    bestTime.text = params.localTime
     bestTime:setFillColor( 1 )
     bestTime.y = 180
     sceneGroup:insert(bestTime)
 
     if(params.onlineRecord) then
-        onlineRecordText = " new"
+        localRecordText = display.newImageRect("images/record_symbol.png", 100, 48)
+        localRecordText.x = 450
+        localRecordText.y = 220
+        localRecordText:scale(0.75, 0.75)
     end
 
     local bestOnlineTime = display.newText(options2)
-    bestOnlineTime.text = params.onlineTime .. onlineRecordText
+    bestOnlineTime.text = params.onlineTime
     bestOnlineTime:setFillColor( 1 )
     bestOnlineTime.y = 220
     sceneGroup:insert(bestOnlineTime)
