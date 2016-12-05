@@ -37,9 +37,13 @@ end
 
 -- Function to handle button events
 local function handleButtonEvent( event )
-
-    if ( "ended" == event.phase ) then
+    if ( "began" == event.phase ) then
+        local btnPushed = { type="image", filename=event.target.pushed }
+        event.target.fill = btnPushed
+    elseif ( "ended" == event.phase ) then
         composer.gotoScene("menu", { effect = "crossFade", time = 333 })
+        local btnUnpushed = { type="image", filename=event.target.unpushed }
+        event.target.fill = btnUnpushed
     end
 end
 
@@ -134,6 +138,8 @@ function scene:create( event )
 
     -- Done Button --
     local doneButton = display.newImageRect("images/Buttons/Pause/button_confirm.png", 32+16, 32+16)
+    doneButton.pushed = "images/Buttons/Pause/button_confirm_pushed.png"
+    doneButton.unpushed = "images/Buttons/Pause/button_confirm.png"
     doneButton.x = display.contentWidth*0.5
     doneButton.y = 260
     doneButton:addEventListener("touch", handleButtonEvent)

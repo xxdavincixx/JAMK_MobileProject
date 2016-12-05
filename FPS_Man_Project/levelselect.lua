@@ -53,10 +53,15 @@ end
 
 
 local function handleButtonEvent( event )                                       -- get back to menu function
-
-    if ( "ended" == event.phase ) then
+    local btnPushed = { type="image", filename=event.target.name }
+    if ( "began" == event.phase ) then
+        local btnPushed = { type="image", filename=event.target.pushed }
+        event.target.fill = btnPushed
+    elseif ( "ended" == event.phase ) then
         composer.removeScene( "menu", false )                                   -- remove current menu scene
         composer.gotoScene( "menu", { effect = "crossFade", time = 333 } )      -- go to menu
+        local btnUnpushed = { type="image", filename=event.target.unpushed }
+        event.target.fill = btnUnpushed
     end
 end
 
@@ -359,6 +364,8 @@ function scene:create( event )
 
     
     local doneButton = display.newImageRect("images/Buttons/Pause/button_resume.png", 32+16, 32+16)
+    doneButton.pushed = "images/Buttons/Pause/button_resume_pushed.png"
+    doneButton.unpushed = "images/Buttons/Pause/button_resume.png"
     doneButton.x = display.contentWidth*0.075
     doneButton.y = 32+16
     doneButton:scale( -1,1 )

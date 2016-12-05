@@ -14,9 +14,13 @@ local icons = {}
 
 
 local function handleButtonEvent( event )
-
-    if ( "ended" == event.phase ) then
+    if ( "began" == event.phase ) then
+        local btnPushed = { type="image", filename=event.target.pushed }
+        event.target.fill = btnPushed
+    elseif ( "ended" == event.phase ) then
         composer.gotoScene("menu", { effect = "crossFade", time = 333 })
+        local btnUnpushed = { type="image", filename=event.target.unpushed }
+        event.target.fill = btnUnpushed
     end
     return true
 end
@@ -59,6 +63,8 @@ function scene:create( event )
     sceneGroup:insert( title )
 
     local doneButton = display.newImageRect("images/Buttons/Pause/button_resume.png", 32+16, 32+16)
+    doneButton.pushed = "images/Buttons/Pause/button_resume_pushed.png"
+    doneButton.unpushed = "images/Buttons/Pause/button_resume.png"
     doneButton.x = display.contentWidth*0.075
     doneButton.y = 32+16
     doneButton:scale( -1,1 )

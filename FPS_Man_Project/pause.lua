@@ -13,24 +13,42 @@ local parentScene
 
 
 local function resumeFunction(event)
-    composer.hideOverlay( "crossFade", 333 )
+    if ( "began" == event.phase ) then
+        local btnPushed = { type="image", filename=event.target.pushed }
+        event.target.fill = btnPushed
+    elseif ( "ended" == event.phase ) then            
+        composer.hideOverlay( "crossFade", 333 )
+        local btnUnpushed = { type="image", filename=event.target.unpushed }
+        event.target.fill = btnUnpushed
+    end
 
     return true
 end
 
 local function restartFunction(event)
-    --parentScene
-    if event.phase == "ended" then
+    if ( "began" == event.phase ) then
+        local btnPushed = { type="image", filename=event.target.pushed }
+        event.target.fill = btnPushed
+    elseif ( "ended" == event.phase ) then            
         composer.gotoScene( "restartLvl1", { time= 100, effect = "crossFade" } )
+        local btnUnpushed = { type="image", filename=event.target.unpushed }
+        event.target.fill = btnUnpushed
     end
 
     return true   
 end
 
 local function toMenuFunction(event)
-    composer.hideOverlay( "crossFade", 333 )
-    composer.removeScene( "levelselect" )                      
-    composer.gotoScene( "levelselect", { time= 500, effect = "crossFade" } )
+    if ( "began" == event.phase ) then
+        local btnPushed = { type="image", filename=event.target.pushed }
+        event.target.fill = btnPushed
+    elseif ( "ended" == event.phase ) then            
+        composer.hideOverlay( "crossFade", 333 )
+        composer.removeScene( "levelselect" )                      
+        composer.gotoScene( "levelselect", { time= 500, effect = "crossFade" } )
+        local btnUnpushed = { type="image", filename=event.target.unpushed }
+        event.target.fill = btnUnpushed
+    end
 
     return true  
 end
@@ -52,18 +70,24 @@ function scene:create( event )
 
 
     local resumeIcon = display.newImageRect( "images/Buttons/Pause/button_resume.png", 128, 128 )
+    resumeIcon.pushed = "images/Buttons/Pause/button_resume_pushed.png"
+    resumeIcon.unpushed = "images/Buttons/Pause/button_resume.png"
     resumeIcon.x = display.contentWidth * 0.20
     resumeIcon.y = display.contentHeight * 0.65
     sceneGroup:insert(resumeIcon)
     resumeIcon:addEventListener("touch", resumeFunction)
 
     local restartIcon = display.newImageRect( "images/Buttons/Pause/button_restart.png", 128, 128 )
+    restartIcon.pushed = "images/Buttons/Pause/button_restart_pushed.png"
+    restartIcon.unpushed = "images/Buttons/Pause/button_restart.png"
     restartIcon.x = display.contentWidth * 0.5
     restartIcon.y = display.contentHeight * 0.65
     sceneGroup:insert(restartIcon)
     restartIcon:addEventListener("touch", restartFunction)
 
     local toMenuIcon = display.newImageRect( "images/Buttons/Pause/button_backtomenu.png", 128, 128 )
+    toMenuIcon.pushed = "images/Buttons/Pause/button_backtomenu_pushed.png"
+    toMenuIcon.unpushed = "images/Buttons/Pause/button_backtomenu.png"
     toMenuIcon.x = display.contentWidth * 0.80
     toMenuIcon.y = display.contentHeight * 0.65
     sceneGroup:insert(toMenuIcon)

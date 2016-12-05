@@ -15,7 +15,10 @@ local onlineRecordText = ""
 
 local function toLevelSelectFunction( event )
 
-    if ( "ended" == event.phase ) then
+    if ( "began" == event.phase ) then
+        local btnPushed = { type="image", filename=event.target.pushed }
+        event.target.fill = btnPushed
+    elseif ( "ended" == event.phase ) then            
         local options = {
             effect = "crossFade",
             time = 500,
@@ -26,13 +29,17 @@ local function toLevelSelectFunction( event )
         }
         composer.removeScene(composer.getSceneName("previous"))
         composer.gotoScene( "levelselect", options )
+        local btnUnpushed = { type="image", filename=event.target.unpushed }
+        event.target.fill = btnUnpushed
     end
-    return true
 end
 
 local function restartFunction( event )
 
-    if ( "ended" == event.phase ) then
+    if ( "began" == event.phase ) then
+        local btnPushed = { type="image", filename=event.target.pushed }
+        event.target.fill = btnPushed
+    elseif ( "ended" == event.phase ) then            
         local options = {
             effect = "crossFade",
             time = 500,
@@ -43,7 +50,10 @@ local function restartFunction( event )
         }
         composer.removeScene(composer.getSceneName("previous"))
         composer.gotoScene(composer.getSceneName("previous"), options)
+        local btnUnpushed = { type="image", filename=event.target.unpushed }
+        event.target.fill = btnUnpushed
     end
+
     return true
 end
 
@@ -173,12 +183,16 @@ function scene:create( event )
     sceneGroup:insert(bestOnlineTime)
 
     local restartBtn = display.newImageRect("images/Buttons/Pause/button_restart.png", 64, 64)
+    restartBtn.pushed = "images/Buttons/Pause/button_restart_pushed.png"
+    restartBtn.unpushed = "images/Buttons/Pause/button_restart.png"
     restartBtn:addEventListener("touch", restartFunction)
     restartBtn.x = display.contentWidth * 0.1
     restartBtn.y = display.contentHeight - 40
     sceneGroup:insert( restartBtn )
 
     local toLevelSelectBtn = display.newImageRect("images/Buttons/Pause/button_backtomenu.png", 64, 64)
+    toLevelSelectBtn.pushed = "images/Buttons/Pause/button_backtomenu_pushed.png"
+    toLevelSelectBtn.unpushed = "images/Buttons/Pause/button_backtomenu.png"
     toLevelSelectBtn:addEventListener("touch", toLevelSelectFunction)
     toLevelSelectBtn.x = display.contentWidth * 0.9
     toLevelSelectBtn.y = display.contentHeight - 40
