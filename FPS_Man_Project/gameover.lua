@@ -11,30 +11,6 @@ local device = require( "device" )
 local params
 local newHighScore = false
 
-local function handleButtonEvent( event )
-
-    if ( "ended" == event.phase ) then
-        local options = {
-            effect = "crossFade",
-            time = 500,
-            params = {
-                someKey = "someValue",
-                someOtherKey = 10
-            }
-        }
-        
-        composer.removeScene(composer.getSceneName("previous"))
-        composer.gotoScene( "menu", options )
-    end
-    return true
-end
-
-local function showLeaderboard( event )
-    if event.phase == "ended" then
-        gameNetwork.show( "leaderboards", { leaderboard = {timeScope="AllTime"}} )
-    end
-    return true
-end
 
 local function postToGameNetwork()
     local category = "com.yourdomain.yourgame.leaderboard"
@@ -62,18 +38,34 @@ function scene:create( event )
     -- crashes out if there isn't a display object in the view.
     --
 local function restartFunction(event)
-    --parentScene
-    if event.phase == "ended" then
+
+    if ( "began" == event.phase ) then
+        local btnPushed = { type="image", filename=event.target.pushed }
+        event.target.fill = btnPushed
+    elseif ( "ended" == event.phase ) then            
         composer.removeScene(composer.getSceneName("previous"))
         composer.gotoScene(composer.getSceneName("previous"), options)
+        local btnUnpushed = { type="image", filename=event.target.unpushed }
+        event.target.fill = btnUnpushed
     end
+
     return true   
 end
 
 local function toMenuFunction(event)
-    composer.hideOverlay( "crossFade", 333 )
-    composer.removeScene( "menu" )                      
-    composer.gotoScene( "menu", { time= 500, effect = "crossFade" } )
+
+    if ( "began" == event.phase ) then
+        local btnPushed = { type="image", filename=event.target.pushed }
+        event.target.fill = btnPushed
+    elseif ( "ended" == event.phase ) then            
+        composer.hideOverlay( "crossFade", 333 )
+        composer.removeScene( "menu" )                      
+        composer.gotoScene( "menu", { time= 500, effect = "crossFade" } )
+        local btnUnpushed = { type="image", filename=event.target.unpushed }
+        event.target.fill = btnUnpushed
+    end
+
+    
     return true  
 end
 
@@ -102,12 +94,16 @@ end
     --sceneGroup:insert(gameOverText)
 
     local restartIcon = display.newImageRect( "images/Buttons/Gameover/button_restart_game_over.png", 72, 72 )
+    restartIcon.pushed = "images/Buttons/Gameover/button_restart_game_over_pushed.png"
+    restartIcon.unpushed = "images/Buttons/Gameover/button_restart_game_over.png"
     restartIcon.x = display.contentWidth -60
     restartIcon.y = display.contentHeight -60
     sceneGroup:insert(restartIcon)
     restartIcon:addEventListener("touch", restartFunction)
 
     local toMenuIcon = display.newImageRect( "images/Buttons/Gameover/button_menu_game_over.png", 72, 72 )
+    toMenuIcon.pushed = "images/Buttons/Gameover/button_menu_game_over_pushed.png"
+    toMenuIcon.unpushed = "images/Buttons/Gameover/button_menu_game_over.png"
     toMenuIcon.x = 60
     toMenuIcon.y = display.contentHeight -60
     sceneGroup:insert(toMenuIcon)

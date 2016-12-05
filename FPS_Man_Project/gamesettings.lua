@@ -49,9 +49,9 @@ end
 
 -- Function to handle button events
 local function handleChangeNameButtonEvent( event )
-
-    composer.showOverlay("username_overlay", { effect = "crossFade", time = 333, isModal = true })
-    
+    if ( "ended" == event.phase ) then
+        composer.showOverlay("username_overlay", { effect = "crossFade", time = 333, isModal = true })
+    end
 end
 
 
