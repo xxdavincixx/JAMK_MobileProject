@@ -29,8 +29,8 @@ end
 
 local function toMenuFunction(event)
     composer.hideOverlay( "crossFade", 333 )
-    composer.removeScene( "menu" )                      
-    composer.gotoScene( "menu", { time= 500, effect = "crossFade" } )
+    composer.removeScene( "levelselect" )                      
+    composer.gotoScene( "levelselect", { time= 500, effect = "crossFade" } )
 
     return true  
 end
