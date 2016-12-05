@@ -68,6 +68,8 @@ end
 -- SQL Online Server Part - Start
 local url = 'https://skaja.eu/fps-game/highscore.php'
 
+
+
 local function getHighscoreListener(query)
     if ( query.isError ) then
         print( "Network error!", query.response )
@@ -78,9 +80,7 @@ local function getHighscoreListener(query)
 
     end
 
-
     winningScreen()
-
 
 end
 
@@ -91,6 +91,8 @@ local function getHighscore(level)
     print("Sending Request to Server...")
     network.request(url,"POST",getHighscoreListener, params)
 end
+
+
 
 local function compateWithOnlineHighscoreListener(query)
     if ( query.isError ) then
@@ -154,8 +156,15 @@ local function pauseFunction(event)
         end
 
         transition.pause()
+
+
+
+
+
         composer.showOverlay( "pause" , { effect = "crossFade", time = 333, isModal = true } )
         
+
+
 
         --print("timer" .. countdowntimer)
         timer.pause( countdowntimer )
@@ -166,13 +175,7 @@ local function pauseFunction(event)
 
 end
 
-local function restartFunction(event)
-    if event.phase == "ended" then
-        composer.gotoScene( "restartLvl1", { time= 100, effect = "crossFade" } )
-        print("restart")
-    end
-    return true
-end
+
 
 -- Custom function for resuming the game (from pause state)
 function scene:resumeGame()
@@ -778,13 +781,7 @@ function scene:create( event )
     pauseButton.x = display.contentWidth*0.95
     pauseButton.y = 20
     --pauseButton:setFillColor(0)
-    pauseButton:addEventListener( "touch", pauseFunction )    
-
-    local restartButton = display.newImageRect("images/resetbutton.png", 32, 32 )
-    restartButton.x = display.contentWidth*0.85
-    restartButton.y = 20
-    --restartButton:setFillColor(0)
-    restartButton:addEventListener( "touch", restartFunction )    
+    pauseButton:addEventListener( "touch", pauseFunction )      
 
     -- Create timer  --
     local text = display.newText("Time left: ", display.contentCenterX-25, 10, native.systemFont, 16)
@@ -803,7 +800,6 @@ function scene:create( event )
     sceneGroup:insert( rButton )
     sceneGroup:insert( mButton )
     sceneGroup:insert( pauseButton )
-    sceneGroup:insert( restartButton )
     sceneGroup:insert( text )
     sceneGroup:insert( timeLeft )
    

@@ -166,14 +166,6 @@ local function pauseFunction(event)
 
 end
 
-local function restartFunction(event)
-    if event.phase == "ended" then
-        composer.gotoScene( "restartLvl2", { time= 100, effect = "crossFade" } )
-        print("restart")
-    end
-    return true
-end
-
 -- Custom function for resuming the game (from pause state)
 function scene:resumeGame()
     print("im back")
@@ -808,13 +800,7 @@ function scene:create( event )
     pauseButton.x = display.contentWidth*0.95
     pauseButton.y = 20
     --pauseButton:setFillColor(0)
-    pauseButton:addEventListener( "touch", pauseFunction )    
-
-    local restartButton = display.newImageRect("images/resetbutton.png", 32, 32 )
-    restartButton.x = display.contentWidth*0.85
-    restartButton.y = 20
-    --restartButton:setFillColor(0)
-    restartButton:addEventListener( "touch", restartFunction )  
+    pauseButton:addEventListener( "touch", pauseFunction )     
 
     -- Create timer  --
     local text = display.newText("Time left: ", display.contentCenterX-25, 10, native.systemFont, 16)
@@ -833,7 +819,6 @@ function scene:create( event )
     sceneGroup:insert( rButton )
     sceneGroup:insert( mButton )
     sceneGroup:insert( pauseButton )
-    sceneGroup:insert( restartButton )
     sceneGroup:insert( text )
     sceneGroup:insert( timeLeft )
    
