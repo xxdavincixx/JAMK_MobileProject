@@ -49,10 +49,8 @@ function scene:create( event )
     -- setup a page background, really not that important though composer
     -- crashes out if there isn't a display object in the view.
     --
-    local background = display.newRect( 0, 0, 570, 360 )
-    background.x = display.contentCenterX
-    background.y = display.contentCenterY
-    sceneGroup:insert(background)
+    local background = display.newImageRect("images/Background/sky_low.png", display.contentWidth*2, display.contentHeight*2 )
+    sceneGroup:insert( background )
 
     --local title = display.newBitmapText( titleOptions )
     local title = display.newImageRect("images/Logo.png", 400, 75) -- create title
@@ -70,7 +68,7 @@ function scene:create( event )
     local gameText = display.newText("this is the place where we can describe our game in more detail", 1, 1, 500, 100, native.systemFont, 18)
     gameText.x = display.contentCenterX
     gameText.y = title.y + 100
-    gameText:setTextColor(0,0,0)
+    gameText:setTextColor(1,1,1)
     sceneGroup:insert (gameText)
 
 end

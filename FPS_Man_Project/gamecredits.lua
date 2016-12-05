@@ -27,10 +27,8 @@ function scene:create( event )
     -- setup a page background, really not that important though composer
     -- crashes out if there isn't a display object in the view.
     --
-    local background = display.newRect( 0, 0, 570, 360)
-    background.x = display.contentCenterX
-    background.y = display.contentCenterY
-    sceneGroup:insert(background)
+    local background = display.newImageRect("images/Background/sky_low.png", display.contentWidth*2, display.contentHeight*2 )
+    sceneGroup:insert( background )
 
     local title = display.newImageRect("images/Logo.png", 400, 75) -- create title
     title.x = display.contentCenterX
@@ -45,31 +43,31 @@ function scene:create( event )
     sceneGroup:insert( doneButton )
 
     local creditText = display.newText( "This game was developed by: ", 250, 250, native.systemFont, 23 )
-    creditText:setFillColor( 0)
+    creditText:setFillColor( 1 )
     creditText.x = display.contentCenterX
     creditText.y = display.contentCenterY - 65
     sceneGroup:insert(creditText)
 
     local nameArthur = display.newText( "Arthur Jaks", 250,250, native.systemFont, 16)
-    nameArthur:setFillColor( 0 )
+    nameArthur:setFillColor( 1 )
     nameArthur.x = display.contentCenterX
     nameArthur.y = display.contentCenterY - 25
     sceneGroup:insert(nameArthur)
 
     local nameJanis = display.newText( "Janis Clausen", 250,250, native.systemFont, 16)
-    nameJanis:setFillColor( 0 )
+    nameJanis:setFillColor( 1 )
     nameJanis.x = display.contentCenterX
     nameJanis.y = display.contentCenterY
     sceneGroup:insert(nameJanis)
 
     local nameLeo = display.newText( "Leonard Bartling", 250,250, native.systemFont, 16)
-    nameLeo:setFillColor( 0 )
+    nameLeo:setFillColor( 1 )
     nameLeo.x = display.contentCenterX
     nameLeo.y = display.contentCenterY + 25
     sceneGroup:insert(nameLeo)
 
     local nameTimothy = display.newText( "Timothy Lizotte", 250,250, native.systemFont, 16)
-    nameTimothy:setFillColor( 0 )
+    nameTimothy:setFillColor( 1 )
     nameTimothy.x = display.contentCenterX
     nameTimothy.y = display.contentCenterY + 50
     sceneGroup:insert(nameTimothy)
