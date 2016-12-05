@@ -157,16 +157,15 @@ local function pauseFunction(event)
 
         transition.pause()
 
+        local options =
+        {
+            effect = "crossFade",
+            time = 333,
+            params = { cLevelNumber = levelNumber }
+        }
 
+        composer.showOverlay( "pause" , options )
 
-
-
-        composer.showOverlay( "pause" , { effect = "crossFade", time = 333, isModal = true } )
-        
-
-
-
-        --print("timer" .. countdowntimer)
         timer.pause( countdowntimer )
         timer.pause( highscoretimer )
     end

@@ -148,18 +148,34 @@ end
 local function pauseFunction(event)
     
     if event.phase == "ended" then
+
+        --composer.removeScene( "level2" )                      -- if there is a gameover-scene already running we delete it
+        --composer.gotoScene( "level2", { time= 500, effect = "crossFade" } )   -- switch to gameover-scene
+
+        --composer.removeScene(composer.getSceneName("current"))
+        --composer.gotoScene(composer.getSceneName("current"), options)
+
         physics.pause()
         for i=1, camera.numChildren, 1 do
             camera[i].alpha = 0
         end
 
         transition.pause()
-        composer.showOverlay( "pause" , { effect = "crossFade", time = 333, isModal = true } )
+
+        local options =
+        {
+            effect = "crossFade",
+            time = 333,
+            params = { cLevelNumber = levelNumber }
+        }
+
+        composer.showOverlay( "pause" , options )
         
 
         --print("timer" .. countdowntimer)
         timer.pause( countdowntimer )
         timer.pause( highscoretimer )
+        
     end
     
     return true

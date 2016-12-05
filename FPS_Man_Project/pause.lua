@@ -26,11 +26,14 @@ local function resumeFunction(event)
 end
 
 local function restartFunction(event)
+
     if ( "began" == event.phase ) then
         local btnPushed = { type="image", filename=event.target.pushed }
         event.target.fill = btnPushed
     elseif ( "ended" == event.phase ) then            
-        composer.gotoScene( "restartLvl1", { time= 100, effect = "crossFade" } )
+        
+        local restartString = "restartLvl" .. event.target.cLevelNumber
+        composer.gotoScene( tostring(restartString), { time= 100, effect = "crossFade" } )
         local btnUnpushed = { type="image", filename=event.target.unpushed }
         event.target.fill = btnUnpushed
     end
@@ -58,6 +61,9 @@ function scene:create( event )
 
     local sceneGroup = self.view
     parentScene = event.parent
+    params = event.params
+
+    print("####### " .. params.cLevelNumber)
 
     bg = display.newImageRect("images/Background/sky_low.png", display.contentWidth*2, display.contentHeight*2)
     bg:setFillColor(1,1,1)
@@ -80,6 +86,7 @@ function scene:create( event )
     local restartIcon = display.newImageRect( "images/Buttons/Pause/button_restart.png", 128, 128 )
     restartIcon.pushed = "images/Buttons/Pause/button_restart_pushed.png"
     restartIcon.unpushed = "images/Buttons/Pause/button_restart.png"
+    restartIcon.cLevelNumber = params.cLevelNumber
     restartIcon.x = display.contentWidth * 0.5
     restartIcon.y = display.contentHeight * 0.65
     sceneGroup:insert(restartIcon)
