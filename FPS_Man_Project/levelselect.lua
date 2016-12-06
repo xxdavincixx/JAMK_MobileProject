@@ -75,15 +75,18 @@ local function selectLevel( event )
             scrollViewLevelList:takeFocus( event )                              -- set a new focus
         end
     end
-    if ( event.phase == "ended" and (levelName==1 or levelName==2)) then                                          -- if button is released
-    local buttonLevel = event.target.id                                     -- get the id of pressed button
-        local levelName = "level"..buttonLevel                                  -- concatenate "level" with level id e.g. "level1"
-        if ( myData.settings.musicOn ) then                                     -- if music is enabled
-            audio.stop()                                                        -- stop current music
-            local backgroundMusicChannel = audio.play( audio.loadStream("audio/menu.mp3"), { channel=1, loops=-1, fadein = 1000 } ) -- start level music
+    local buttonId = tonumber(event.target.id)
+    if ( event.phase == "ended") then                                          -- if button is released
+        if(buttonId == 1 or buttonId == 2)then
+        local buttonLevel = event.target.id                                     -- get the id of pressed button
+            local levelName = "level"..buttonLevel                                  -- concatenate "level" with level id e.g. "level1"
+            if ( myData.settings.musicOn ) then                                     -- if music is enabled
+                audio.stop()                                                        -- stop current music
+                local backgroundMusicChannel = audio.play( audio.loadStream("audio/menu.mp3"), { channel=1, loops=-1, fadein = 1000 } ) -- start level music
+            end
+            composer.removeScene(levelName, false)                                  -- remove level you want to move to
+            composer.gotoScene(levelName, {effect = "crossFade", time = 333})       -- go to level selected
         end
-        composer.removeScene(levelName, false)                                  -- remove level you want to move to
-        composer.gotoScene(levelName, {effect = "crossFade", time = 333})       -- go to level selected
     end
 end
 
