@@ -16,7 +16,7 @@ local currentScoreDisplay                                                   -- w
 local levelText                                                             -- will be a display.newText() to let you know what level you're on
 local spawnTimer                                                            -- will be used to hold the timer for the spawning engine
 local timerRefresh = 1000                                                   -- will be used to calculate fps-update
-local fps_multiplicator = 60                                              -- will be used to calculate fps-update
+local fps_multiplicator = 1                                              -- will be used to calculate fps-update
 local timerDelay = 0                                                        -- will be used to calculate fps-update
 local dt=1000/60                                                            -- will be used to calculate fps-update
 local jumpDecrease = 0                                                      -- will be used to limitate the number of jumps a player can do
@@ -25,6 +25,8 @@ local neededtime
 local timeLimit = 300
 local highscoretime = 0
 local endScore
+local powerUps = display.newGroup()
+local powerUpsBoxes = display.newGroup()
 local backgroundClouds = display.newGroup()
 local platformHover_list = display.newGroup()
 local hill_list = display.newGroup()
@@ -223,6 +225,10 @@ local jumperEnemySheet = graphics.newImageSheet("images/fps_jumper_spritesheet.p
 -- Creating image sheet and info for hopper enemy --
 local hopperEnemySheetInfo = require("fps_hopper_spritesheet")
 local hopperEnemySheet = graphics.newImageSheet("images/fps_hopper_spritesheet.png", hopperEnemySheetInfo:getSheet() )
+
+-- Creating image sheet and info for increase objects --
+local increaseObjectSheetInfo = require("Upgrade_spritesheet")
+local increaseObjectSheet = graphics.newImageSheet("images/Assets/Symbols/Upgrade/Upgrade_spritesheet.png", increaseObjectSheetInfo:getSheet() )
 
 -- looping movement walker enemy 1 --
 local function walkerEnemy1MovementRight()
@@ -453,37 +459,32 @@ local function spawnPlayerGhost( x, y )                                         
     player_ghost.isJumping =false                                           -- at the start the object is not jumping
     player_ghost.prevX = player_ghost.x                                     -- gets the start value as previous x value
     player_ghost.prevY = player_ghost.y                                     -- gets the start value as previous y value
-    player_ghost.direction = nil                                            -- character is not heading in a direction
+    player_ghost.direction = ""                                            -- character is not heading in a direction
     physics.addBody( player_ghost, "dynamic", { bounce = 0.1, filter=playerGhostCollisionFilter} )   -- adding physic to object, "dynamic" = affected by gravity, hardly bouncy and gets a collision filter
     
     return player_ghost
 end
 
+local function spawnIncreasingObjectGhost( x, y )
+    local object_ghost = display.newRect( x, y, 20, 20 )                    -- starting point and seize of the object
+    object_ghost.alpha = 0                                                  -- player_ghost is not visible
+    local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
+    physics.addBody( object_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
+    object_ghost.collType = "increase"                                                            -- parameter for collision to ask which object the player collides with
+    return object_ghost
+end
 local function spawnIncreasingObject( x, y )                                -- create an object you can collect which increases the fps of the player
-
-    local object = display.newImageRect("images/Symbols/fps_up_symbol.png", 20, 20)
+    local object = display.newSprite(increaseObjectSheet, increaseObjectSheetInfo:getSequenceData() )
     object.x = x
     object.y = y
-    local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }       -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
-    physics.addBody( object, "static", { bounce = 0.1, filter = objectCollisionFilter} )    -- adding physics to object, "static" = not affected by gravity, no bounce of object    
-    object.collType = "increase"  
-    object:setFillColor( 1, 0.5, 0.2 )                                      -- object is orange
+    print("x: " .. x .. "    " .. " y: " .. y)
+    object.xScale = 0.1
+    object.yScale = 0.1
+    powerUps:insert(object)
+    local ghost_object = spawnIncreasingObjectGhost( x, y )
+    powerUpsBoxes:insert(ghost_object)
     return object
 end
-
---[[
-local function spawnDecreasingObject( x, y )                                -- create an object you can collect which decreases the fps of the player
-
-    local object = display.newImageRect("images/Symbols/fps_down_symbol.png", 20, 20)
-    object.x = x
-    object.y = y
-    local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }       -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
-    physics.addBody( object, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
-    object.collType = "decrease"                                            -- parameter for collision to ask which object the player collides with
-    object:setFillColor( 0.5, 1, 0.2 )  
-    return object
-end
-]]
 
 local function spawnWalkerEnemy( x, y )
     local walkerEnemy = display.newSprite( walkerEnemySheet, walkerEnemySheetInfo:getSequenceData() )
@@ -678,7 +679,7 @@ local function decrease_fps( )                                              -- f
     end 
     if ( fps_multiplicator < 1 ) then                                       -- if fps multiplicator is smaller than 1
         player.isDead=true                                                  -- player is dead
-        player_ghost.direction = nil                                        -- player stops moving
+        player_ghost.direction = ""                                        -- player stops moving
     end
 end
 
@@ -699,7 +700,7 @@ function scene:create( event )
     player = spawnPlayer( 36, 260 )                                     -- create a player
     player.xScale = 0.4
     player.yScale = 0.4
-    player:setFrame(10)
+    --player:setFrame(10)
     player_ghost = spawnPlayerGhost( 27.5, 274.5 )                          -- create its ghost
     player_ghost.isFixedRotation = true                                     -- set its rotation to fixed so the player does not fall over when he jumps
     
@@ -711,15 +712,14 @@ function scene:create( event )
     hoverPlatform = spawnHoverPlatform( 1*52, 200 )                             -- adding level component
     hoverPlatform = spawnHoverPlatform( 4*52, 200 )                           -- adding level component
     
-    increaseObject = spawnIncreasingObject( 890, 110 )                      -- adding level component
-    increaseObject1 = spawnIncreasingObject( 969, 245 )                     -- adding level component
-    increaseObject2 = spawnIncreasingObject( 643, 157 )                     -- adding level component
-    increaseObject3 = spawnIncreasingObject( 827, 12 )                      -- adding level component
-    decreaseObject = spawnIncreasingObject( 337, 253 )                      -- adding level component
-    --decreaseObject1 = spawnDecreasingObject( 817, 112 )                     -- adding level component
-    decreaseObject2 = spawnIncreasingObject( 86, 227)                       -- adding level component
-    --decreaseObject3 = spawnDecreasingObject( 734, 60 )                      -- adding level component
+    increaseObject = spawnIncreasingObject( 200, 160 )                      -- adding level component
+    increaseObject1 = spawnIncreasingObject( 400, 200 )                     -- adding level component
+    increaseObject2 = spawnIncreasingObject( 600, 200 )                     -- adding level component
+    increaseObject3 = spawnIncreasingObject( 800, 200 )                      -- adding level component
+    increaseObject4 = spawnIncreasingObject( 500, 250 )
+    increaseObject5 = spawnIncreasingObject( 700, 250 )
 
+    --[[
     walkerEnemy = spawnWalkerEnemy( 250, 260 )
     walkerEnemy.xScale=0.15
     walkerEnemy.yScale=0.15
@@ -746,7 +746,7 @@ function scene:create( event )
     enemies:insert( hopperEnemy )
     enemie_ghosts:insert( hopperEnemy_ghost )
     hopperEnemy1MovementRightUp()
-
+]]
     clouds = spawnCloudsAndHills()
 
     hoverPlatform = spawnHoverPlatform( 460, 200 )                              -- adding level component
@@ -814,15 +814,8 @@ function scene:create( event )
     camera:add( wall )
     camera:add( platformGround_list )
     camera:add( platformFassade )
-    camera:add( increaseObject )
-    camera:add( increaseObject1 )
-    camera:add( increaseObject2 )
-    camera:add( increaseObject3 )
-    camera:add( decreaseObject )
-    --camera:add( decreaseObject1 )
-    camera:add( decreaseObject2 )
-    --camera:add( decreaseObject3 )
-
+    camera:add( powerUps )
+    camera:add( powerUpsBoxes )
     
 
 end
@@ -831,8 +824,7 @@ function scene:show( event )
     local sceneGroup = self.view
     camera:setFocusY( player )                                              -- sets the camera on the right position before the game starts. 
     camera:trackY()                                                         -- camera will be focused in the y-axis of the player
-    camera:cancel()                                                         -- camera stops tracking
-
+    camera:cancel()             
     if ( event.phase == "did" ) then
 
         physics.start()                                                     -- enable physics
@@ -852,11 +844,9 @@ function scene:show( event )
                 local delta = getDeltaTime()                                -- absolutely important
                 --PLAYER MOVEMENT--
                 
-                if ( player_ghost.direction == nil ) then                   -- if player direction is nil the player should stop moving
+                if ( player_ghost.direction == "" ) then                   -- if player direction is nil the player should stop moving
                     player_ghost:translate( 0, 0 )
-                end
-
-                if ( player_ghost.direction == "right" ) then               -- if player direction is "right" player goes right
+                elseif ( player_ghost.direction == "right" ) then             -- if player direction is "right" player goes right
                     player_ghost:translate( 5*delta, 0)                     -- calculate delta to speed to prevent lagging of gameplay
                 elseif ( player_ghost.direction == "left" ) then            -- if player direction is "left" player goes left
                     player_ghost:translate( -5*delta, 0)                    -- calculate delta to speed to prevent lagging of gameplay
@@ -948,10 +938,17 @@ function scene:show( event )
         end
 
 
-        if ( collideObject.collType == "increase" and collideObject.alpha == 1 ) then   -- if collided object is an increasing object and visible
-            timer.performWithDelay( 1, function() physics.removeBody( collideObject ) end ) -- perform a delay so we can remove the collision body
+        if ( collideObject.collType == "increase") then   -- if collided object is an increasing object and visible
+            --timer.performWithDelay( 1, function() physics.removeBody( collideObject ) end ) -- perform a delay so we can remove the collision body
             increase_fps()                                                  -- function to increase fps
-            collideObject.alpha = 0                                         -- object becomes invisible
+            --collideObject.alpha = 0                                         -- object becomes invisible
+            for i=1, powerUpsBoxes.numChildren, 1 do
+                if ( collideObject == powerUpsBoxes[i] and powerUps[i].alpha == 1) then
+                    powerUps[i].alpha = 0
+                    timer.performWithDelay( 1, function() physics.removeBody( powerUpsBoxes[i] ) end ) -- perform a delay so we can remove the collision body
+                    return true
+                end
+            end
             return true                                                     -- return true for completing collision detection
         elseif ( collideObject.collType == "decrease") then                 -- if collided object is an decreasing object and visible
             for i = 1, enemie_ghosts.numChildren, 1 do                      -- go through the enemie_ghost list
@@ -995,14 +992,8 @@ function scene:hide( event )                                                    
         platformGround_list:removeSelf()
         clouds:removeSelf()
         platformHover_list:removeSelf()
-        increaseObject:removeSelf()
-        increaseObject1:removeSelf()
-        increaseObject2:removeSelf()
-        increaseObject3:removeSelf()
-        decreaseObject:removeSelf()
-        --decreaseObject1:removeSelf()
-        decreaseObject2:removeSelf()
-        --decreaseObject3:removeSelf()
+        powerUps:removeSelf()
+        powerUpsBoxes:removeSelf()
         
         transition.cancel(walkerEnemy_ghost)
         walkerEnemy:removeSelf()

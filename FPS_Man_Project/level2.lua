@@ -235,27 +235,71 @@ local increaseObjectSheetInfo = require("Upgrade_spritesheet")
 local increaseObjectSheet = graphics.newImageSheet("images/Assets/Symbols/Upgrade/Upgrade_spritesheet.png", increaseObjectSheetInfo:getSheet() )
 
 -- looping movement walker enemy 1 --
-local function walkerEnemy1MovementRight()
-    local function walkerEnemy1MovementLeft()
+local function walkerEnemyMovementRight()
+    local function walkerEnemyMovementLeft()
         
-        transition.to(walkerEnemy_ghost, {x = 250, time=1200, onComplete=walkerEnemy1MovementRight})
+        transition.to(walkerEnemy_ghost, {x = 836, time=1200, onComplete=walkerEnemyMovementRight})
         walkerEnemy.xScale = -1/20*3
         walkerEnemy.yScale = 1/20*3
     end
-    transition.to(walkerEnemy_ghost, {x = 390, time=1200, onComplete=walkerEnemy1MovementLeft})
+    transition.to(walkerEnemy_ghost, {x = 1036, time=1200, onComplete=walkerEnemyMovementLeft})
     walkerEnemy.xScale =1/20*3-- 0.15
     walkerEnemy.yScale = 1/20*3
+end
+local function walkerEnemy1MovementRight()
+    local function walkerEnemy1MovementLeft()
+        
+        transition.to(walkerEnemy1_ghost, {x = 1512, time=1200, onComplete=walkerEnemy1MovementRight})
+        walkerEnemy1.xScale = -1/20*3
+        walkerEnemy1.yScale = 1/20*3
+    end
+    transition.to(walkerEnemy1_ghost, {x = 1712, time=1200, onComplete=walkerEnemy1MovementLeft})
+    walkerEnemy1.xScale =1/20*3-- 0.15
+    walkerEnemy1.yScale = 1/20*3
+end
+local function walkerEnemy2MovementRight()
+    local function walkerEnemy2MovementLeft()
+        
+        transition.to(walkerEnemy2_ghost, {x = 2188, time=1200, onComplete=walkerEnemy2MovementRight})
+        walkerEnemy2.xScale = -1/20*3
+        walkerEnemy2.yScale = 1/20*3
+    end
+    transition.to(walkerEnemy2_ghost, {x = 2388, time=1200, onComplete=walkerEnemy2MovementLeft})
+    walkerEnemy2.xScale =1/20*3-- 0.15
+    walkerEnemy2.yScale = 1/20*3
+end
+local function walkerEnemy3MovementRight()
+    local function walkerEnemy3MovementLeft()
+        
+        transition.to(walkerEnemy3_ghost, {x = 2708, time=1200, onComplete=walkerEnemy3MovementRight})
+        walkerEnemy3.xScale = -1/20*3
+        walkerEnemy3.yScale = 1/20*3
+    end
+    transition.to(walkerEnemy3_ghost, {x = 2908, time=1200, onComplete=walkerEnemy3MovementLeft})
+    walkerEnemy3.xScale =1/20*3-- 0.15
+    walkerEnemy3.yScale = 1/20*3
+end
+local function walkerEnemy4MovementRight()
+    local function walkerEnemy4MovementLeft()
+        
+        transition.to(walkerEnemy4_ghost, {x = 4372, time=1200, onComplete=walkerEnemy4MovementRight})
+        walkerEnemy4.xScale = -1/20*3
+        walkerEnemy4.yScale = 1/20*3
+    end
+    transition.to(walkerEnemy4_ghost, {x = 4572, time=1200, onComplete=walkerEnemy4MovementLeft})
+    walkerEnemy4.xScale =1/20*3-- 0.15
+    walkerEnemy4.yScale = 1/20*3
 end
 
 -- looping movement jumper enemy 1 --
 local function jumperEnemy1MovementRight()
     local function jumperEnemy1MovementLeft()
         
-        transition.to(jumperEnemy_ghost, {y = 250, time=400, onComplete=jumperEnemy1MovementRight})
+        transition.to(jumperEnemy_ghost, {y = 240, time=400, onComplete=jumperEnemy1MovementRight})
         jumperEnemy.xScale = 1/20*3
         jumperEnemy.yScale = 1/20*3
     end
-    transition.to(jumperEnemy_ghost, {y = 275, time=400, onComplete=jumperEnemy1MovementLeft})
+    transition.to(jumperEnemy_ghost, {y = 260, time=400, onComplete=jumperEnemy1MovementLeft})
     jumperEnemy.xScale =1/20*3-- 0.15
     jumperEnemy.yScale = 1/20*3
 end
@@ -426,6 +470,7 @@ local function spawnPlayer( x, y )
     player.prevY = player.y                                                 -- gets the start value as previous y value
     player.isDead = false                                                   -- value to check if player died
     player.didFinish = false
+    player:setSequence("idle")
     return player
 end
 
@@ -468,15 +513,7 @@ local function spawnPlayerGhost( x, y )                                         
     return player_ghost
 end
 
-local function spawnIncreasingObject( x, y )                                -- create an object you can collect which increases the fps of the player
-    local object = display.newSprite(increaseObjectSheet, increaseObjectSheetInfo:getSequenceData() )
-    object.x = x
-    object.y = y
-    object.xScale = 0.1
-    object.yScale = 0.1
-    powerUps:insert(object)
-    return object
-end
+
 
 local function spawnIncreasingObjectGhost( x, y )
     local object_ghost = display.newRect( x, y, 20, 20 )                    -- starting point and seize of the object
@@ -484,13 +521,23 @@ local function spawnIncreasingObjectGhost( x, y )
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
     physics.addBody( object_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
     object_ghost.collType = "increase"                                                            -- parameter for collision to ask which object the player collides with
-    powerUpsBoxes:insert(object_ghost)
     return object_ghost
 end
-
+local function spawnIncreasingObject( x, y )                                -- create an object you can collect which increases the fps of the player
+    local object = display.newSprite(increaseObjectSheet, increaseObjectSheetInfo:getSequenceData() )
+    object.x = x
+    object.y = y
+    print("x: " .. x .. "    " .. " y: " .. y)
+    object.xScale = 0.1
+    object.yScale = 0.1
+    powerUps:insert(object)
+    local ghost_object = spawnIncreasingObjectGhost( x, y )
+    powerUpsBoxes:insert(ghost_object)
+    return object
+end
 
 local function spawnWalkerEnemyGhost( x, y )
-    local walkerEnemy_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    local walkerEnemy_ghost = display.newRect( 5100, y, 41, 90 )             -- starting point and seize of the object
     walkerEnemy_ghost.alpha = 0                                                  -- player_ghost is not visible
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
     physics.addBody( walkerEnemy_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
@@ -523,7 +570,7 @@ local function spawnWalkerEnemy( x, y )
 end
 
 local function spawnWalkerEnemyGhost( x, y )
-    local walkerEnemy_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    local walkerEnemy_ghost = display.newRect( x, y, 41, 50 )             -- starting point and seize of the object
     walkerEnemy_ghost.alpha = 0                                                  -- player_ghost is not visible
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
     physics.addBody( walkerEnemy_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
@@ -543,7 +590,7 @@ local function spawnJumperEnemy( x, y )
 end
 
 local function spawnJumperEnemyGhost( x, y )
-    local jumperEnemy_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    local jumperEnemy_ghost = display.newRect( x, y, 30, 50 )             -- starting point and seize of the object
     jumperEnemy_ghost.alpha = 0                                                  -- player_ghost is not visible
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
     physics.addBody( jumperEnemy_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
@@ -717,7 +764,7 @@ function scene:create( event )
     
     physics.pause()                                                         -- we don't need gravity by now so we stop it again
     
-    physics.setDrawMode( "hybrid" )                                         -- can also be "hybrid" or "debug"
+    physics.setDrawMode( "normal" )                                         -- can also be "hybrid" or "debug"
     
     local thisLevel = myData.settings.currentLevel
 
@@ -725,7 +772,6 @@ function scene:create( event )
     player = spawnPlayer( 50, 258 )                                     -- create a player
     player.xScale = 0.4
     player.yScale = 0.4
-    player:setFrame(10)
     player_ghost = spawnPlayerGhost( 50, 258 )                          -- create its ghost
     player_ghost.isFixedRotation = true                                     -- set its rotation to fixed so the player does not fall over when he jumps
 
@@ -747,12 +793,14 @@ function scene:create( event )
     platform, platformFassade, platformGround_list = spawnPlatform( 66*52, 173, 1, 3 )                             -- adding level component
     platform, platformFassade, platformGround_list = spawnPlatform( 69*52, 173, 1, 3 )                             -- adding level component
     platform, platformFassade, platformGround_list = spawnPlatform( 72*52, 173, 2, 3 )                             -- adding level component
-    platform, platformFassade, platformGround_list = spawnPlatform( 5200-52/2, 330, 1, 1, "finish")                       -- adding level component
+    platform, platformFassade, platformGround_list = spawnPlatform( 5200-52, 330, 2, 1, "finish")                       -- adding level component
     -- wände --
     wall = spawnWall( 0, 8, 1)
     wall = spawnWall( 86*52, 3, 2)
     wall = spawnWall( 63*52, 4, 0)
+    wall = spawnWall( 5197+52/2, 8, 1)
     
+    hoverPlatform = spawnHoverPlatform(2*52, 160)
     hoverPlatform = spawnHoverPlatform(35*52, 104)
     hoverPlatform = spawnHoverPlatform(60*52, 104)
     hoverPlatform = spawnHoverPlatform(77*52, 104)
@@ -765,73 +813,70 @@ function scene:create( event )
   
     clouds = spawnCloudsAndHills()
 
-    increaseObject = spawnIncreasingObject( 890, 110 )                      -- adding level component
-    increaseObject_ghost = spawnIncreasingObjectGhost ( 890, 110 )
-    --powerUpsBoxes:insert(increaseObject_ghost)
-    --powerUps:insert(increaseObject)
-    --increaseObject.xScale=0.1
-    --increaseObject.yScale=0.1
+    increaseObject = spawnIncreasingObject( 9*52, 52 )                      -- adding level component
 
-    increaseObject1 = spawnIncreasingObject( 969, 245 )                     -- adding level component
-    increaseObject1_ghost = spawnIncreasingObjectGhost ( 969, 245 )
-    --powerUpsBoxes:insert(increaseObject1_ghost)
-    --powerUps:insert(increaseObject1)
-    --increaseObject1.xScale=0.1
-    --increaseObject1.yScale=0.1
+    increaseObject1 = spawnIncreasingObject( 23*52, 3*52  )                     -- adding level component
 
-    increaseObject2 = spawnIncreasingObject( 643, 157 )                     -- adding level component
-    increaseObject2_ghost = spawnIncreasingObjectGhost ( 643, 157 )
-    --powerUpsBoxes:insert(increaseObject2_ghost)
-    --powerUps:insert(increaseObject2)
-    --increaseObject2.xScale=0.1
-    --increaseObject2.yScale=0.1
+    increaseObject2 = spawnIncreasingObject( 42*52, 2*52 )                     -- adding level component
 
+    increaseObject3 = spawnIncreasingObject( 73*52, 4*52 )                      -- adding level component
 
-    increaseObject3 = spawnIncreasingObject( 827, 12 )                      -- adding level component
-    increaseObject3_ghost = spawnIncreasingObjectGhost ( 827, 12 )
-    --powerUpsBoxes:insert(increaseObject3_ghost)
-    --powerUps:insert(increaseObject3)
-    --increaseObject3.xScale=0.1
-    --increaseObject3.yScale=0.1
+    increaseObject4 = spawnIncreasingObject( 87*52, 5*52 )
 
+    increaseObject5 = spawnIncreasingObject( 31*52, 5*52 )                      -- adding level component
 
-    increaseObject4 = spawnIncreasingObject( 999,99)
-    increaseObject4_ghost = spawnIncreasingObjectGhost ( 999, 99 )
-    --powerUpsBoxes:insert(increaseObject4_ghost)
-    --powerUps:insert(increaseObject4)
-    --increaseObject4.xScale=0.1
-    --increaseObject4.yScale=0.1
-
-
-    increaseObject5 = spawnIncreasingObject( 337, 253 )                      -- adding level component
-    increaseObject5_ghost = spawnIncreasingObjectGhost ( 337, 253 )
-    --powerUpsBoxes:insert(increaseObject5_ghost)
-    --powerUps:insert(increaseObject5)
-    --increaseObject5.xScale=0.1
-    --increaseObject5.yScale=0.1
-
-    increaseObject6 = spawnIncreasingObject( 99, 227)                       -- adding level component
-    increaseObject6_ghost = spawnIncreasingObjectGhost ( 99, 227 )
-    --powerUpsBoxes:insert(increaseObject6_ghost)
-    --powerUps:insert(increaseObject6)
-    --increaseObject6.xScale=0.1
-    --increaseObject6.yScale=0.1
 
     
-    walkerEnemy = spawnWalkerEnemy( 250, 260 )
+    walkerEnemy = spawnWalkerEnemy( 18*52, 260 )
     walkerEnemy.xScale=0.15
     walkerEnemy.yScale=0.15
     walkerEnemy:play()
-    walkerEnemy_ghost = spawnWalkerEnemyGhost( 250, 260 )
+    walkerEnemy_ghost = spawnWalkerEnemyGhost( 18*52, 240 )
     enemies:insert( walkerEnemy )
     enemie_ghosts:insert( walkerEnemy_ghost )
+    walkerEnemyMovementRight()
+
+    walkerEnemy1 = spawnWalkerEnemy( 31*52, 260 )
+    walkerEnemy1.xScale=0.15
+    walkerEnemy1.yScale=0.15
+    walkerEnemy1:play()
+    walkerEnemy1_ghost = spawnWalkerEnemyGhost( 31*52, 240 )
+    enemies:insert( walkerEnemy1 )
+    enemie_ghosts:insert( walkerEnemy1_ghost )
     walkerEnemy1MovementRight()
 
-    jumperEnemy = spawnJumperEnemy( 450, 275 )
+    walkerEnemy2 = spawnWalkerEnemy( 44*52, 260 )
+    walkerEnemy2.xScale=0.15
+    walkerEnemy2.yScale=0.15
+    walkerEnemy2:play()
+    walkerEnemy2_ghost = spawnWalkerEnemyGhost( 44*52, 240 )
+    enemies:insert( walkerEnemy2 )
+    enemie_ghosts:insert( walkerEnemy2_ghost )
+    walkerEnemy2MovementRight()
+
+    walkerEnemy3 = spawnWalkerEnemy( 54*52, 240-3*52 )
+    walkerEnemy3.xScale=0.15
+    walkerEnemy3.yScale=0.15
+    walkerEnemy3:play()
+    walkerEnemy3_ghost = spawnWalkerEnemyGhost( 54*52, 240-3*52 )
+    enemies:insert( walkerEnemy3 )
+    enemie_ghosts:insert( walkerEnemy3_ghost )
+    walkerEnemy3MovementRight()
+
+    walkerEnemy4 = spawnWalkerEnemy( 86*52, 260 )
+    walkerEnemy4.xScale=0.15
+    walkerEnemy4.yScale=0.15
+    walkerEnemy4:play()
+    walkerEnemy4_ghost = spawnWalkerEnemyGhost( 86*52, 240 )
+    enemies:insert( walkerEnemy4 )
+    enemie_ghosts:insert( walkerEnemy4_ghost )
+    walkerEnemy4MovementRight()
+
+    jumperEnemy = spawnJumperEnemy( 450, 240 )
     jumperEnemy.xScale=0.15
     jumperEnemy.yScale=0.15
     jumperEnemy:play()
-    jumperEnemy_ghost = spawnJumperEnemyGhost( 450, 275 )
+    jumperEnemy_ghost = spawnJumperEnemyGhost( 450, 240 )
     enemies:insert( jumperEnemy )
     enemie_ghosts:insert( jumperEnemy_ghost )
     jumperEnemy1MovementRight()
@@ -897,18 +942,10 @@ function scene:create( event )
     camera:add( hill_list )
     camera:add( wall )
     camera:add( player_ghost )
-    --camera:add( platform )
     camera:add( platformGround_list )
     camera:add( platformFassade )
-    --camera:add( decreaseObject )
-    --camera:add( decreaseObject1 )
-    --camera:add( decreaseObject2 )
-    --camera:add( decreaseObject3 )
     camera:add( enemies ) 
     camera:add( enemie_ghosts )
-
-    --camera:add( finishPlatform )
-    --camera:add( finishCoverPlatform )
     camera:add( powerUps ) 
     camera:add( powerUpsBoxes )
 
@@ -968,9 +1005,8 @@ function scene:show( event )
                     local endOfLevel = 5200                                 -- this descirbes the total length of the
                     for i=1, enemies.numChildren, 1 do
                         enemies[i]:play()
-                        walkerEnemy.x = walkerEnemy_ghost.x
-                        jumperEnemy.y = jumperEnemy_ghost.y
-                        increaseObject.x = increaseObject
+                        enemies[i].x = enemie_ghosts[i].x+10
+                        jumperEnemy.y = jumperEnemy_ghost.y+15
                     end
                     for i=1, powerUps.numChildren, 1 do
                         powerUps[i]:play()
@@ -1044,11 +1080,7 @@ function scene:show( event )
             increase_fps()                                                  -- function to increase fps
             --collideObject.alpha = 0                                         -- object becomes invisible
             for i=1, powerUpsBoxes.numChildren, 1 do
-
-                    print("comparison: " .. powerUps.numChildren .. " number of objects in powerUps")
-                    print("comparison: " .. powerUpsBoxes.numChildren .. " number of objects in powerUpsBoxes")
                 if ( collideObject == powerUpsBoxes[i] and powerUps[i].alpha == 1) then
-                    print("this works as well" .. " " .. i)
                     powerUps[i].alpha = 0
                     timer.performWithDelay( 1, function() physics.removeBody( powerUpsBoxes[i] ) end ) -- perform a delay so we can remove the collision body
                     return true
@@ -1097,13 +1129,8 @@ function scene:hide( event )                                                    
         platformGround_list:removeSelf()
         clouds:removeSelf()
         platformHover_list:removeSelf()
-        increaseObject:removeSelf()
-        increaseObject1:removeSelf()
-        increaseObject2:removeSelf()
-        increaseObject3:removeSelf()
-        increaseObject4:removeSelf()
-        increaseObject5:removeSelf()
-        increaseObject6:removeSelf()
+        powerUps:removeSelf()
+        powerUpsBoxes:removeSelf()
         
         transition.cancel(walkerEnemy_ghost)
         walkerEnemy:removeSelf()

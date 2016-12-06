@@ -11,7 +11,8 @@ local device = require( "device" )
 local params
 local newHighScore = false
 
-
+composer.removeScene(composer.getSceneName("previous"))
+        
 local function postToGameNetwork()
     local category = "com.yourdomain.yourgame.leaderboard"
     if myData.isGPGS then
@@ -43,7 +44,6 @@ local function restartFunction(event)
         local btnPushed = { type="image", filename=event.target.pushed }
         event.target.fill = btnPushed
     elseif ( "ended" == event.phase ) then            
-        composer.removeScene(composer.getSceneName("previous"))
         composer.gotoScene(composer.getSceneName("previous"), options)
         local btnUnpushed = { type="image", filename=event.target.unpushed }
         event.target.fill = btnUnpushed
@@ -59,8 +59,8 @@ local function toMenuFunction(event)
         event.target.fill = btnPushed
     elseif ( "ended" == event.phase ) then            
         composer.hideOverlay( "crossFade", 333 )
-        composer.removeScene( "menu" )                      
-        composer.gotoScene( "menu", { time= 500, effect = "crossFade" } )
+        composer.removeScene( "levelSelect" )                      
+        composer.gotoScene( "levelSelect", { time= 500, effect = "crossFade" } )
         local btnUnpushed = { type="image", filename=event.target.unpushed }
         event.target.fill = btnUnpushed
     end
