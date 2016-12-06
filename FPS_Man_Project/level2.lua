@@ -1083,8 +1083,9 @@ function scene:show( event )
                 if ( collideObject == powerUpsBoxes[i] and powerUps[i].alpha == 1) then
                     powerUps[i].alpha = 0
                     local clockUp = display.newImageRect("images/Symbols/fps_up_symbol.png", 25, 25)
-                    clockUp.x = powerUps[i].x-player_ghost.x/2
-                    clockUp.y = powerUps[i].y
+                    clockUp.x = player_ghost.x
+                    clockUp.y = player_ghost.y
+                    camera:add(clockUp)
                     transition.fadeOut(clockUp, {time=2000})
                     transition.to(clockUp, {y = clockUp.y - 100, time = 2000})
                     timer.performWithDelay( 1, function() physics.removeBody( powerUpsBoxes[i] ) end ) -- perform a delay so we can remove the collision body
@@ -1097,8 +1098,9 @@ function scene:show( event )
                 if ( collideObject == enemie_ghosts[i] and enemies[i].alpha == 1) then  -- if collided object is found in enemy ghost list get the position and look for its representive in the enemies list and if that one is active then
                     enemies[i].alpha = 0                                    -- make it invisible
                     local clockDown = display.newImageRect("images/Symbols/fps_down_symbol.png", 25, 25)
-                    clockDown.x = enemie_ghosts[i].x-player_ghost.x/2
-                    clockDown.y = enemie_ghosts[i].y
+                    clockDown.x = player_ghost.x
+                    clockDown.y = player_ghost.y
+                    camera:add(clockDown)
                     transition.fadeOut(clockDown, {time=2000})
                     transition.to(clockDown, {y = clockDown.y + 100, time = 2000})
                     timer.performWithDelay( 1, function() physics.removeBody( collideObject ) end ) -- perform a delay so we can remove the collision body
