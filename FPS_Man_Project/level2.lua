@@ -676,7 +676,7 @@ local function getButton( x, y, w, h )                                      -- c
 end
 
 local function increase_fps()
-    if ( fps_multiplicator < 10 ) then                                      -- fps can't increase in unlimited numbers, highest value = 16
+    if ( fps_multiplicator < 60 ) then                                      -- fps can't increase in unlimited numbers, highest value = 16
         fps_multiplicator = fps_multiplicator*2                             -- fps_multiplicator starts at 1 and each time increase_fps is called it gets doubled
     end
 end
