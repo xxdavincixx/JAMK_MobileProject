@@ -46,6 +46,7 @@ end
 --
 function scene:create( event )
     local sceneGroup = self.view
+    print(display.contentWidth .. " "..display.contentHeight)
 
     params = event.params
         
@@ -53,15 +54,12 @@ function scene:create( event )
     -- setup a page background, really not that important though composer
     -- crashes out if there isn't a display object in the view.
     --
-    local background = display.newImageRect("images/Background/sky_low.png", display.contentWidth*2, display.contentHeight*2 )
+    local background = display.newImageRect("images/Assets/help.png", display.contentWidth, display.contentHeight )
+    background.x = display.contentCenterX
+    background.y = display.contentCenterY
     sceneGroup:insert( background )
 
     --local title = display.newBitmapText( titleOptions )
-    local title = display.newImageRect("images/Logo.png", 400, 75) -- create title
-    title.x = display.contentCenterX
-    title.y = 40
-    sceneGroup:insert( title )
-
     local doneButton = display.newImageRect("images/Buttons/Pause/button_resume.png", 32+16, 32+16)
     doneButton.pushed = "images/Buttons/Pause/button_resume_pushed.png"
     doneButton.unpushed = "images/Buttons/Pause/button_resume.png"
@@ -70,13 +68,6 @@ function scene:create( event )
     doneButton:scale( -1,1 )
     doneButton:addEventListener("touch", handleButtonEvent)
     sceneGroup:insert( doneButton )
-
-    local gameText = display.newText("this is the place where we can describe our game in more detail", 1, 1, 500, 100, native.systemFont, 18)
-    gameText.x = display.contentCenterX
-    gameText.y = title.y + 100
-    gameText:setTextColor(1,1,1)
-    sceneGroup:insert (gameText)
-
 end
 
 function scene:show( event )
