@@ -54,25 +54,25 @@ function scene:create( event )
     creditText.y = display.contentCenterY - 65
     sceneGroup:insert(creditText)
 
-    local nameArthur = display.newText( "Arthur Jaks", 250,250, native.systemFont, 16)
+    local nameArthur = display.newText( "Arthur Jaks", 250,250, native.systemFontBold, 16)
     nameArthur:setFillColor( 1 )
     nameArthur.x = display.contentCenterX
     nameArthur.y = display.contentCenterY - 25
     sceneGroup:insert(nameArthur)
 
-    local nameJanis = display.newText( "Janis Clausen", 250,250, native.systemFont, 16)
+    local nameJanis = display.newText( "Janis Clausen", 250,250, native.systemFontBold, 16)
     nameJanis:setFillColor( 1 )
     nameJanis.x = display.contentCenterX
     nameJanis.y = display.contentCenterY
     sceneGroup:insert(nameJanis)
 
-    local nameLeo = display.newText( "Leonard Bartling", 250,250, native.systemFont, 16)
+    local nameLeo = display.newText( "Leonard Bartling", 250,250, native.systemFontBold, 16)
     nameLeo:setFillColor( 1 )
     nameLeo.x = display.contentCenterX
     nameLeo.y = display.contentCenterY + 25
     sceneGroup:insert(nameLeo)
 
-    local nameTimothy = display.newText( "Timothy Lizotte", 250,250, native.systemFont, 16)
+    local nameTimothy = display.newText( "Timothy Lizotte", 250,250, native.systemFontBold, 16)
     nameTimothy:setFillColor( 1 )
     nameTimothy.x = display.contentCenterX
     nameTimothy.y = display.contentCenterY + 50
