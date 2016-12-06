@@ -104,7 +104,7 @@ function scene:create( event )
        text = "",
        x = 290,
        width = 300,
-       height = 24,
+       height = 30,
        fontSize = 24,
        align = "left"
     }
@@ -137,7 +137,7 @@ function scene:create( event )
        text = "",
        x = 425,
        width = 125,
-       height = 24,
+       height = 30,
        fontSize = 24,
        align = "left"
     }
