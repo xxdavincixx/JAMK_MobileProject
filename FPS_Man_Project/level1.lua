@@ -58,8 +58,8 @@ local function winningScreen()
         params = { fps = fps_multiplicator, myTime = endScore, localTime = myData.settings.levels[tostring(levelNumber)], onlineTime= winningBestOnlineTime, onlineRecord = onlineRecordFlag, localRecord = localRecordFlag }
     }
 
-    if(tonumber(myData.settings.maxLevel) < tonumber(levelNumber)) then
-        myData.settings.maxLevel = levelNumber
+    if(tonumber(myData.settings.maxLevel) <= tonumber(levelNumber)) then
+        myData.settings.maxLevel = levelNumber+1
         utility.saveTable(myData.settings, "settings.json")
     end
 
@@ -163,6 +163,7 @@ local function pauseFunction(event)
         {
             effect = "crossFade",
             time = 333,
+            isModal = true,
             params = { cLevelNumber = levelNumber }
         }
 
@@ -690,7 +691,7 @@ function scene:create( event )
     physics.setGravity( 0, 15 )                                             -- changing gravity of world (9.8 is gravity of earth)
     
     physics.pause()                                                         -- we don't need gravity by now so we stop it again
-    physics.setDrawMode( "hybrid" )                                         -- can also be "hybrid" or "debug"
+    physics.setDrawMode( "normal" )                                         -- can also be "hybrid" or "debug"
     
     local thisLevel = myData.settings.currentLevel
 
@@ -942,6 +943,7 @@ function scene:show( event )
                     local clockUp = display.newImageRect("images/Symbols/fps_up_symbol.png", 25, 25)
                     clockUp.x = player_ghost.x
                     clockUp.y = player_ghost.y
+                    camera:add(clockUp)             
                     transition.fadeOut(clockUp, {time=2000})
                     transition.to(clockUp, {y = clockUp.y - 100, time = 2000})
                     timer.performWithDelay( 1, function() physics.removeBody( powerUpsBoxes[i] ) end ) -- perform a delay so we can remove the collision body
@@ -955,6 +957,7 @@ function scene:show( event )
                     local clockDown = display.newImageRect("images/Symbols/fps_down_symbol.png", 25, 25)
                     clockDown.x = player_ghost.x
                     clockDown.y = player_ghost.y
+                    camera:add(clockDown)  
                     transition.fadeOut(clockDown, {time=2000})
                     transition.to(clockDown, {y = clockDown.y + 100, time = 2000})
                     enemies[i].alpha = 0                                    -- make it invisible

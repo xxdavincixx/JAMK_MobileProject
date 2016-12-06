@@ -22,13 +22,15 @@ myData.settings = utility.loadTable("settings.json")
 if myData.settings == nil then
     myData.settings = {}
     myData.settings.username = ""
-    myData.settings.maxLevel = 0
+    myData.settings.maxLevel = 1
     myData.settings.soundOn = true
     myData.settings.musicOn = true
     myData.settings.levels = {}
     myData.settings.levels["1"] = "/"
     myData.settings.levels["2"] = "/"
     myData.settings.levels["3"] = "/"
+    myData.settings.levels["4"] = "/"
+    myData.settings.levels["5"] = "/"
     utility.saveTable(myData.settings, "settings.json")
 end
 --[[

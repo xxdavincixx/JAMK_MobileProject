@@ -79,13 +79,15 @@ local function selectLevel( event )
     if ( event.phase == "ended") then                                          -- if button is released
         if(buttonId == 1 or buttonId == 2)then
         local buttonLevel = event.target.id                                     -- get the id of pressed button
-            local levelName = "level"..buttonLevel                                  -- concatenate "level" with level id e.g. "level1"
-            if ( myData.settings.musicOn ) then                                     -- if music is enabled
-                audio.stop()                                                        -- stop current music
-                local backgroundMusicChannel = audio.play( audio.loadStream("audio/menu.mp3"), { channel=1, loops=-1, fadein = 1000 } ) -- start level music
+            if(tonumber(myData.settings.maxLevel) >= tonumber(event.target.id) ) then
+                local levelName = "level"..buttonLevel                                  -- concatenate "level" with level id e.g. "level1"
+                if ( myData.settings.musicOn ) then                                     -- if music is enabled
+                    audio.stop()                                                        -- stop current music
+                    local backgroundMusicChannel = audio.play( audio.loadStream("audio/menu.mp3"), { channel=1, loops=-1, fadein = 1000 } ) -- start level music
+                end
+                composer.removeScene(levelName, false)                                  -- remove level you want to move to
+                composer.gotoScene(levelName, {effect = "crossFade", time = 333})       -- go to level selected
             end
-            composer.removeScene(levelName, false)                                  -- remove level you want to move to
-            composer.gotoScene(levelName, {effect = "crossFade", time = 333})       -- go to level selected
         end
     end
 end
@@ -126,7 +128,7 @@ local function handleLevelSelect( event )                                       
             
             local completeText = "uncompleted"
 
-            if (tonumber(myData.settings.maxLevel) >= tonumber(event.target.id) ) then
+            if (tonumber(myData.settings.maxLevel) > tonumber(event.target.id) ) then
                 completeText = "completed"
             end
 

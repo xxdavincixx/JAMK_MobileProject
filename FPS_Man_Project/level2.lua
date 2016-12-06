@@ -57,7 +57,7 @@ local function winningScreen()
     }
 
     if(tonumber(myData.settings.maxLevel) < tonumber(levelNumber)) then
-        myData.settings.maxLevel = levelNumber
+        myData.settings.maxLevel = levelNumber+1
         utility.saveTable(myData.settings, "settings.json")
     end
 
@@ -166,6 +166,7 @@ local function pauseFunction(event)
         {
             effect = "crossFade",
             time = 333,
+            isModal = true,
             params = { cLevelNumber = levelNumber }
         }
 
