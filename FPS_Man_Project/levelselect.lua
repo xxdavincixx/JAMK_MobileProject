@@ -65,12 +65,6 @@ local function handleButtonEvent( event )                                       
     end
 end
 
-local function handleChangeNameEvent( event )
-    if ( event.phase == "ended" ) then 
-        composer.showOverlay( "username_overlay" , { effect = "crossFade", time = 333, isModal = true } )   -- change the current name
-    end
-end
-
 local function levelSelect( event )                                             -- important to have this function as empty listener function for scrollViewLevelList. otherwise the snapping wouldn't work
 end
 
@@ -280,26 +274,14 @@ function scene:create( event )
     
     local userNameOptions = {
         text = myData.settings.username,                                        -- get the current username
-        x = xLevelInformationRectangle+10,
+        x = xLevelInformationRectangle,
         y = levelInformationRectangle.y - levelInformationRectangle.height + userNameDisplay.height/2,
         width = display.contentWidth/3-20,
         font = native.systemFontBold,
         fontSize = 15,
-        align = "left"
+        align = "center"
     }
     userNameText = display.newText( userNameOptions )                           -- set options of userName to the text display
-
-    local changeNameButton = widget.newButton({                                 -- create button to change username
-        id = "changeName",
-        label = "change Name",        
-        width = userNameDisplay.width/2,
-        height = 30,
-        x = userNameDisplay.width/2 + userNameDisplay.width/4,
-        y = userNameOptions.y,
-        fontSize = 10,
-        onEvent = handleChangeNameEvent                                        -- this method will save the username in our app-settings
-    })
-    changeNameButton:setFillColor(137/255, 184/255, 206/255)
     
     local levelCompleteOptions = {                                              -- set options for level information
         text = "Level completed", 
@@ -356,7 +338,7 @@ function scene:create( event )
     sceneGroup:insert( levelHighscoreText )
     sceneGroup:insert( levelOnlineScoreNameText )
     sceneGroup:insert( levelOnlineScoreText )
-    sceneGroup:insert( changeNameButton )
+    --sceneGroup:insert( changeNameButton )
     
     scrollViewLevelList:setScrollHeight( levelFiveButton.y + levelFiveButton.height/2 ) -- limitate the scrollable height beneathe the last level button
     params = event.params
