@@ -75,8 +75,8 @@ local function selectLevel( event )
             scrollViewLevelList:takeFocus( event )                              -- set a new focus
         end
     end
-    if ( event.phase == "ended" ) then                                          -- if button is released
-        local buttonLevel = event.target.id                                     -- get the id of pressed button
+    if ( event.phase == "ended" and (levelName==1 or levelName==2)) then                                          -- if button is released
+    local buttonLevel = event.target.id                                     -- get the id of pressed button
         local levelName = "level"..buttonLevel                                  -- concatenate "level" with level id e.g. "level1"
         if ( myData.settings.musicOn ) then                                     -- if music is enabled
             audio.stop()                                                        -- stop current music
