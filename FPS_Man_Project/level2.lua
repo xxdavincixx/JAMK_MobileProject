@@ -1136,6 +1136,22 @@ function scene:hide( event )                                                    
         walkerEnemy:removeSelf()
         walkerEnemy_ghost:removeSelf()
 
+        transition.cancel(walkerEnemy1_ghost)
+        walkerEnemy1:removeSelf()
+        walkerEnemy1_ghost:removeSelf()
+
+        transition.cancel(walkerEnemy2_ghost)
+        walkerEnemy2:removeSelf()
+        walkerEnemy2_ghost:removeSelf()
+
+        transition.cancel(walkerEnemy3_ghost)
+        walkerEnemy3:removeSelf()
+        walkerEnemy3_ghost:removeSelf()
+
+        transition.cancel(walkerEnemy4_ghost)
+        walkerEnemy4:removeSelf()
+        walkerEnemy4_ghost:removeSelf()
+
         transition.cancel(jumperEnemy_ghost)
         jumperEnemy:removeSelf()
         jumperEnemy_ghost:removeSelf()
