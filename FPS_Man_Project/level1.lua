@@ -994,18 +994,6 @@ function scene:hide( event )                                                    
         platformHover_list:removeSelf()
         powerUps:removeSelf()
         powerUpsBoxes:removeSelf()
-        
-        transition.cancel(walkerEnemy_ghost)
-        walkerEnemy:removeSelf()
-        walkerEnemy_ghost:removeSelf()
-
-        transition.cancel(jumperEnemy_ghost)
-        jumperEnemy:removeSelf()
-        jumperEnemy_ghost:removeSelf()
-
-        transition.cancel(hopperEnemy_ghost)
-        hopperEnemy:removeSelf()
-        hopperEnemy_ghost:removeSelf()
         timer.cancel(countdowntimer)
         --text:removeSelf()
         timeLeft:removeSelf()
