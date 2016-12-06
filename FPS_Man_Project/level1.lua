@@ -334,7 +334,6 @@ local function spawnHill( x, y, x_elements, y_steps_front, y_steps_back)
     local y_forward
     y = y -52
     for i=1, y_steps_front, 1 do
-        print(i .. " start")
         local step = display.newImage("images/Floor11.png", x+52*(i-1)+15, y-52*(i-1))
         local stepCollisionFilter = {categoryBits=1, maskBits=15}               -- collision filter categoryBits means which number the object ist, maskBits is with which object this object will collide
         step.typ = "ground"
@@ -584,7 +583,6 @@ local function spawnCloudsAndHills()
             backgroundClouds:insert(hill)
         end
 
-        print(x)
         local clouds = display.newImage("images/Background/clouds.png", display.contentCenterX+800*(i-1), display.contentCenterY)
         clouds.yScale = 0.5
         clouds.xScale = 0.4
@@ -832,7 +830,6 @@ function scene:show( event )
 
         function player_ghost:enterFrame()                                  -- each frame
             player:pause()
-            print(player.y)
             for i=1, enemies.numChildren, 1 do
                 enemies[i]:pause()
             end
@@ -942,6 +939,11 @@ function scene:show( event )
             for i=1, powerUpsBoxes.numChildren, 1 do
                 if ( collideObject == powerUpsBoxes[i] and powerUps[i].alpha == 1) then
                     powerUps[i].alpha = 0
+                    local clockUp = display.newImageRect("images/Symbols/fps_up_symbol.png", 25, 25)
+                    clockUp.x = powerUps[i].x-player_ghost.x/2
+                    clockUp.y = powerUps[i].y
+                    transition.fadeOut(clockUp, {time=2000})
+                    transition.to(clockUp, {y = clockUp.y - 100, time = 2000})
                     timer.performWithDelay( 1, function() physics.removeBody( powerUpsBoxes[i] ) end ) -- perform a delay so we can remove the collision body
                     return true
                 end
@@ -950,6 +952,11 @@ function scene:show( event )
         elseif ( collideObject.collType == "decrease") then                 -- if collided object is an decreasing object and visible
             for i = 1, enemie_ghosts.numChildren, 1 do                      -- go through the enemie_ghost list
                 if ( collideObject == enemie_ghosts[i] and enemies[i].alpha == 1) then  -- if collided object is found in enemy ghost list get the position and look for its representive in the enemies list and if that one is active then
+                    local clockDown = display.newImageRect("images/Symbols/fps_down_symbol.png", 25, 25)
+                    clockDown.x = enemie_ghosts[i].x-player_ghost.x/2
+                    clockDown.y = enemie_ghosts[i].y
+                    transition.fadeOut(clockDown, {time=2000})
+                    transition.to(clockDown, {y = clockDown.y + 100, time = 2000})
                     enemies[i].alpha = 0                                    -- make it invisible
                     timer.performWithDelay( 1, function() physics.removeBody( collideObject ) end ) -- perform a delay so we can remove the collision body
                     decrease_fps()                                          -- function to decrease fps
