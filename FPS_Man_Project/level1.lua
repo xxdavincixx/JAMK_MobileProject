@@ -690,7 +690,7 @@ function scene:create( event )
     physics.setGravity( 0, 15 )                                             -- changing gravity of world (9.8 is gravity of earth)
     
     physics.pause()                                                         -- we don't need gravity by now so we stop it again
-    physics.setDrawMode( "hybrid" )                                         -- can also be "hybrid" or "debug"
+    physics.setDrawMode( "normal" )                                         -- can also be "hybrid" or "debug"
     
     local thisLevel = myData.settings.currentLevel
 
