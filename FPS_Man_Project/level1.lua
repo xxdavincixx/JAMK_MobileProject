@@ -477,7 +477,6 @@ local function spawnIncreasingObject( x, y )                                -- c
     local object = display.newSprite(increaseObjectSheet, increaseObjectSheetInfo:getSequenceData() )
     object.x = x
     object.y = y
-    print("x: " .. x .. "    " .. " y: " .. y)
     object.xScale = 0.1
     object.yScale = 0.1
     powerUps:insert(object)
@@ -497,7 +496,7 @@ local function spawnWalkerEnemy( x, y )
 end
 
 local function spawnWalkerEnemyGhost( x, y )
-    local walkerEnemy_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    local walkerEnemy_ghost = display.newRect( x, y, 41, 50 )             -- starting point and seize of the object
     walkerEnemy_ghost.alpha = 0                                                  -- player_ghost is not visible
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
     physics.addBody( walkerEnemy_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
@@ -517,7 +516,7 @@ local function spawnJumperEnemy( x, y )
 end
 
 local function spawnJumperEnemyGhost( x, y )
-    local jumperEnemy_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    local jumperEnemy_ghost = display.newRect( x, y, 41, 50 )             -- starting point and seize of the object
     jumperEnemy_ghost.alpha = 0                                                  -- player_ghost is not visible
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
     physics.addBody( jumperEnemy_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
@@ -537,7 +536,7 @@ local function spawnHopperEnemy( x, y )
 end
 
 local function spawnHopperEnemyGhost( x, y )
-    local hopperEnemy_ghost = display.newRect( x, y, 41, 90 )             -- starting point and seize of the object
+    local hopperEnemy_ghost = display.newRect( x, y, 41, 50 )             -- starting point and seize of the object
     hopperEnemy_ghost.alpha = 0                                                  -- player_ghost is not visible
     local objectCollisionFilter = { categoryBits = 16, maskBits = 8 }                            -- create collision filter for this object, its own number is 16 and collides with the sum of 8 (only ghost player)
     physics.addBody( hopperEnemy_ghost, "static" , { bounce = 0.1, filter = objectCollisionFilter} )   -- adding physics to object, "static" = not affected by gravity, no bounce of object
@@ -737,7 +736,7 @@ function scene:create( event )
     enemies:insert( jumperEnemy )
     enemie_ghosts:insert( jumperEnemy_ghost )
     jumperEnemy1MovementRight()
-
+]]
     hopperEnemy = spawnHopperEnemy( 70, 160 )
     hopperEnemy.xScale=0.1
     hopperEnemy.yScale=0.1
@@ -746,7 +745,7 @@ function scene:create( event )
     enemies:insert( hopperEnemy )
     enemie_ghosts:insert( hopperEnemy_ghost )
     hopperEnemy1MovementRightUp()
-]]
+
     clouds = spawnCloudsAndHills()
 
     hoverPlatform = spawnHoverPlatform( 460, 200 )                              -- adding level component
@@ -870,8 +869,6 @@ function scene:show( event )
                     player:play()
                     for i=1, enemies.numChildren, 1 do
                         enemies[i]:play()
-                        walkerEnemy.x = walkerEnemy_ghost.x
-                        jumperEnemy.y = jumperEnemy_ghost.y
                         hopperEnemy.y = hopperEnemy_ghost.y
                         hopperEnemy.x = hopperEnemy_ghost.x
                     end
@@ -994,6 +991,9 @@ function scene:hide( event )                                                    
         platformHover_list:removeSelf()
         powerUps:removeSelf()
         powerUpsBoxes:removeSelf()
+        transition.cancel(hopperEnemy_ghost)
+        hopperEnemy:removeSelf()
+        hopperEnemy_ghost:removeSelf()
         timer.cancel(countdowntimer)
         --text:removeSelf()
         timeLeft:removeSelf()
